@@ -17,7 +17,7 @@ def demo_rich() -> None:
     from rich.style import Style
     from rich.table import Table
 
-    from textual_kitty.rich import Image, TerminalError
+    from textual_kitty.rich import Image
 
     console = Console()
 
@@ -42,18 +42,13 @@ def demo_rich() -> None:
     console.print(table)
 
     console.print(
-        "\nRaises exception if stdout is not connected to a terminal: ",
+        "\nOutputs placeholder if stdout is not connected to a terminal: ",
         style=Style(bold=True),
-        end="",
     )
-    try:
-        capture_stream = io.StringIO()
-        with redirect_stdout(capture_stream):
-            console.print(Image(TEST_IMAGE))
-    except TerminalError:
-        console.print("OK", style=Style(bold=True, color="green"))
-    else:
-        console.print("Failed", style=Style(bold=True, color="red"))
+    capture_stream = io.StringIO()
+    with redirect_stdout(capture_stream) as capture:
+        console.print(Image(TEST_IMAGE))
+    console.print(capture.getvalue())
 
 
 def demo_textual() -> None:

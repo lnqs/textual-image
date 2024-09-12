@@ -14,6 +14,7 @@ from rich.console import Console, ConsoleOptions, RenderResult
 from rich.measure import Measurement
 from rich.segment import Segment
 from rich.style import Style
+from rich.text import Text
 
 TERMINAL_GRAPHICS_PROTOCOL_MESSAGE_START = "\x1b_G"
 TERMINAL_GRAPHICS_PROTOCOL_MESSAGE_END = "\x1b\\"
@@ -91,12 +92,17 @@ class Image:
     def __rich_console__(
         self, _console: Console, options: ConsoleOptions
     ) -> RenderResult:
-        if not options.is_terminal:
-            raise TerminalError("Not a terminal")
+        if not options.is_terminal or options.ascii_only:
+            yield Text(self._get_placeholder())
+            return
 
-        size = self._calculate_render_size(options.max_width)
-        if size != self._placement_size:
-            self._prepare_terminal(size)
+        try:
+            size = self._calculate_render_size(options.max_width)
+            if size != self._placement_size:
+                self._prepare_terminal(size)
+        except TerminalError:
+            yield Text(self._get_placeholder())
+            return
 
         # We couldn't create a placement (yet). May happen due to async loading in derived classes.
         if not self._placement_size:
@@ -108,8 +114,12 @@ class Image:
     def __rich_measure__(
         self, _console: Console, options: ConsoleOptions
     ) -> Measurement:
-        size = self._calculate_render_size(options.max_width)
-        return Measurement(0, size.width)
+        try:
+            size = self._calculate_render_size(options.max_width)
+            return Measurement(0, size.width)
+        except TerminalError:
+            length = len(self._get_placeholder())
+            return Measurement(length, length)
 
     def _calculate_render_size(
         self, max_width: int, max_height: int | None = None
@@ -205,13 +215,19 @@ class Image:
             line += "\n"
             yield Segment(line, style=style)
 
+    def _get_placeholder(self) -> str:
+        return "[IMAGE]"
+
 
 def get_terminal_size_info() -> TerminalSizeInformation:
     if not sys.__stdout__:
         raise TerminalError("stdout is closed")
 
-    buf = array("H", [0, 0, 0, 0])
-    ioctl(sys.__stdout__, termios.TIOCGWINSZ, buf)
+    try:
+        buf = array("H", [0, 0, 0, 0])
+        ioctl(sys.__stdout__, termios.TIOCGWINSZ, buf)
+    except OSError:
+        raise TerminalError("Unsupported terminal")
 
     rows, columns, screen_width, screen_height = buf
     cell_width = int(screen_width / columns)
