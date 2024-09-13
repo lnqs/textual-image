@@ -122,9 +122,11 @@ def demo_textual() -> None:
                         yield Image(image, id="flippable")
                     yield Button("Flip", classes="width-full")
                 with HorizontalScroll(classes="full-row") as c:
-                    c.border_title = "Many Graces"
+                    c.border_title = "Many Graces (huge, loaded async)"
+                    with PILImage.open(TEST_IMAGE) as image:
+                        image = image.resize((image.width * 4, image.height * 4))
                     for _ in range(50):
-                        yield Image(TEST_IMAGE, classes="border width-auto")
+                        yield Image(image, classes="border width-auto", load_async=True)
             yield Footer()
 
         @on(Button.Pressed)

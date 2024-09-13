@@ -98,6 +98,11 @@ class Image:
         if size != self._placement_size:
             self._prepare_terminal(size)
 
+        # We couldn't create a placement (yet). May happen due to async loading in derived classes.
+        if not self._placement_size:
+            yield ""
+            return
+
         yield from self._render_diacritics()
 
     def __rich_measure__(
@@ -141,6 +146,13 @@ class Image:
     def _prepare_terminal(self, size: ImageSize) -> None:
         self.delete_image_from_terminal()
 
+        image_data = self._get_encoded_image_data(size)
+        self._send_image_to_terminal(image_data)
+        self._create_placement(size)
+
+        self._placement_size = size
+
+    def _get_encoded_image_data(self, size: ImageSize) -> str:
         # Sending huge images to terminal is slow and causes some weird bugs.
         # So we scale it here instead of letting the terminal do so.
         term_size_info = get_terminal_size_info()
@@ -155,8 +167,9 @@ class Image:
             resize_height = size.height * term_size_info.cell_height
             image.thumbnail((resize_width, resize_height))
             image.save(image_buffer, format="png", compress_level=2)
-            image_data = b64encode(image_buffer.getvalue()).decode("ascii")
+        return b64encode(image_buffer.getvalue()).decode("ascii")
 
+    def _send_image_to_terminal(self, image_data: str) -> None:
         while image_data:
             chunk, image_data = image_data[:4096], image_data[4096:]
             send_terminal_graphics_protocol_message(
@@ -167,7 +180,7 @@ class Image:
                 q=2,
             )
 
-        # Create virtual placement
+    def _create_placement(self, size: ImageSize) -> None:
         send_terminal_graphics_protocol_message(
             a="p",
             i=self.terminal_image_id,
@@ -176,8 +189,6 @@ class Image:
             U=1,
             q=2,
         )
-
-        self._placement_size = size
 
     def _render_diacritics(self) -> RenderResult:
         if not self._placement_size:
