@@ -72,9 +72,7 @@ class Image:
     # So I guess this is the best way to go.
     _next_image_id = randint(1, 2**32)
 
-    def __init__(
-        self, image: str | Path | PILImage.Image, width: int | None = None
-    ) -> None:
+    def __init__(self, image: str | Path | PILImage.Image, width: int | None = None) -> None:
         self.image = image
         self.width = width
 
@@ -89,9 +87,7 @@ class Image:
             send_terminal_graphics_protocol_message(a="d", I=self.terminal_image_id)
             self._placement_size = None
 
-    def __rich_console__(
-        self, _console: Console, options: ConsoleOptions
-    ) -> RenderResult:
+    def __rich_console__(self, _console: Console, options: ConsoleOptions) -> RenderResult:
         if not options.is_terminal or options.ascii_only:
             yield Text(self._get_placeholder())
             return
@@ -111,9 +107,7 @@ class Image:
 
         yield from self._render_diacritics()
 
-    def __rich_measure__(
-        self, _console: Console, options: ConsoleOptions
-    ) -> Measurement:
+    def __rich_measure__(self, _console: Console, options: ConsoleOptions) -> Measurement:
         try:
             size = self._calculate_render_size(options.max_width)
             return Measurement(0, size.width)
@@ -121,9 +115,7 @@ class Image:
             length = len(self._get_placeholder())
             return Measurement(length, length)
 
-    def _calculate_render_size(
-        self, max_width: int, max_height: int | None = None
-    ) -> ImageSize:
+    def _calculate_render_size(self, max_width: int, max_height: int | None = None) -> ImageSize:
         width = max_width
         if self.width is not None:
             width = self.width
@@ -167,11 +159,7 @@ class Image:
         # So we scale it here instead of letting the terminal do so.
         term_size_info = get_terminal_size_info()
 
-        with (
-            self.image.copy()
-            if isinstance(self.image, PILImage.Image)
-            else PILImage.open(self.image)
-        ) as image:
+        with self.image.copy() if isinstance(self.image, PILImage.Image) else PILImage.open(self.image) as image:
             image_buffer = io.BytesIO()
             resize_width = size.width * term_size_info.cell_width
             resize_height = size.height * term_size_info.cell_height
@@ -204,9 +192,7 @@ class Image:
         if not self._placement_size:
             return
 
-        style = Style(
-            color=f"rgb({(self.terminal_image_id >> 16) & 255}, {(self.terminal_image_id >> 8) & 255}, {self.terminal_image_id & 255})"
-        )
+        style = Style(color=f"rgb({(self.terminal_image_id >> 16) & 255}, {(self.terminal_image_id >> 8) & 255}, {self.terminal_image_id & 255})")
         id_char = NUMBER_TO_DIACRITIC[(self.terminal_image_id >> 24) & 255]
         for r in range(self._placement_size.height):
             line = ""
@@ -246,9 +232,7 @@ def get_terminal_size_info() -> TerminalSizeInformation:
     )
 
 
-def send_terminal_graphics_protocol_message(
-    *, payload: str | None = None, **kwargs: int | str | None
-) -> None:
+def send_terminal_graphics_protocol_message(*, payload: str | None = None, **kwargs: int | str | None) -> None:
     if not sys.__stdout__:
         raise TerminalError("sys.__stdout__ is None")
 

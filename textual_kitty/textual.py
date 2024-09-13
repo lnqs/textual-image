@@ -78,11 +78,7 @@ class Image(Widget, inherit_bindings=False):
         self._image = value.copy() if isinstance(value, PILImage.Image) else value
 
         if self._image:
-            self._renderable = (
-                AsyncImageRenderable(image=self._image, async_runner=self._run_async)
-                if self._load_async
-                else ImageRenderable(self._image)
-            )
+            self._renderable = AsyncImageRenderable(image=self._image, async_runner=self._run_async) if self._load_async else ImageRenderable(self._image)
 
         self.clear_cached_dimensions()
         self.refresh()
@@ -95,9 +91,7 @@ class Image(Widget, inherit_bindings=False):
         if not self._renderable:
             return 0
 
-        width, _ = self._renderable._calculate_render_size(
-            container.width, container.height
-        )
+        width, _ = self._renderable._calculate_render_size(container.width, container.height)
         return width
 
     def get_content_height(self, container: Size, _viewport: Size, width: int) -> int:

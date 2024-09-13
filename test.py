@@ -41,10 +41,7 @@ def demo_rich() -> None:
     table.add_row("Grace Hopper", "December 9, 1906", Image(TEST_IMAGE))
     console.print(table)
 
-    console.print(
-        "\nOutputs placeholder if stdout is not connected to a terminal: ",
-        style=Style(bold=True),
-    )
+    console.print("\nOutputs placeholder if stdout is not connected to a terminal: ", style=Style(bold=True))
     capture_stream = io.StringIO()
     with redirect_stdout(capture_stream) as capture:
         console.print(Image(TEST_IMAGE))
