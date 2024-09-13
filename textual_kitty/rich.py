@@ -59,11 +59,11 @@ class ImageSize(NamedTuple):
     height: int
 
 
-class KittyError(Exception):
+class TerminalError(Exception):
     pass
 
 
-class KittyImage:
+class Image:
     # Best effort to prevent ID clashes. We start from a random number and increment it with every image
     # sent to terminal. If we run into a ID that was used already we'll overwrite the previous image.
     # While we could read the terminal responses when using this class in Rich, we can't if we use it in
@@ -77,8 +77,8 @@ class KittyImage:
         self.image = image
         self.width = width
 
-        self.terminal_image_id = KittyImage._next_image_id
-        KittyImage._next_image_id += 1
+        self.terminal_image_id = Image._next_image_id
+        Image._next_image_id += 1
 
         # We store the placement size to be able to decide if we need to recreate it later on on size changes
         self._placement_size: ImageSize | None = None
@@ -92,9 +92,9 @@ class KittyImage:
         self, _console: Console, options: ConsoleOptions
     ) -> RenderResult:
         if not options.is_terminal:
-            raise KittyError("Not a terminal")
+            raise TerminalError("Not a terminal")
 
-        size = self._calculate_render_size(options)
+        size = self._calculate_render_size(options.max_width)
         if size != self._placement_size:
             self._prepare_terminal(size)
 
@@ -103,11 +103,13 @@ class KittyImage:
     def __rich_measure__(
         self, _console: Console, options: ConsoleOptions
     ) -> Measurement:
-        size = self._calculate_render_size(options)
+        size = self._calculate_render_size(options.max_width)
         return Measurement(0, size.width)
 
-    def _calculate_render_size(self, options: ConsoleOptions) -> ImageSize:
-        width = options.max_width
+    def _calculate_render_size(
+        self, max_width: int, max_height: int | None = None
+    ) -> ImageSize:
+        width = max_width
         if self.width is not None:
             width = self.width
         if width < 0:
@@ -116,9 +118,15 @@ class KittyImage:
         term_size_info = get_terminal_size_info()
         image_pixel_width, image_pixel_height = self._get_original_image_size()
         ratio = image_pixel_width / image_pixel_height
-        scaled_pixel_width = width * term_size_info.cell_width
+        scaled_pixel_width: float = width * term_size_info.cell_width
         scaled_pixel_height = scaled_pixel_width / ratio
         height = int(scaled_pixel_height / term_size_info.cell_height)
+
+        if max_height and height > max_height:
+            height = max_height
+            scaled_pixel_height = height * term_size_info.cell_height
+            scaled_pixel_width = scaled_pixel_height * ratio
+            width = int(scaled_pixel_width / term_size_info.cell_width)
 
         return ImageSize(width, height)
 
@@ -189,7 +197,7 @@ class KittyImage:
 
 def get_terminal_size_info() -> TerminalSizeInformation:
     if not sys.__stdout__:
-        raise KittyError("stdout is closed")
+        raise TerminalError("stdout is closed")
 
     buf = array("H", [0, 0, 0, 0])
     ioctl(sys.__stdout__, termios.TIOCGWINSZ, buf)
@@ -199,7 +207,7 @@ def get_terminal_size_info() -> TerminalSizeInformation:
     cell_height = int(screen_height / rows)
 
     if cell_width == 0 or cell_height == 0:
-        raise KittyError("Unsupported terminal")
+        raise TerminalError("Unsupported terminal")
 
     return TerminalSizeInformation(
         rows=rows,
@@ -215,7 +223,7 @@ def send_terminal_graphics_protocol_message(
     *, payload: str | None = None, **kwargs: int | str | None
 ) -> None:
     if not sys.__stdout__:
-        raise KittyError("sys.__stdout__ is None")
+        raise TerminalError("sys.__stdout__ is None")
 
     ans = [
         TERMINAL_GRAPHICS_PROTOCOL_MESSAGE_START,
