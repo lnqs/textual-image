@@ -1,0 +1,61 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "textual-kitty"
+version = "0.1.0"
+description = "Render images via Kitty's Terminal Graphics Protocol with Rich and Textual"
+authors = [
+    {name = "Simon Hayessen", email = "simon@lnqs.io"}
+]
+readme = "README.md"
+
+classifiers = [
+  "Development Status :: 4 - Beta",
+
+  "Intended Audience :: Developers",
+
+  "Topic :: Software Development :: Libraries",
+  "Topic :: Software Development :: User Interfaces",
+
+  "License :: OSI Approved :: MIT License",
+  "License :: OSI Approved :: GNU General Public License (GPL)",
+  "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "pillow~=10.4.0",
+    "rich",
+]
+
+[project.urls]
+Homepage = "https://github.com/lnqs/textual-kitty"
+Documentation = "https://github.com/lnqs/textual-kitty"
+Repository = "https://github.com/lnqs/textual-kitty"
+Issues = "https://github.com/lnqs/textual-kitty/issues"
+
+[project.optional-dependencies]
+textual = [
+    "textual",
+]
+dev = [
+    "black~=24.8.0",
+    "flake8-bugbear~=24.8.19",
+    "flake8~=7.1.1",
+    "isort~=5.13.2",
+    "mypy~=1.11.1",
+    "textual-dev",
+]
+
+[tool.setuptools]
+packages = ["textual_kitty"]
+
+[tool.isort]
+profile = "black"
+

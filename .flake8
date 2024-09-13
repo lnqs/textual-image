@@ -1,0 +1,8 @@
+[flake8]
+max-line-length = 160
+exclude =
+    .env/
+    .venv/
+    __pycache__/
+    env/
+    venv/
