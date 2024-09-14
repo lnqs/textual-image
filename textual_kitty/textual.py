@@ -79,7 +79,7 @@ class Image(Widget, inherit_bindings=False):
             load_async: Process image data asynchronously.
                 If True, the first render of the image (and subsequent after a resize) will not actually render the
                 image, but start processing the image data and sending it to the terminal asynchronously. The Widget
-                will update itself after this is done to show the image. A loding indicator is shown during
+                will update itself after this is done to show the image. A loading indicator is shown during
                 processing. This helps keeping the app responsive if large images are passed to this class.
                 But it does come with with the overhead of double the update cycles and running asynchronously tasks.
         """
