@@ -45,7 +45,6 @@ textual = [
     "textual",
 ]
 dev = [
-    "isort",
     "ruff",
     "mypy",
     "textual-dev",
@@ -55,7 +54,8 @@ dev = [
 packages = ["textual_kitty"]
 
 [tool.ruff]
-line-length = 160
+lint.select = ["B", "D", "I", "Q"]
+line-length = 120
 exclude = [
     ".env",
     ".git",
@@ -65,6 +65,8 @@ exclude = [
     "venv",
 ]
 
-[tool.isort]
-profile = "black"
+[tool.ruff.lint.pydocstyle]
+convention = "google"
 
+[tool.ruff.format]
+docstring-code-format = true

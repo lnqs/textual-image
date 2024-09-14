@@ -1,3 +1,5 @@
+"""Provides functionality to render images with Rich."""
+
 import io
 import sys
 import termios
@@ -47,24 +49,44 @@ NUMBER_TO_DIACRITIC = [
 
 
 class TerminalSizeInformation(NamedTuple):
+    """Size of several terminal features."""
+
     rows: int
+    """Width of the terminal in cells."""
     columns: int
+    """Height of the terminal in cells."""
     screen_width: int
+    """Width of the terminal in pixels."""
     screen_height: int
+    """Height of the terminal in pixels."""
     cell_width: int
+    """Width of a terminal cell in pixels."""
     cell_height: int
+    """Height of a terminal cell in pixels."""
 
 
 class ImageSize(NamedTuple):
+    """The dimensions (width and height) of a rectangular region."""
+
     width: int
+    """The width."""
     height: int
+    """The height."""
 
 
 class TerminalError(Exception):
+    """Error thrown on failing terminal operations."""
+
     pass
 
 
 class Image:
+    """Rich renderable to render images in termnial.
+
+    This Renderable uses the Terminal Graphics Protocol (<https://sw.kovidgoyal.net/kitty/graphics-protocol/>)
+    to render images, so a compatible terminal (like Kitty) is required.
+    """
+
     # Best effort to prevent ID clashes. We start from a random number and increment it with every image
     # sent to terminal. If we run into a ID that was used already we'll overwrite the previous image.
     # While we could read the terminal responses when using this class in Rich, we can't if we use it in
@@ -73,6 +95,12 @@ class Image:
     _next_image_id = randint(1, 2**32)
 
     def __init__(self, image: str | Path | PILImage.Image, width: int | None = None) -> None:
+        """Initialize an `Image`.
+
+        Args:
+            image: The image to display, either as path or `Pillow.Image.Image` object
+            width: Fixed width in cells to render the image in. Will use available width if not set.
+        """
         self.image = image
         self.width = width
 
@@ -83,11 +111,21 @@ class Image:
         self._placement_size: ImageSize | None = None
 
     def delete_image_from_terminal(self) -> None:
+        """Free image data from terminal.
+
+        Clears image data from terminal. If data wasn't sent yet or already freed, this method is a no-op.
+        """
         if self._placement_size:
-            send_terminal_graphics_protocol_message(a="d", I=self.terminal_image_id)
+            _send_terminal_graphics_protocol_message(a="d", I=self.terminal_image_id)
             self._placement_size = None
 
     def __rich_console__(self, _console: Console, options: ConsoleOptions) -> RenderResult:
+        """Called by rich to render the `Image`.
+
+        Args:
+            _console: The `Console` instance to render to
+            options: Options for rendering, i.e. available size information
+        """
         if not options.is_terminal or options.ascii_only:
             yield Text(self._get_placeholder())
             return
@@ -108,6 +146,12 @@ class Image:
         yield from self._render_diacritics()
 
     def __rich_measure__(self, _console: Console, options: ConsoleOptions) -> Measurement:
+        """Called by rich to get the render size without actually rendering the `Image`.
+
+        Args:
+            _console: The `Console` instance to render to
+            options: Options for rendering, i.e. available size information
+        """
         try:
             size = self._calculate_render_size(options.max_width)
             return Measurement(0, size.width)
@@ -170,7 +214,7 @@ class Image:
     def _send_image_to_terminal(self, image_data: str) -> None:
         while image_data:
             chunk, image_data = image_data[:4096], image_data[4096:]
-            send_terminal_graphics_protocol_message(
+            _send_terminal_graphics_protocol_message(
                 i=self.terminal_image_id,
                 m=1 if image_data else 0,
                 f=100,
@@ -179,7 +223,7 @@ class Image:
             )
 
     def _create_placement(self, size: ImageSize) -> None:
-        send_terminal_graphics_protocol_message(
+        _send_terminal_graphics_protocol_message(
             a="p",
             i=self.terminal_image_id,
             c=size.width,
@@ -192,7 +236,9 @@ class Image:
         if not self._placement_size:
             return
 
-        style = Style(color=f"rgb({(self.terminal_image_id >> 16) & 255}, {(self.terminal_image_id >> 8) & 255}, {self.terminal_image_id & 255})")
+        style = Style(
+            color=f"rgb({(self.terminal_image_id >> 16) & 255}, {(self.terminal_image_id >> 8) & 255}, {self.terminal_image_id & 255})"
+        )
         id_char = NUMBER_TO_DIACRITIC[(self.terminal_image_id >> 24) & 255]
         for r in range(self._placement_size.height):
             line = ""
@@ -206,14 +252,20 @@ class Image:
 
 
 def get_terminal_size_info() -> TerminalSizeInformation:
+    """Get size information from the terminal.
+
+    Returns:
+        The size information
+
+    """
     if not sys.__stdout__:
         raise TerminalError("stdout is closed")
 
     try:
         buf = array("H", [0, 0, 0, 0])
         ioctl(sys.__stdout__, termios.TIOCGWINSZ, buf)
-    except OSError:
-        raise TerminalError("Unsupported terminal")
+    except OSError as e:
+        raise TerminalError("Unsupported terminal") from e
 
     rows, columns, screen_width, screen_height = buf
     cell_width = int(screen_width / columns)
@@ -232,7 +284,7 @@ def get_terminal_size_info() -> TerminalSizeInformation:
     )
 
 
-def send_terminal_graphics_protocol_message(*, payload: str | None = None, **kwargs: int | str | None) -> None:
+def _send_terminal_graphics_protocol_message(*, payload: str | None = None, **kwargs: int | str | None) -> None:
     if not sys.__stdout__:
         raise TerminalError("sys.__stdout__ is None")
 

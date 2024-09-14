@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+"""Showcase textual-kitty Renderables/Widgets."""
+
 import io
 import sys
 from contextlib import redirect_stdout
@@ -13,6 +15,7 @@ TEST_IMAGE = Path(__file__).parent / "gracehopper.jpg"
 
 
 def demo_rich() -> None:
+    """Showcase textual-kitty's Rich Renderable for images."""
     from rich.console import Console
     from rich.style import Style
     from rich.table import Table
@@ -49,6 +52,7 @@ def demo_rich() -> None:
 
 
 def demo_textual() -> None:
+    """Showcase textual-kitty's Textual Widget for images."""
     from textual import on
     from textual.app import App, ComposeResult
     from textual.containers import Container, HorizontalScroll, VerticalScroll

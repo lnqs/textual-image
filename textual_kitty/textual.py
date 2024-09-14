@@ -1,3 +1,5 @@
+"""Provides functionality to render images with Textual."""
+
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -14,7 +16,7 @@ from textual_kitty.rich import Image as ImageRenderable
 from textual_kitty.rich import ImageSize
 
 
-class AsyncImageRenderable(ImageRenderable):
+class _AsyncImageRenderable(ImageRenderable):
     image_processing_executor = ThreadPoolExecutor()
 
     def __init__(
@@ -33,7 +35,7 @@ class AsyncImageRenderable(ImageRenderable):
 
         # PIL released the GIL, so this should actually parallelize
         image_data = await asyncio.get_running_loop().run_in_executor(
-            AsyncImageRenderable.image_processing_executor,
+            _AsyncImageRenderable.image_processing_executor,
             lambda: self._get_encoded_image_data(size),
         )
 
@@ -44,6 +46,12 @@ class AsyncImageRenderable(ImageRenderable):
 
 
 class Image(Widget, inherit_bindings=False):
+    """Textual `Widget` to render images in termnial.
+
+    This `Widget` uses the Terminal Graphics Protocol (<https://sw.kovidgoyal.net/kitty/graphics-protocol/>)
+    to render images, so a compatible terminal (like Kitty) is required.
+    """
+
     DEFAULT_CSS = """
     Image {
         height: auto;
@@ -60,6 +68,21 @@ class Image(Widget, inherit_bindings=False):
         disabled: bool = False,
         load_async: bool = False,
     ) -> None:
+        """Initialize an `Image`.
+
+        Args:
+            image: Path to image or PIL.Image.Image instance for image to display.
+            name: The name of the widget.
+            id: The ID of the widget in the DOM.
+            classes: The CSS classes for the widget.
+            disabled: Whether the widget is disabled or not.
+            load_async: Process image data asynchronously.
+                If True, the first render of the image (and subsequent after a resize) will not actually render the
+                image, but start processing the image data and sending it to the terminal asynchronously. The Widget
+                will update itself after this is done to show the image. A loding indicator is shown during
+                processing. This helps keeping the app responsive if large images are passed to this class.
+                But it does come with with the overhead of double the update cycles and running asynchronously tasks.
+        """
         super().__init__(name=name, id=id, classes=classes, disabled=disabled)
         self._renderable: ImageRenderable | None = None
         self._load_async = load_async
@@ -67,6 +90,15 @@ class Image(Widget, inherit_bindings=False):
 
     @property
     def image(self) -> str | Path | PILImage.Image | None:
+        """The actual image to display.
+
+        Can be either a `str` with a file path, a `pathlib.Path` to the file with the image data, or a `PIL.Image.Image`
+        instance
+        Setting this property will cause the widget to re-render itself to display the new image.
+
+        Returns:
+            The image to render as passed in constructor or set to this property
+        """
         return self._image
 
     @image.setter
@@ -78,16 +110,33 @@ class Image(Widget, inherit_bindings=False):
         self._image = value.copy() if isinstance(value, PILImage.Image) else value
 
         if self._image:
-            self._renderable = AsyncImageRenderable(image=self._image, async_runner=self._run_async) if self._load_async else ImageRenderable(self._image)
+            self._renderable = (
+                _AsyncImageRenderable(image=self._image, async_runner=self._run_async)
+                if self._load_async
+                else ImageRenderable(self._image)
+            )
 
         self.clear_cached_dimensions()
         self.refresh()
 
     def on_unmount(self) -> None:
+        """Called by Textual when the `Image` gets unmountet.
+
+        Cleans up the image data from the terminal
+        """
         if self._renderable:
             self._renderable.delete_image_from_terminal()
 
     def get_content_width(self, container: Size, _viewport: Size) -> int:
+        """Called by Textual when the preferred render width.
+
+        Args:
+            container: Size of the parent container
+            _viewport: Viewport size. Not used.
+
+        Returns:
+            The preferred render width
+        """
         if not self._renderable:
             return 0
 
@@ -95,6 +144,15 @@ class Image(Widget, inherit_bindings=False):
         return width
 
     def get_content_height(self, container: Size, _viewport: Size, width: int) -> int:
+        """Called by Textual when the preferred render height.
+
+        Args:
+            container: Size of the parent container
+            _viewport: Viewport size. Not used.
+            width: Render width
+        Returns:
+            The preferred render height
+        """
         if not self._renderable:
             return 0
 
@@ -102,6 +160,11 @@ class Image(Widget, inherit_bindings=False):
         return height
 
     def render(self) -> ConsoleRenderable | RichCast | str:
+        """Called by Textual to render the `Image`.
+
+        Returns:
+            A rich renderable that renders the image
+        """
         if not self._renderable:
             return ""
 
