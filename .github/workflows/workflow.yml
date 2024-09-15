@@ -1,0 +1,52 @@
+name: Publish
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release:
+    name: Build and release
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.x"
+
+    - name: Run checks
+      run: |
+        python3 -m pip install -e .[dev] --user
+        ruff format --check && ruff check && mypy .
+
+    - uses: googleapis/release-please-action@v4
+      id: release
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        release-type: python
+
+    - name: Install pypa/build
+      if: ${{ steps.release.outputs.release_created }}
+      run: python3 -m pip install build --user
+
+    - name: Build a binary wheel and a source tarball
+      if: ${{ steps.release.outputs.release_created }}
+      run: python3 -m build
+
+    - name: Upload Release Artifact
+      if: ${{ steps.release.outputs.release_created }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: gh release upload ${{ steps.release.outputs.tag_name }} ./dist/*
+
+    - name: Publish to PyPI
+      if: ${{ steps.release.outputs.release_created }}
+      uses: pypa/gh-action-pypi-publish@release/v1
