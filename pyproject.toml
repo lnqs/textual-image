@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "textual-kitty"
-version = "0.1.1"
+version = "0.2.0"
 description = "Render images via Kitty's Terminal Graphics Protocol with Rich and Textual"
 authors = [
     {name = "Simon Hayessen", email = "simon@lnqs.io"}

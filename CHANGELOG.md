@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/lnqs/textual-kitty/compare/v0.1.1...v0.2.0) (2024-09-15)
+
+
+### Features
+
+* add py.typed marker ([072f279](https://github.com/lnqs/textual-kitty/commit/072f27922ca904d13792934f3487a379cad7eb14))
+
 ## 0.1.1 (2024-09-15)
 
 
