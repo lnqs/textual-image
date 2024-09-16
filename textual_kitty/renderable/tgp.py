@@ -1,22 +1,29 @@
-"""Provides functionality to render images with Rich."""
+"""Provides functionality to render images with Rich utilizing Kitty's Terminal Graphics Protocol."""
 
 import io
+import logging
+import os
 import sys
 import termios
-from array import array
+import tty
 from base64 import b64encode
-from contextlib import nullcontext
-from fcntl import ioctl
+from contextlib import contextmanager
 from pathlib import Path
 from random import randint
-from typing import NamedTuple
+from select import select
+from types import SimpleNamespace
+from typing import Iterator, override
 
 from PIL import Image as PILImage
-from rich.console import Console, ConsoleOptions, RenderResult
-from rich.measure import Measurement
+from rich.console import RenderResult
 from rich.segment import Segment
 from rich.style import Style
-from rich.text import Text
+
+from textual_kitty.geometry import Size
+from textual_kitty.renderable._base import _Base
+from textual_kitty.terminal import TerminalError, TerminalSizeInformation
+
+logger = logging.getLogger(__name__)
 
 TERMINAL_GRAPHICS_PROTOCOL_MESSAGE_START = "\x1b_G"
 TERMINAL_GRAPHICS_PROTOCOL_MESSAGE_END = "\x1b\\"
@@ -48,40 +55,8 @@ NUMBER_TO_DIACRITIC = [
 # fmt: on
 
 
-class TerminalSizeInformation(NamedTuple):
-    """Size of several terminal features."""
-
-    rows: int
-    """Width of the terminal in cells."""
-    columns: int
-    """Height of the terminal in cells."""
-    screen_width: int
-    """Width of the terminal in pixels."""
-    screen_height: int
-    """Height of the terminal in pixels."""
-    cell_width: int
-    """Width of a terminal cell in pixels."""
-    cell_height: int
-    """Height of a terminal cell in pixels."""
-
-
-class ImageSize(NamedTuple):
-    """The dimensions (width and height) of a rectangular region."""
-
-    width: int
-    """The width."""
-    height: int
-    """The height."""
-
-
-class TerminalError(Exception):
-    """Error thrown on failing terminal operations."""
-
-    pass
-
-
-class Image:
-    """Rich renderable to render images in termnial.
+class Image(_Base):
+    """Rich renderable to render images in terminal.
 
     This Renderable uses the Terminal Graphics Protocol (<https://sw.kovidgoyal.net/kitty/graphics-protocol/>)
     to render images, so a compatible terminal (like Kitty) is required.
@@ -94,6 +69,7 @@ class Image:
     # So I guess this is the best way to go.
     _next_image_id = randint(1, 2**32)
 
+    @override
     def __init__(self, image: str | Path | PILImage.Image, width: int | None = None) -> None:
         """Initialize an `Image`.
 
@@ -101,106 +77,57 @@ class Image:
             image: The image to display, either as path or `Pillow.Image.Image` object
             width: Fixed width in cells to render the image in. Will use available width if not set.
         """
-        self.image = image
-        self.width = width
+        super().__init__(image, width)
 
         self.terminal_image_id = Image._next_image_id
         Image._next_image_id += 1
 
-        # We store the placement size to be able to decide if we need to recreate it later on on size changes
-        self._placement_size: ImageSize | None = None
+        self._placement_size: Size | None = None
 
-    def delete_image_from_terminal(self) -> None:
+    @override
+    def cleanup(self) -> None:
         """Free image data from terminal.
 
         Clears image data from terminal. If data wasn't sent yet or is already freed, this method is a no-op.
         """
         if self._placement_size:
-            _send_terminal_graphics_protocol_message(a="d", I=self.terminal_image_id)
+            logger.debug(f"Deleting TGP image {self.terminal_image_id} from terminal")
+            _send_tgp_message(a="d", I=self.terminal_image_id)
             self._placement_size = None
 
-    def __rich_console__(self, _console: Console, options: ConsoleOptions) -> RenderResult:
-        """Called by rich to render the `Image`.
+    @override
+    def is_prepared(self, size: Size, term_size: TerminalSizeInformation) -> bool:
+        return self._placement_size == size
 
-        Args:
-            _console: The `Console` instance to render to
-            options: Options for rendering, i.e. available size information
-        """
-        if not options.is_terminal or options.ascii_only:
-            yield Text(self._get_placeholder())
-            return
+    @override
+    def prepare(self, size: Size, term_size: TerminalSizeInformation) -> None:
+        self.cleanup()
 
-        size = self._calculate_render_size(options.max_width, options.max_height)
-        if size != (0, 0) and size != self._placement_size:
-            self._prepare_terminal(size)
-
-        if not self._placement_size:
-            yield ""
-            return
-
-        yield from self._render_diacritics()
-
-    def __rich_measure__(self, _console: Console, options: ConsoleOptions) -> Measurement:
-        """Called by rich to get the render size without actually rendering the `Image`.
-
-        Args:
-            _console: The `Console` instance to render to
-            options: Options for rendering, i.e. available size information
-        """
-        if not options.is_terminal or options.ascii_only:
-            return Measurement(0, 0)
-
-        length = len(self._get_placeholder())
-        return Measurement(length, length)
-
-    def _calculate_render_size(self, max_width: int, max_height: int | None = None) -> ImageSize:
-        width = max_width
-        if self.width is not None:
-            width = self.width
-        if width < 0:
-            return ImageSize(0, 0)
-
-        term_size_info = get_terminal_size_info()
-        image_pixel_width, image_pixel_height = self._get_original_image_size()
-        ratio = image_pixel_width / image_pixel_height
-        scaled_pixel_width: float = width * term_size_info.cell_width
-        scaled_pixel_height = scaled_pixel_width / ratio
-        height = int(scaled_pixel_height / term_size_info.cell_height)
-
-        if max_height and height > max_height:
-            height = max_height
-            scaled_pixel_height = height * term_size_info.cell_height
-            scaled_pixel_width = scaled_pixel_height * ratio
-            width = int(scaled_pixel_width / term_size_info.cell_width)
-
-        return ImageSize(width, height)
-
-    def _get_original_image_size(self) -> ImageSize:
-        with (
-            nullcontext(self.image)  # type: ignore
-            if isinstance(self.image, PILImage.Image)
-            else PILImage.open(self.image)
-        ) as image:
-            return ImageSize(*image.size)
-
-    def _prepare_terminal(self, size: ImageSize) -> None:
-        self.delete_image_from_terminal()
-
-        image_data = self._get_encoded_image_data(size)
+        logger.debug(f"Sending TGP image {self.terminal_image_id} to terminal")
+        image_data = self._get_encoded_image_data(size, term_size)
         self._send_image_to_terminal(image_data)
         self._create_placement(size)
 
         self._placement_size = size
 
-    def _get_encoded_image_data(self, size: ImageSize) -> str:
+    @override
+    async def prepare_async(self, size: Size, term_size: TerminalSizeInformation) -> None:
+        self.cleanup()
+
+        logger.debug(f"Sending TGP image {self.terminal_image_id} to terminal asynchrounouly")
+        image_data = await self._run_in_thread(lambda: self._get_encoded_image_data(size, term_size))
+        self._send_image_to_terminal(image_data)
+        self._create_placement(size)
+
+        self._placement_size = size
+
+    def _get_encoded_image_data(self, size: Size, term_size: TerminalSizeInformation) -> str:
         # Sending huge images to terminal is slow and causes some weird bugs.
         # So we scale it here instead of letting the terminal do so.
-        term_size_info = get_terminal_size_info()
-
         with self.image.copy() if isinstance(self.image, PILImage.Image) else PILImage.open(self.image) as image:
             image_buffer = io.BytesIO()
-            resize_width = size.width * term_size_info.cell_width
-            resize_height = size.height * term_size_info.cell_height
+            resize_width = size.width * term_size.cell_width
+            resize_height = size.height * term_size.cell_height
             image.thumbnail((resize_width, resize_height))
             image.save(image_buffer, format="png", compress_level=2)
         return b64encode(image_buffer.getvalue()).decode("ascii")
@@ -208,7 +135,7 @@ class Image:
     def _send_image_to_terminal(self, image_data: str) -> None:
         while image_data:
             chunk, image_data = image_data[:4096], image_data[4096:]
-            _send_terminal_graphics_protocol_message(
+            _send_tgp_message(
                 i=self.terminal_image_id,
                 m=1 if image_data else 0,
                 f=100,
@@ -216,8 +143,8 @@ class Image:
                 q=2,
             )
 
-    def _create_placement(self, size: ImageSize) -> None:
-        _send_terminal_graphics_protocol_message(
+    def _create_placement(self, size: Size) -> None:
+        _send_tgp_message(
             a="p",
             i=self.terminal_image_id,
             c=size.width,
@@ -226,8 +153,9 @@ class Image:
             q=2,
         )
 
-    def _render_diacritics(self) -> RenderResult:
-        if not self._placement_size:  # pragma: no cover -- this can't happen, but makes mypy happy
+    @override
+    def _render(self) -> RenderResult:
+        if not self._placement_size:
             return
 
         style = Style(
@@ -241,44 +169,8 @@ class Image:
             line += "\n"
             yield Segment(line, style=style)
 
-    def _get_placeholder(self) -> str:
-        return "[IMAGE]"
 
-
-def get_terminal_size_info() -> TerminalSizeInformation:
-    """Get size information from the terminal.
-
-    Returns:
-        The size information
-
-    """
-    if not sys.__stdout__:
-        raise TerminalError("stdout is closed")
-
-    try:
-        buf = array("H", [0, 0, 0, 0])
-        ioctl(sys.__stdout__, termios.TIOCGWINSZ, buf)
-    except OSError as e:
-        raise TerminalError("Unsupported terminal") from e
-
-    rows, columns, screen_width, screen_height = buf
-    cell_width = int(screen_width / columns)
-    cell_height = int(screen_height / rows)
-
-    if cell_width == 0 or cell_height == 0:
-        raise TerminalError("Unsupported terminal")
-
-    return TerminalSizeInformation(
-        rows=rows,
-        columns=columns,
-        screen_width=screen_width,
-        screen_height=screen_height,
-        cell_width=cell_width,
-        cell_height=cell_height,
-    )
-
-
-def _send_terminal_graphics_protocol_message(*, payload: str | None = None, **kwargs: int | str | None) -> None:
+def _send_tgp_message(*, payload: str | None = None, **kwargs: int | str | None) -> None:
     if not sys.__stdout__:
         raise TerminalError("sys.__stdout__ is None")
 
@@ -292,3 +184,69 @@ def _send_terminal_graphics_protocol_message(*, payload: str | None = None, **kw
     sequence = "".join(ans)
     sys.__stdout__.write(sequence)
     sys.__stdout__.flush()
+
+
+@contextmanager
+def _capture_tgp_response(timeout: float | None = None) -> Iterator[SimpleNamespace]:
+    if not sys.__stdin__:
+        raise TerminalError("stdout is closed")
+
+    response = SimpleNamespace(status="PROCESSING", params={})
+
+    stdin = sys.__stdin__.buffer.fileno()
+    old_term_mode = termios.tcgetattr(stdin)
+    tty.setcbreak(stdin, termios.TCSANOW)
+
+    try:
+        yield response
+
+        sequence = ""
+        while not sequence.endswith(TERMINAL_GRAPHICS_PROTOCOL_MESSAGE_END):
+            readable, _, _ = select([stdin], [], [], timeout)
+            if not readable:
+                raise TimeoutError("Timeout waiting for response")
+
+            sequence += os.read(stdin, 1).decode()
+
+            if not sequence.startswith(TERMINAL_GRAPHICS_PROTOCOL_MESSAGE_START[: len(sequence)]):
+                raise TerminalError("Response is not a Terminal Graphics Protocol response")
+
+        sequence = sequence[
+            len(TERMINAL_GRAPHICS_PROTOCOL_MESSAGE_START) : -len(TERMINAL_GRAPHICS_PROTOCOL_MESSAGE_END)
+        ]
+
+        params, response.status = sequence.rsplit(";", 1)
+        response.params = dict(p.split("=") for p in params.split(","))
+
+    finally:
+        termios.tcsetattr(stdin, termios.TCSANOW, old_term_mode)
+
+
+def query_terminal_support() -> bool:
+    """Queries the terminal for Terminal Graphics Protocol support.
+
+    This function returns if TGP is supported.
+    To do so, it sends an escape sequence to the terminal and waits for the answer.
+    This is a bit flaky -- keystrokes during reading the response can lead to false answers.
+    Additionally, when TGP is *not* supported and the terminal doesn't send an answer, the first character
+    of stdin may get lost as this function reads it to determine if it is the response.
+    Anyway, as this is unprobable to happen, it should be fine. There doesn't seem to be another way to
+    get this information.
+
+    Please not this function will not work anymore once Textual is started. Textual runs a threads to read stdin
+    and will grab the response.
+
+    Returns:
+        True if TGP is supported, False if not
+    """
+    try:
+        with _capture_tgp_response(timeout=0.1) as response:
+            _send_tgp_message(i=randint(1, 2**32), s=1, v=1, a="q", t="d", f=24, payload="AAAA")
+
+        if response.status == "OK":
+            return True
+
+    except (TerminalError, TimeoutError):
+        pass
+
+    return False

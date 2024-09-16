@@ -58,7 +58,7 @@ dev = [
 packages = ["textual_kitty"]
 
 [tool.ruff]
-lint.select = ["B", "D", "F", "I", "Q"]
+lint.select = ["B", "D", "F", "I", "T", "Q"]
 line-length = 120
 exclude = [
     ".env",
@@ -84,3 +84,4 @@ asyncio_default_fixture_loop_scope = "function"
 
 [tool.coverage.report]
 fail_under = 100
+exclude_lines = ["if __name__ == .__main__.:"]

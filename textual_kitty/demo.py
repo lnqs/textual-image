@@ -2,25 +2,23 @@
 
 """Showcase textual-kitty Renderables/Widgets."""
 
-import io
-import sys
-from contextlib import redirect_stdout
+from argparse import ArgumentParser
 from pathlib import Path
-from typing import cast
+from typing import Type, cast
 
 from PIL import Image as PILImage
 from PIL import ImageOps
 
+from textual_kitty.renderable._base import _Base
+
 TEST_IMAGE = Path(__file__).parent / "gracehopper.jpg"
 
 
-def demo_rich() -> None:
+def demo_rich(Image: Type[_Base]) -> None:
     """Showcase textual-kitty's Rich Renderable for images."""
     from rich.console import Console
     from rich.style import Style
     from rich.table import Table
-
-    from textual_kitty.rich import Image
 
     console = Console()
 
@@ -44,21 +42,15 @@ def demo_rich() -> None:
     table.add_row("Grace Hopper", "December 9, 1906", Image(TEST_IMAGE))
     console.print(table)
 
-    console.print("\nOutputs placeholder if stdout is not connected to a terminal: ", style=Style(bold=True))
-    capture_stream = io.StringIO()
-    with redirect_stdout(capture_stream) as capture:
-        console.print(Image(TEST_IMAGE))
-    console.print(capture.getvalue())
 
-
-def demo_textual() -> None:
+def demo_textual(Renderable: Type[_Base]) -> None:
     """Showcase textual-kitty's Textual Widget for images."""
     from textual import on
     from textual.app import App, ComposeResult
     from textual.containers import Container, HorizontalScroll, VerticalScroll
     from textual.widgets import Button, Collapsible, Footer, Header
 
-    from textual_kitty.textual import Image
+    from textual_kitty.widget import Image
 
     class DemoApp(App[None]):
         DEFAULT_CSS = """
@@ -100,29 +92,31 @@ def demo_textual() -> None:
             with VerticalScroll(id="content"):
                 with Container() as c:
                     c.border_title = "Grace from path"
-                    yield Image(TEST_IMAGE)
+                    yield Image(TEST_IMAGE, image_renderable_type=Renderable)
                 with Container() as c:
                     c.border_title = "Grace from PIL image"
                     with PILImage.open(TEST_IMAGE) as image:
-                        yield Image(image)
+                        yield Image(image, image_renderable_type=Renderable)
                 with Container() as c:
                     c.border_title = "Collapsible Grace"
                     with Collapsible(collapsed=False):
-                        yield Image(TEST_IMAGE)
+                        yield Image(TEST_IMAGE, image_renderable_type=Renderable)
                 with Container() as c:
                     c.border_title = "Small Grace"
-                    yield Image(TEST_IMAGE, classes="small")
+                    yield Image(TEST_IMAGE, image_renderable_type=Renderable, classes="small")
                 with Container() as c:
                     c.border_title = "Flippable Grace"
                     with PILImage.open(TEST_IMAGE) as image:
-                        yield Image(image, id="flippable")
+                        yield Image(image, image_renderable_type=Renderable, id="flippable")
                     yield Button("Flip", classes="width-full")
                 with HorizontalScroll(classes="full-row") as c:
                     c.border_title = "Many Graces (huge, loaded async)"
                     with PILImage.open(TEST_IMAGE) as image:
                         image = image.resize((image.width * 4, image.height * 4))
                     for _ in range(50):
-                        yield Image(image, classes="border width-auto", load_async=True)
+                        yield Image(
+                            image, image_renderable_type=Renderable, classes="border width-auto", load_async=True
+                        )
             yield Footer()
 
         @on(Button.Pressed)
@@ -133,12 +127,29 @@ def demo_textual() -> None:
     DemoApp().run()
 
 
-if __name__ == "__main__":
-    if len(sys.argv) != 2 or sys.argv[1] not in ("rich", "textual"):
-        print(f"Usage: {sys.argv[0]} rich | textual", file=sys.stderr)
-        sys.exit(1)
+def run() -> None:
+    """Run the textual_kitty demo."""
+    parser = ArgumentParser(description="Demo the capabilities of textual-kitty")
+    parser.add_argument("mode", choices=["rich", "textual"], nargs="?", default="rich")
+    parser.add_argument(
+        "-p", "--protocol", choices=["auto", "tgp", "colored-fallback", "grayscale-fallback"], default="auto"
+    )
+    arguments = parser.parse_args()
 
-    if sys.argv[1] == "rich":
-        demo_rich()
-    else:
-        demo_textual()
+    if arguments.protocol == "auto":
+        from textual_kitty.renderable import Image
+    elif arguments.protocol == "tgp":
+        from textual_kitty.renderable.tgp import Image
+    elif arguments.protocol == "colored-fallback":
+        from textual_kitty.renderable.fallback.colored import Image
+    elif arguments.protocol == "grayscale-fallback":
+        from textual_kitty.renderable.fallback.grayscale import Image
+
+    if arguments.mode == "rich":
+        demo_rich(Image)
+    elif arguments.mode == "textual":
+        demo_textual(Image)
+
+
+if __name__ == "__main__":
+    run()
