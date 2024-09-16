@@ -1,48 +1,18 @@
 """Provides functionality to render images with Textual."""
 
-import asyncio
-from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from typing import Awaitable, Callable
+from typing import Type
 
 from PIL import Image as PILImage
 from rich.console import ConsoleRenderable, RichCast
 from textual import work
 from textual.geometry import Size
 from textual.widget import Widget
-from textual.worker import Worker
 
-from textual_kitty.rich import Image as ImageRenderable
-from textual_kitty.rich import ImageSize
-
-
-class _AsyncImageRenderable(ImageRenderable):
-    image_processing_executor = ThreadPoolExecutor()
-
-    def __init__(
-        self,
-        image: str | Path | PILImage.Image,
-        async_runner: Callable[[Callable[[], Awaitable[None]]], Worker[None]],
-    ) -> None:
-        super().__init__(image)
-        self._async_runner = async_runner
-
-    def _prepare_terminal(self, size: ImageSize) -> None:
-        self._async_runner(lambda: self._prepare_terminal_async(size))
-
-    async def _prepare_terminal_async(self, size: ImageSize) -> None:
-        self.delete_image_from_terminal()
-
-        # PIL released the GIL, so this should actually parallelize
-        image_data = await asyncio.get_running_loop().run_in_executor(
-            _AsyncImageRenderable.image_processing_executor,
-            lambda: self._get_encoded_image_data(size),
-        )
-
-        self._send_image_to_terminal(image_data)
-        self._create_placement(size)
-
-        self._placement_size = size
+from textual_kitty.geometry import Size as ImageSize
+from textual_kitty.renderable import Image as ImageRenderable
+from textual_kitty.renderable._base import _Base as ImageRenderableBase
+from textual_kitty.terminal import TerminalSizeInformation, get_terminal_size_info
 
 
 class Image(Widget, inherit_bindings=False):
@@ -67,6 +37,7 @@ class Image(Widget, inherit_bindings=False):
         classes: str | None = None,
         disabled: bool = False,
         load_async: bool = False,
+        image_renderable_type: Type[ImageRenderableBase] = ImageRenderable,
     ) -> None:
         """Initialize an `Image`.
 
@@ -82,9 +53,12 @@ class Image(Widget, inherit_bindings=False):
                 will update itself after this is done to show the image. A loading indicator is shown during
                 processing. This helps keeping the app responsive if large images are passed to this class.
                 But it does come with with the overhead of double the update cycles and running asynchronously tasks.
+            image_renderable_type: The image renderable type to use. Defaults to the auto determined best available
+                type, but can be explicitly overwritten.
         """
         super().__init__(name=name, id=id, classes=classes, disabled=disabled)
-        self._renderable: ImageRenderable | None = None
+        self._image_renderable_type: Type[ImageRenderableBase] = image_renderable_type
+        self._renderable: ImageRenderableBase | None = None
         self._load_async = load_async
         self.image = image
 
@@ -93,7 +67,7 @@ class Image(Widget, inherit_bindings=False):
         """The actual image to display.
 
         Can be either a `str` with a file path, a `pathlib.Path` to the file with the image data, or a `PIL.Image.Image`
-        instance
+        instance.
         Setting this property will cause the widget to re-render itself to display the new image.
 
         Returns:
@@ -104,17 +78,13 @@ class Image(Widget, inherit_bindings=False):
     @image.setter
     def image(self, value: str | Path | PILImage.Image | None) -> None:
         if self._renderable:
-            self._renderable.delete_image_from_terminal()
+            self._renderable.cleanup()
             self._renderable = None
 
         self._image = value.copy() if isinstance(value, PILImage.Image) else value
 
         if self._image:
-            self._renderable = (
-                _AsyncImageRenderable(image=self._image, async_runner=self._run_async)
-                if self._load_async
-                else ImageRenderable(self._image)
-            )
+            self._renderable = self._image_renderable_type(self._image)
 
         self.clear_cached_dimensions()
         self.refresh()
@@ -125,7 +95,7 @@ class Image(Widget, inherit_bindings=False):
         Cleans up the image data from the terminal
         """
         if self._renderable:
-            self._renderable.delete_image_from_terminal()
+            self._renderable.cleanup()
 
     def get_content_width(self, container: Size, _viewport: Size) -> int:
         """Called by Textual when the preferred render width.
@@ -140,7 +110,8 @@ class Image(Widget, inherit_bindings=False):
         if not self._renderable:
             return 0
 
-        width, _ = self._renderable._calculate_render_size(container.width, container.height)
+        term_size = get_terminal_size_info()
+        width, _ = self._renderable.get_render_size(ImageSize(container.width, container.height), term_size)
         return width
 
     def get_content_height(self, container: Size, _viewport: Size, width: int) -> int:
@@ -156,7 +127,8 @@ class Image(Widget, inherit_bindings=False):
         if not self._renderable:
             return 0
 
-        _, height = self._renderable._calculate_render_size(width, container.height)
+        term_size = get_terminal_size_info()
+        _, height = self._renderable.get_render_size(ImageSize(width, container.height), term_size)
         return height
 
     def render(self) -> ConsoleRenderable | RichCast | str:
@@ -165,16 +137,21 @@ class Image(Widget, inherit_bindings=False):
         Returns:
             A rich renderable that renders the image
         """
-        if not self._renderable:  # pragma: no cover -- this can't happen, but makes mypy happy
+        if not self._renderable:
             return ""
 
-        # With async loading, we might not have a suitable placement yet. Show loading indicator in this case.
-        self.loading = self._renderable._placement_size != self._renderable._calculate_render_size(
-            self.content_size.width, self.content_size.height
-        )
+        # The Renderable prepares itself if necessary, if we don't need the async functionality
+        term_size = get_terminal_size_info()
+        if self._load_async and not self._renderable.is_prepared(ImageSize(*self.content_size), term_size):
+            self._trigger_prepare_async(self.content_size, term_size)
+            self.loading = True
+            return ""
+
+        self.loading = False
         return self._renderable
 
     @work(exclusive=True)
-    async def _run_async(self, fn: Callable[[], Awaitable[None]]) -> None:
-        await fn()
-        self.refresh()
+    async def _trigger_prepare_async(self, size: Size, term_size: TerminalSizeInformation) -> None:
+        if self._renderable:
+            await self._renderable.prepare_async(ImageSize(*size), term_size)
+            self.refresh()
