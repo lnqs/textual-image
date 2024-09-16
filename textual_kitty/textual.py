@@ -165,11 +165,13 @@ class Image(Widget, inherit_bindings=False):
         Returns:
             A rich renderable that renders the image
         """
-        if not self._renderable:
+        if not self._renderable:  # pragma: no cover -- this can't happen, but makes mypy happy
             return ""
 
         # With async loading, we might not have a suitable placement yet. Show loading indicator in this case.
-        self.loading = self._renderable._placement_size != self.container_size
+        self.loading = self._renderable._placement_size != self._renderable._calculate_render_size(
+            self.content_size.width, self.content_size.height
+        )
         return self._renderable
 
     @work(exclusive=True)

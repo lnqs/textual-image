@@ -113,7 +113,7 @@ class Image:
     def delete_image_from_terminal(self) -> None:
         """Free image data from terminal.
 
-        Clears image data from terminal. If data wasn't sent yet or already freed, this method is a no-op.
+        Clears image data from terminal. If data wasn't sent yet or is already freed, this method is a no-op.
         """
         if self._placement_size:
             _send_terminal_graphics_protocol_message(a="d", I=self.terminal_image_id)
@@ -130,15 +130,10 @@ class Image:
             yield Text(self._get_placeholder())
             return
 
-        try:
-            size = self._calculate_render_size(options.max_width)
-            if size != self._placement_size:
-                self._prepare_terminal(size)
-        except TerminalError:
-            yield Text(self._get_placeholder())
-            return
+        size = self._calculate_render_size(options.max_width, options.max_height)
+        if size != (0, 0) and size != self._placement_size:
+            self._prepare_terminal(size)
 
-        # We couldn't create a placement (yet). May happen due to async loading in derived classes.
         if not self._placement_size:
             yield ""
             return
@@ -152,12 +147,11 @@ class Image:
             _console: The `Console` instance to render to
             options: Options for rendering, i.e. available size information
         """
-        try:
-            size = self._calculate_render_size(options.max_width)
-            return Measurement(0, size.width)
-        except TerminalError:
-            length = len(self._get_placeholder())
-            return Measurement(length, length)
+        if not options.is_terminal or options.ascii_only:
+            return Measurement(0, 0)
+
+        length = len(self._get_placeholder())
+        return Measurement(length, length)
 
     def _calculate_render_size(self, max_width: int, max_height: int | None = None) -> ImageSize:
         width = max_width
@@ -233,7 +227,7 @@ class Image:
         )
 
     def _render_diacritics(self) -> RenderResult:
-        if not self._placement_size:
+        if not self._placement_size:  # pragma: no cover -- this can't happen, but makes mypy happy
             return
 
         style = Style(
