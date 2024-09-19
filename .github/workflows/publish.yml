@@ -26,10 +26,17 @@ jobs:
       with:
         python-version: "3.x"
 
-    - name: Run checks
-      run: |
-        python3 -m pip install -e .[dev] --user
-        ruff format --check && ruff check && mypy . && pytest --cov=textual_kitty --cov-report term-missing
+    - name: Install dependencies
+      run: python3 -m pip install -e .[dev] --user
+
+    - name: Ruff
+      run: ruff format --check && ruff check
+
+    - name: mypy
+      run: mypy .
+
+    - name: Test
+      run: pytest --cov=textual_kitty --cov-report term-missing
 
     - uses: googleapis/release-please-action@v4
       id: release

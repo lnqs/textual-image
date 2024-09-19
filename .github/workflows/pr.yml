@@ -1,0 +1,30 @@
+name: Check PR
+
+on:
+  pull_request:
+
+jobs:
+  check:
+    name: Check
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.x"
+
+    - name: Install dependencies
+      run: python3 -m pip install -e .[dev] --user
+
+    - name: Ruff
+      run: ruff format --check && ruff check
+
+    - name: mypy
+      run: mypy .
+
+    - name: Test
+      run: pytest --cov=textual_kitty --cov-report term-missing
