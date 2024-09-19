@@ -1,0 +1,30 @@
+name: Run linter and tests
+description: Runs the format check, linter, type check and tests
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.x"
+
+    - name: Install dependencies
+      shell: bash
+      run: python3 -m pip install -e .[dev] --user
+
+    - name: Format check
+      shell: bash
+      run: ruff format --check
+
+    - name: Linting
+      shell: bash
+      run: ruff check
+
+    - name: Type check
+      shell: bash
+      run: mypy .
+
+    - name: Test
+      shell: bash
+      run: pytest --cov=textual_kitty --cov-report term-missing
