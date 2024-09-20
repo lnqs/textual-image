@@ -1,63 +1,69 @@
-name: Publish
+name: Build and publish
 
 on:
   push:
     branches: [main]
 
-permissions:
-  contents: write
-  pull-requests: write
-  id-token: write
-
 jobs:
-  release:
-    name: Build and release
+  check:
+    name: Check
     runs-on: ubuntu-latest
-    environment:
-      name: pypi
-      url: https://pypi.org/p/textual-kitty
 
     steps:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.x"
+    - name: Check
+      uses: ./.github/actions/check
 
-    - name: Install dependencies
-      run: python3 -m pip install -e .[dev] --user
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: [check]
 
-    - name: Ruff
-      run: ruff format --check && ruff check
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
 
-    - name: mypy
-      run: mypy .
+    - name: Build
+      uses: ./.github/actions/build
 
-    - name: Test
-      run: pytest --cov=textual_kitty --cov-report term-missing
+  release-please:
+    runs-on: ubuntu-latest
+    needs: [build]
+    permissions:
+        contents: write
+        pull-requests: write
 
+    outputs:
+      release_created: ${{ steps.release-please.outputs.release_created }}
+
+    steps:
     - uses: googleapis/release-please-action@v4
-      id: release
+      id: release-please
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         release-type: python
 
-    - name: Install pypa/build
-      if: ${{ steps.release.outputs.release_created }}
-      run: python3 -m pip install build --user
+  publish:
+    name: Publish
+    needs: [build]
+    if: ${{ needs.build.outputs.release_created }}
+    runs-on: ubuntu-latest
 
-    - name: Build a binary wheel and a source tarball
-      if: ${{ steps.release.outputs.release_created }}
-      run: python3 -m build
+    environment:
+      name: pypi
+      url: https://pypi.org/p/textual-kitty
 
-    - name: Upload Release Artifact
-      if: ${{ steps.release.outputs.release_created }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: gh release upload ${{ steps.release.outputs.tag_name }} ./dist/*
+    permissions:
+      id-token: write
 
-    - name: Publish to PyPI
-      if: ${{ steps.release.outputs.release_created }}
+    steps:
+    - name: Download distribution packages
+      uses: actions/download-artifact@v4
+      with:
+        name: python-package-distributions
+        path: dist/
+
+    - name: Publish
       uses: pypa/gh-action-pypi-publish@release/v1
