@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/lnqs/textual-kitty/compare/v0.2.0...v0.3.0) (2024-09-20)
+
+
+### Features
+
+* add unicode fallback to render images ([14f30ff](https://github.com/lnqs/textual-kitty/commit/14f30ff65a0fa65b7984b26039f298bd46286b3d))
+
 ## [0.2.0](https://github.com/lnqs/textual-kitty/compare/v0.1.1...v0.2.0) (2024-09-15)
 
 
