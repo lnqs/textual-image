@@ -1,85 +1,81 @@
 # textual-kitty
 
-Render images in the terminal with [Textual](https://www.textualize.io/) and [rich](https://github.com/Textualize/rich).
+*Render images directly in your terminal using [Textual](https://www.textualize.io/) and [Rich](https://github.com/Textualize/rich).* 
 
-![Demo App](./demo.jpg)
 
-_textual-kitty_ provides a rich _renderable_ and a Textual _Widget_ utilizing the [Terminal Graphics Protocol](https://sw.kovidgoyal.net/kitty/graphics-protocol/) to display images in terminals. For terminals not supporting the TGP fallback rendering as unicode characters is available.
+![Demo App Screen #1](./demo1.png)
+&nbsp;&nbsp;&nbsp;
+![Demo App Screen #1](./demo2.png)
+
+_textual-kitty_ offers both a Rich renderable and a Textual Widget that leverage the [Terminal Graphics Protocol (TGP)](https://sw.kovidgoyal.net/kitty/graphics-protocol/) protocol to display images in your terminal. For terminals that don't support TGP, fallback rendering using Unicode characters is available.
+
 
 ## Supported Terminals
 
-The _Terminal Graphics Protocol_ was introduced by [Kitty](https://sw.kovidgoyal.net/kitty/) is is fully supported in this terminal.
-[WezTerm](https://wezfurlong.org/wezterm/index.html) has a mostly complete implementation. [Konsole](https://konsole.kde.org/) and [wayst](https://github.com/91861/wayst) have partial support.
+The _Terminal Graphics Protocol_ (TGP) was initially introduced by the [Kitty](https://sw.kovidgoyal.net/kitty/) terminal emulator and is completely supported therein. Additionally, TGP is largely implemented in [WezTerm](https://wezfurlong.org/wezterm/index.html) and partially supported by [Konsole](https://konsole.kde.org/) and [wayst](https://github.com/91861/wayst).
 
-However, this module was only tested with _Kitty_. Feedback for other terminals is welcome.
 
-## Installing
+_Note_: Testing has been conducted primarily using Kitty. Feedback and interoperability testing on other terminal emulators would be highly valued.
 
-Install _textual-kitty_ via pip:
+## Installation
 
-```
+Install _textual-kitty_ using pip with the following commands:
+
+For the basic installation:
+```sh
 pip install textual-kitty
 ```
 
-for the rich renderable, or
-
-```
+To include the Textual Widget's dependencies:
+```sh
 pip install textual-kitty[textual]
 ```
 
-to also include the Textual Widget's dependencies.
+## Demonstration
 
-## Demo
+Once installed, run demo application to see the module in action.
 
-With the package installed, run
-
-```
+For a demonstration of the Rich renderable, use:
+```sh
 python -m textual_kitty rich
 ```
 
-for a demo of the _rich_ renderable or
-
-```
+For a demonstration of the Textual Widget, use:
+```sh
 python -m textual_kitty textual
 ```
 
-for a demo of the _Textual_ Widget.
+The module will automatically select the best available rendering option. If you wish to specify a particular rendering method, use the `-p` argument with one of the following values: `tgp`, `halfcell`, or `unicode`.
 
-It'll pick the best available rendering option. If you want to see the other ones, use the `-p` argument to specify `tgp`, `colored-fallback`, or `grayscale-fallback`.
-
-See
-
-```
+For more information, use:
+```sh
 python -m textual_kitty --help
 ```
 
-for more information.
-
 ## Usage
 
-### rich
+### Rich Integration
 
-Just pass a `textual_kitty.renderable.Image` instance to a _rich_ function rendering data:
+To use the Rich renderable, simply pass an instance of `textual_kitty.renderable.Image` to a Rich function that renders data:
 
 ```python
 from rich.console import Console
-from textual_kitty.rich import Image
+from textual_kitty.renderable import Image
 
 console = Console()
 console.print(Image("path/to/image.png"))
 ```
 
-The `Image` constructor accepts a `str` or `pathlib.Path` with a file path of an image file readable by [Pillow](https://python-pillow.org/) or a Pillow `Image` instance.
+The `Image` constructor accepts either a string, a `pathlib.Path` representing the file path of an image readable by [Pillow](https://python-pillow.org/), or a Pillow `Image` instance directly.
 
-Per default, the image will render full terminal width or the width of the parent container. A `width` parameter can be passed to the constructor to overwrite this behavior and explicitly specify the width of the image in terminal cells.
-The aspect ratio of the image will be kept in both cases.
+By default, the image is rendered in its original dimensions. You can modify this behavior by specifying the `width` and/or `height` parameters. These can be defined as an integer (number of cells), a percentage string (e.g., `50%`), or the literal `auto` to automatically scale while maintaining the aspect ratio.
 
-`textual_kitty.renderable.Image` is automatically set to the best available rendering option.
-You can also explicitly choose how to render by using one of `textual_kitty.renderable.tgp.Image`, `textual_kitty.renderable.fallback.colored.Image`, or `textual_kitty.renderable.fallback.grayscale.Image`.
+`textual_kitty.renderable.Image` defaults to the best available rendering method. To specify a explicit rendering method, use one of the following classes: `textual_kitty.renderable.tgp.Image`, `textual_kitty.renderable.halfcell.Image`, or `textual_kitty.renderable.unicode.Image`.
 
-### Textual
+### Textual Integration
 
-_textual-python_ provides an Textual `Widget` to render images:
+For integration with Textual, _textual-kitty_ offers a Textual `Widget` to render images:
+
 
 ```python
 from textual.app import App, ComposeResult
@@ -92,9 +88,9 @@ class ImageApp(App[None]):
 ImageApp().run()
 ```
 
-The `Image` constructor accepts a `str` or `pathlib.Path` with a file path of an image file readable by [Pillow](https://python-pillow.org/) or a Pillow `Image` instance.
+The `Image` constructor accepts either a string or a `pathlib.Path` with the file path of an image readable by [Pillow](https://python-pillow.org/), or a Pillow `Image` instance directly.
 
-Additionally, the image can be set with the `image` property of an `Image` instance:
+You can also set the image using the `image` property of an `Image` instance:
 
 ```python
 from textual.app import App, ComposeResult
@@ -109,21 +105,16 @@ class ImageApp(App[None]):
 ImageApp().run()
 ```
 
-If another image was set before, the Widget updates to display the new data.
+If a different image is set, the Widget will update to display the new image.
 
-The `Image` constructor accepts a `load_async` parameter. If set to `True`, the first render of the image (and subsequent ones after a resize) will not actually render the image, but start processing the image data asynchronously. The Widget will update itself when this is done to show the image. A loading indicator is shown during processing. This helps to keep the app responsive if large images are passed to this class.
-But it does come with the overhead of double the update cycles and running asynchronous tasks.
+By default, the best available rendering option is used. To override this, you can instantiate `textual_kitty.widget.TGPImage`, `textual_kitty.widget.HalfcellImage`, or `textual_kitty.widget.UnicodeImage` directly.
 
-This again uses the best available rendering option. To override this behavior, specify `image_renderable_type` in the widget's constructor as one of  `textual_kitty.renderable.tgp.Image`, `textual_kitty.renderable.fallback.colored.Image`, or `textual_kitty.renderable.fallback.grayscale.Image`.
-
-Please note determining the best available rendering option queries the terminal. This means data is sent to and read from it.
-As Textual starts threads to handle input and output, this query doesn't work anymore once the Textual app is started.
-In practice, this means `textual_kitty.renderable` needs to be imported _before_ Textual runs (which should be the case in most use cases anyway).
+_*Note*_: The process of determining the best available rendering option involves querying the terminal, which means sending and receiving data. Since Textual starts threads to handle input and output, this query will **not work** once the Textual app has started. Therefore, make sure that `textual_kitty.renderable` is imported **before** running the Textual app (which is typically the case in most use cases).
 
 ## Contribution
 
-If you find this module helpful, please leave this repository a star.
+If you find this module useful, please consider starring the repository on GitHub.
 
-For now, I just moved this functionality from a private project to a public GitHub repo/PyPI package. It works fine for my use case, please fill a bug ticket if you encounter unexpected behavior.
+This project began by moving some TGP functionality from a private project to a public GitHub repository and PyPI package, with some additional code added along the way. If you encounter any issues, please file an issue on GitHub.
 
-And, of course, pull requests are welcome.
+Contributions via pull requests are welcome and encouraged.

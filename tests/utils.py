@@ -3,14 +3,14 @@ from unittest.mock import patch
 
 from rich.console import Console, RenderableType
 
-from tests.data import TERM_SIZE
+from tests.data import TERMINAL_SIZES
 
 
 def render(renderable: RenderableType) -> str:
     stdout = io.StringIO()
     console = Console(
-        width=TERM_SIZE.columns,
-        height=TERM_SIZE.rows,
+        width=TERMINAL_SIZES.columns,
+        height=TERMINAL_SIZES.rows,
         file=stdout,
         color_system="truecolor",
         legacy_windows=False,
