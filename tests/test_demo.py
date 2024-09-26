@@ -8,7 +8,6 @@ from textual.pilot import Pilot
 from textual.widgets import Button
 
 from textual_kitty import demo
-from textual_kitty.renderable.fallback.grayscale import Image
 
 
 def test_arg_parsing() -> None:
@@ -22,27 +21,12 @@ def test_arg_parsing() -> None:
             demo.run()
     assert demo_textual.called
 
-    with patch("sys.argv", ["demo", "rich", "-p", "tgp"]):
-        with patch("textual_kitty.demo.demo_rich") as demo_rich:
-            demo.run()
-    assert demo_rich.call_args[0][0].__module__ == "textual_kitty.renderable.tgp"
-
-    with patch("sys.argv", ["demo", "rich", "-p", "colored-fallback"]):
-        with patch("textual_kitty.demo.demo_rich") as demo_rich:
-            demo.run()
-    assert demo_rich.call_args[0][0].__module__ == "textual_kitty.renderable.fallback.colored"
-
-    with patch("sys.argv", ["demo", "rich", "-p", "grayscale-fallback"]):
-        with patch("textual_kitty.demo.demo_rich") as demo_rich:
-            demo.run()
-    assert demo_rich.call_args[0][0].__module__ == "textual_kitty.renderable.fallback.grayscale"
-
 
 def test_rich() -> None:
     stdout = io.StringIO()
     with patch.object(Console, "file", stdout):
-        demo.demo_rich(Image)
-    assert "░░░░▒▒░░▒▒" in stdout.getvalue()
+        demo.demo_rich("auto")
+    assert "█▒▒░░░░░░░░░░" in stdout.getvalue()
 
 
 async def test_textual() -> None:
@@ -55,7 +39,8 @@ async def test_textual() -> None:
 
     # This doesn't actually test much, but at least we run the code.
     with patch.object(App, "run", run_wrapper):
-        demo.demo_textual(Image)
+        demo.demo_textual("auto")
         async with cast(AsyncContextManager[Pilot[Any]], awaitable) as pilot:
-            pilot.app.query_one(Button).press()
+            pilot.app.query_one("#zoom-in", Button).press()
+            pilot.app.query_one("#zoom-out", Button).press()
             await pilot.pause()

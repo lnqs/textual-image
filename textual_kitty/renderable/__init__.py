@@ -1,24 +1,28 @@
-"""rich `Renderable`s to display images in terminal."""
+"""Rich renderables to display images in terminal."""
 
 import logging
 import sys
 from typing import Type
 
 from textual_kitty.renderable import tgp
-from textual_kitty.renderable.fallback import colored, grayscale
+from textual_kitty.renderable.halfcell import Image as HalfcellImage
+from textual_kitty.renderable.tgp import Image as TGPImage
+from textual_kitty.renderable.unicode import Image as UnicodeImage
 
 logger = logging.getLogger(__name__)
 
-Image: Type[tgp.Image | colored.Image | grayscale.Image]
-
 is_tty = sys.__stdout__ and sys.__stdout__.isatty()
+
+Image: Type[TGPImage | HalfcellImage | UnicodeImage]
 
 if is_tty and tgp.query_terminal_support():
     logger.debug("Terminal Graphics Protocol support detected")
-    Image = tgp.Image
+    Image = TGPImage
 elif is_tty:
-    logger.debug("No Terminal Graphics Protocol support detected, falling back to colored unicode")
-    Image = colored.Image
+    logger.debug("Connected to a terminal, using half cell rendering")
+    Image = HalfcellImage
 else:
-    logger.debug("Not connected to a terminal, falling back to grayscale unicode")
-    Image = grayscale.Image
+    logger.debug("Not connected to a terminal, falling back to unicode")
+    Image = UnicodeImage
+
+__all__ = ["Image", "TGPImage", "HalfcellImage", "UnicodeImage"]

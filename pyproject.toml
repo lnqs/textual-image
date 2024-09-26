@@ -19,7 +19,6 @@ classifiers = [
   "Topic :: Software Development :: Libraries",
   "Topic :: Software Development :: User Interfaces",
 
-  "License :: OSI Approved :: MIT License",
   "License :: OSI Approved :: GNU General Public License (GPL)",
   "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
 
@@ -30,8 +29,8 @@ classifiers = [
 ]
 
 dependencies = [
-    "pillow~=10.4.0",
-    "rich",
+    "pillow>=10.4.0",
+    "rich>=13.8.0",
 ]
 
 [project.urls]
@@ -42,7 +41,7 @@ Issues = "https://github.com/lnqs/textual-kitty/issues"
 
 [project.optional-dependencies]
 textual = [
-    "textual",
+    "textual>=0.81.0",
 ]
 dev = [
     "mypy",
@@ -85,3 +84,7 @@ asyncio_default_fixture_loop_scope = "function"
 [tool.coverage.report]
 fail_under = 100
 exclude_lines = ["if __name__ == .__main__.:"]
+
+[tool.mypy]
+strict = true
+

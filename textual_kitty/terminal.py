@@ -1,11 +1,16 @@
 """Functionality to interact with the terminal."""
 
 import logging
+import os
 import sys
 import termios
+import tty
 from array import array
+from contextlib import contextmanager
 from fcntl import ioctl
-from typing import NamedTuple
+from select import select
+from types import SimpleNamespace
+from typing import Iterator, NamedTuple
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +21,7 @@ class TerminalError(Exception):
     pass
 
 
-class TerminalSizeInformation(NamedTuple):
+class TerminalSizes(NamedTuple):
     """Size of several terminal features."""
 
     rows: int
@@ -33,7 +38,7 @@ class TerminalSizeInformation(NamedTuple):
     """Height of a terminal cell in pixels."""
 
 
-def get_terminal_size_info() -> TerminalSizeInformation:
+def get_terminal_sizes() -> TerminalSizes:
     """Get size information from the terminal.
 
     Returns:
@@ -66,9 +71,9 @@ def get_terminal_size_info() -> TerminalSizeInformation:
         screen_height = 0
 
     cell_width = int(screen_width / columns) or 8
-    cell_height = int(screen_height / rows) or 12
+    cell_height = int(screen_height / rows) or 16
 
-    return TerminalSizeInformation(
+    return TerminalSizes(
         rows=rows,
         columns=columns,
         screen_width=screen_width,
@@ -76,3 +81,52 @@ def get_terminal_size_info() -> TerminalSizeInformation:
         cell_width=cell_width,
         cell_height=cell_height,
     )
+
+
+@contextmanager
+def capture_terminal_response(
+    start_marker: str, end_marker: str, timeout: float | None = None
+) -> Iterator[SimpleNamespace]:
+    """Captures a terminal response.
+
+    Captures the terminal's response to an escape sequence.
+    This is a bit flaky -- keystrokes during reading the response can lead to false answers.
+    Additionally, when the terminal does *not* doesn't send an answer, the first character
+    of stdin may get lost as this function reads it to determine if it is the response.
+    Anyway, as this is improbable to happen, it should be fine.
+
+    Please not this function will not work anymore once Textual is started. Textual runs a threads to read stdin
+    and will grab the response.
+
+    Args:
+        start_marker: The start sequence of the expected response
+        end_marker: The end sequence of the expected response
+        timeout: The number of seconds to wait for the response. None to disable timeout.
+
+    Returns:
+        The terminal's response
+    """
+    if not sys.__stdin__:
+        raise TerminalError("stdout is closed")
+
+    response = SimpleNamespace(sequence="")
+
+    stdin = sys.__stdin__.buffer.fileno()
+    old_term_mode = termios.tcgetattr(stdin)
+    tty.setcbreak(stdin, termios.TCSANOW)
+
+    try:
+        yield response
+
+        while not response.sequence.endswith(end_marker):
+            readable, _, _ = select([stdin], [], [], timeout)
+            if not readable:
+                raise TimeoutError("Timeout waiting for response")
+
+            response.sequence += os.read(stdin, 1).decode()
+
+            if not response.sequence.startswith(start_marker[: len(response.sequence)]):
+                raise TerminalError("Unexpected response from terminal")
+
+    finally:
+        termios.tcsetattr(stdin, termios.TCSANOW, old_term_mode)
