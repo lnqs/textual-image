@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.4.0](https://github.com/lnqs/textual-kitty/compare/v0.3.0...v0.4.0) (2024-09-28)
+
+
+### ⚠ BREAKING CHANGES
+
+* refactor and reorganize code
+
+### Miscellaneous Chores
+
+* refactor and reorganize code ([3dc0190](https://github.com/lnqs/textual-kitty/commit/3dc01907e8dc005e34f567b80915e0ac0d91dd5e))
+
 ## [0.3.0](https://github.com/lnqs/textual-kitty/compare/v0.2.0...v0.3.0) (2024-09-20)
 
 
