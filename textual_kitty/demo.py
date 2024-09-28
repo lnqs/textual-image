@@ -15,6 +15,9 @@ from textual_kitty.renderable import (
     Image as AutoRenderable,
 )
 from textual_kitty.renderable import (
+    SixelImage as SixelRenderable,
+)
+from textual_kitty.renderable import (
     TGPImage as TGPRenderable,
 )
 from textual_kitty.renderable import (
@@ -22,6 +25,7 @@ from textual_kitty.renderable import (
 )
 from textual_kitty.widget import HalfcellImage as HalfcellWidget
 from textual_kitty.widget import Image as AutoWidget
+from textual_kitty.widget import SixelImage as SixelWidget
 from textual_kitty.widget import TGPImage as TGPWidget
 from textual_kitty.widget import UnicodeImage as UnicodeWidget
 
@@ -30,6 +34,7 @@ TEST_IMAGE = Path(__file__).parent / "gracehopper.jpg"
 RENDERING_PROTOCOLS = {
     "auto": (AutoRenderable, AutoWidget),
     "tgp": (TGPRenderable, TGPWidget),
+    "sixel": (SixelRenderable, SixelWidget),
     "halfcell": (HalfcellRenderable, HalfcellWidget),
     "unicode": (UnicodeRenderable, UnicodeWidget),
 }

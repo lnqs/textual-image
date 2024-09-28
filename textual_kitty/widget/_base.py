@@ -20,7 +20,26 @@ class Image(Widget):
 
     Renderable: Type[_ImageRenderable]
 
-    def __init_subclass__(cls, Renderable: Type[_ImageRenderable]) -> None:
+    @override
+    def __init_subclass__(
+        cls,
+        Renderable: Type[_ImageRenderable],
+        can_focus: bool | None = None,
+        can_focus_children: bool | None = None,
+        inherit_css: bool = True,
+        inherit_bindings: bool = True,
+    ) -> None:
+        """Initializes sub classes.
+
+        Args:
+            cls: The sub class to initialize.
+            Renderable: The image renderable the subclass is supposed to use.
+            can_focus: Is the Widget can become focussed.
+            can_focus_children: If the Widget's children can become focussed.
+            inherit_css: If CSS should be inherited.
+            inherit_bindings: If bindings should be inherited.
+        """
+        super().__init_subclass__(can_focus, can_focus_children, inherit_css, inherit_bindings)
         cls.Renderable = Renderable
 
     def __init__(
@@ -32,7 +51,7 @@ class Image(Widget):
         classes: str | None = None,
         disabled: bool = False,
     ) -> None:
-        """Initialized the `Image`.
+        """Initializes the `Image`.
 
         Args:
             image: Path to an image file or `PIL.Image.Image` instance with the image data to render.
@@ -43,6 +62,10 @@ class Image(Widget):
         """
         super().__init__(name=name, id=id, classes=classes, disabled=disabled)
         self._renderable: _ImageRenderable | None = None
+        self._image: str | Path | PILImage.Image | None = None
+        self._image_width: int = 0
+        self._image_height: int = 0
+
         self.image = image
 
     @property

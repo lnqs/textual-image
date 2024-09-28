@@ -36,8 +36,19 @@ def test_pixel_data_size() -> None:
         assert data.height == image.height
 
 
+def test_pixel_data_pil_image() -> None:
+    data = PixelData(TEST_IMAGE)
+    assert isinstance(data.pil_image, PILImage.Image)
+
+
 def test_pixel_data_scale() -> None:
     data = PixelData(TEST_IMAGE).scaled(32, 32)
+    assert data._image.width == 32
+    assert data._image.height == 32
+
+
+def test_pixel_data_crop() -> None:
+    data = PixelData(TEST_IMAGE).cropped(32, 32, 64, 64)
     assert data._image.width == 32
     assert data._image.height == 32
 

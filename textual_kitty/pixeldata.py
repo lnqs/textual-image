@@ -62,6 +62,11 @@ class PixelData:
             self._image = self._image.convert("RGB")
 
     @property
+    def pil_image(self) -> PILImage.Image:
+        """The image as `PILImage.Image`."""
+        return self._image
+
+    @property
     def width(self) -> int:
         """The image's width."""
         return self._image.width
@@ -83,6 +88,21 @@ class PixelData:
         """
         scaled_image = self._image.resize((width, height))
         return PixelData(scaled_image)
+
+    def cropped(self, left: int, top: int, right: int, bottom: int) -> "PixelData":
+        """Returns a cropped copy of this PixelData.
+
+        Args:
+            left: Left position of the crop rectangle.
+            top: Top position of the crop rectangle.
+            right: Right position of the crop rectangle.
+            bottom: Bottom position of the crop rectangle.
+
+        Returns:
+            A new `PixelData` instance of the same image, cropped (left, top, right, bottom).
+        """
+        cropped_image = self._image.crop((left, top, right, bottom))
+        return PixelData(cropped_image)
 
     def to_base64(self) -> str:
         """Return the pixel data as base64 encoded PNG.
