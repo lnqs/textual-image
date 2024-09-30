@@ -8,12 +8,12 @@ from rich.console import Console, ConsoleOptions, RenderResult
 from rich.measure import Measurement
 from rich.segment import Segment
 
-from textual_kitty.geometry import ImageSize
-from textual_kitty.pixeldata import PixelData
-from textual_kitty.terminal import get_terminal_sizes
-from textual_kitty.utils import clamp
+from textual_kitty._geometry import ImageSize
+from textual_kitty._pixeldata import PixelData
+from textual_kitty._terminal import get_terminal_sizes
+from textual_kitty._utils import clamp
 
-CHARACTERS = [
+_CHARACTERS = [
     "█",  # FULL BLOCK
     "▓",  # DARK SHADE
     "▒",  # MEDIUM SHADE
@@ -21,10 +21,10 @@ CHARACTERS = [
     " ",  # SPACE
 ]
 
-CHARACTER_LOOKUP = {int(255 / len(CHARACTERS) * i): c for i, c in enumerate(CHARACTERS)}
+_CHARACTER_LOOKUP = {int(255 / len(_CHARACTERS) * i): c for i, c in enumerate(_CHARACTERS)}
 
 
-def map_pixel(pixel_value: int) -> str:
+def _map_pixel(pixel_value: int) -> str:
     """Maps a grayscale pixel value to a unicode character.
 
     Args:
@@ -34,8 +34,8 @@ def map_pixel(pixel_value: int) -> str:
         Unicode character resembling the pixel value.
     """
     brightness = clamp(255 - pixel_value, 1, 254)
-    index = int(255 / len(CHARACTER_LOOKUP)) * int(brightness / int(255 / len(CHARACTER_LOOKUP)))
-    return CHARACTER_LOOKUP[index]
+    index = int(255 / len(_CHARACTER_LOOKUP)) * int(brightness / int(255 / len(_CHARACTER_LOOKUP)))
+    return _CHARACTER_LOOKUP[index]
 
 
 class Image:
@@ -77,7 +77,7 @@ class Image:
         width, height = self._render_size.get_cell_size(options.max_width, options.max_height, terminal_sizes)
 
         for row in self._image_data.scaled(width, height):
-            yield Segment("".join(map_pixel(cast(int, pixel)) for pixel in row) + "\n")
+            yield Segment("".join(_map_pixel(cast(int, pixel)) for pixel in row) + "\n")
 
     def __rich_measure__(self, console: Console, options: ConsoleOptions) -> Measurement:
         """Called by Rich to get the render width without actually rendering the object.

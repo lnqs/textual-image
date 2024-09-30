@@ -13,19 +13,19 @@ from rich.measure import Measurement
 from rich.segment import Segment
 from rich.style import Style
 
-from textual_kitty.geometry import ImageSize
-from textual_kitty.pixeldata import PixelData
-from textual_kitty.terminal import TerminalError, capture_terminal_response, get_terminal_sizes
+from textual_kitty._geometry import ImageSize
+from textual_kitty._pixeldata import PixelData
+from textual_kitty._terminal import TerminalError, capture_terminal_response, get_terminal_sizes
 
 logger = logging.getLogger(__name__)
 
-TGP_MESSAGE_START = "\x1b_G"
-TGP_MESSAGE_END = "\x1b\\"
+_TGP_MESSAGE_START = "\x1b_G"
+_TGP_MESSAGE_END = "\x1b\\"
 
-PLACEHOLDER = 0x10EEEE
+_PLACEHOLDER = 0x10EEEE
 
 # fmt: off
-NUMBER_TO_DIACRITIC = [
+_NUMBER_TO_DIACRITIC = [
      0x00305, 0x0030d, 0x0030e, 0x00310, 0x00312, 0x0033d, 0x0033e, 0x0033f, 0x00346, 0x0034a, 0x0034b, 0x0034c,
      0x00350, 0x00351, 0x00352, 0x00357, 0x0035b, 0x00363, 0x00364, 0x00365, 0x00366, 0x00367, 0x00368, 0x00369,
      0x0036a, 0x0036b, 0x0036c, 0x0036d, 0x0036e, 0x0036f, 0x00483, 0x00484, 0x00485, 0x00486, 0x00487, 0x00592,
@@ -60,10 +60,10 @@ def _send_tgp_message(*, payload: str | None = None, **kwargs: int | str | None)
         raise TerminalError("sys.__stdout__ is None")
 
     ans = [
-        TGP_MESSAGE_START,
+        _TGP_MESSAGE_START,
         ",".join(f"{k}={v}" for k, v in kwargs.items() if v is not None),
         f";{payload}" if payload else "",
-        TGP_MESSAGE_END,
+        _TGP_MESSAGE_END,
     ]
 
     sequence = "".join(ans)
@@ -123,7 +123,7 @@ class Image:
             options.max_width, options.max_height, terminal_sizes
         )
 
-        if cell_width > len(NUMBER_TO_DIACRITIC) or cell_height > len(NUMBER_TO_DIACRITIC):
+        if cell_width > len(_NUMBER_TO_DIACRITIC) or cell_height > len(_NUMBER_TO_DIACRITIC):
             raise ValueError("Image to large to render")
 
         if not self.terminal_image_id:
@@ -178,11 +178,11 @@ class Image:
         style = Style(
             color=f"rgb({(self.terminal_image_id >> 16) & 255}, {(self.terminal_image_id >> 8) & 255}, {self.terminal_image_id & 255})"
         )
-        id_char = NUMBER_TO_DIACRITIC[(self.terminal_image_id >> 24) & 255]
+        id_char = _NUMBER_TO_DIACRITIC[(self.terminal_image_id >> 24) & 255]
         for r in range(height):
             line = ""
             for c in range(width):
-                line += f"{chr(PLACEHOLDER)}{chr(NUMBER_TO_DIACRITIC[r])}{chr(NUMBER_TO_DIACRITIC[c])}{chr(id_char)}"
+                line += f"{chr(_PLACEHOLDER)}{chr(_NUMBER_TO_DIACRITIC[r])}{chr(_NUMBER_TO_DIACRITIC[c])}{chr(id_char)}"
             line += "\n"
             yield Segment(line, style=style)
 
@@ -206,11 +206,11 @@ def query_terminal_support() -> bool:
     """
     try:
         with capture_terminal_response(
-            start_marker=TGP_MESSAGE_START, end_marker=TGP_MESSAGE_END, timeout=0.1
+            start_marker=_TGP_MESSAGE_START, end_marker=_TGP_MESSAGE_END, timeout=0.1
         ) as response:
             _send_tgp_message(i=randint(1, 2**32), s=1, v=1, a="q", t="d", f=24, payload="AAAA")
 
-        response_message = response.sequence[len(TGP_MESSAGE_START) : -len(TGP_MESSAGE_END)]
+        response_message = response.sequence[len(_TGP_MESSAGE_START) : -len(_TGP_MESSAGE_END)]
         _, status = response_message.rsplit(";", 1)
         if status == "OK":
             return True

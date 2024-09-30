@@ -8,7 +8,7 @@ from typing import ContextManager, Iterable, Iterator, Literal, Tuple
 
 from PIL import Image as PILImage
 
-from textual_kitty.utils import grouped
+from textual_kitty._utils import grouped
 
 
 def ensure_image(image: str | Path | PILImage.Image) -> ContextManager[PILImage.Image]:

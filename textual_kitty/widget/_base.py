@@ -9,21 +9,21 @@ from textual.css.styles import RenderStyles
 from textual.geometry import Size
 from textual.widget import Widget
 
-from textual_kitty.geometry import ImageSize
-from textual_kitty.pixeldata import PixelMeta
-from textual_kitty.renderable._protocol import _ImageRenderable
-from textual_kitty.terminal import get_terminal_sizes
+from textual_kitty._geometry import ImageSize
+from textual_kitty._pixeldata import PixelMeta
+from textual_kitty._terminal import get_terminal_sizes
+from textual_kitty.renderable._protocol import ImageRenderable
 
 
 class Image(Widget):
     """Textual `Widget` to render images in the terminal."""
 
-    Renderable: Type[_ImageRenderable]
+    _Renderable: Type[ImageRenderable]
 
     @override
     def __init_subclass__(
         cls,
-        Renderable: Type[_ImageRenderable],
+        Renderable: Type[ImageRenderable],
         can_focus: bool | None = None,
         can_focus_children: bool | None = None,
         inherit_css: bool = True,
@@ -40,7 +40,7 @@ class Image(Widget):
             inherit_bindings: If bindings should be inherited.
         """
         super().__init_subclass__(can_focus, can_focus_children, inherit_css, inherit_bindings)
-        cls.Renderable = Renderable
+        cls._Renderable = Renderable
 
     def __init__(
         self,
@@ -61,7 +61,7 @@ class Image(Widget):
             disabled: Whether the widget is disabled or not.
         """
         super().__init__(name=name, id=id, classes=classes, disabled=disabled)
-        self._renderable: _ImageRenderable | None = None
+        self._renderable: ImageRenderable | None = None
         self._image: str | Path | PILImage.Image | None = None
         self._image_width: int = 0
         self._image_height: int = 0
@@ -102,7 +102,7 @@ class Image(Widget):
             self._renderable.cleanup()
             self._renderable = None
 
-        self._renderable = self.Renderable(self._image, *self._get_styled_size())
+        self._renderable = self._Renderable(self._image, *self._get_styled_size())
         return self._renderable
 
     @override

@@ -6,7 +6,7 @@ from rich.console import Console, ConsoleOptions, RenderResult
 from rich.measure import Measurement
 
 
-class _ImageRenderable(Protocol):
+class ImageRenderable(Protocol):
     """Protocol for `Image` renderables."""
 
     def __init__(

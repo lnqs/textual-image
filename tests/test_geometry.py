@@ -1,7 +1,7 @@
 from pytest import raises
 
 from tests.data import TERMINAL_SIZES
-from textual_kitty.geometry import ImageSize
+from textual_kitty._geometry import ImageSize
 
 
 def test_image_size_validation() -> None:

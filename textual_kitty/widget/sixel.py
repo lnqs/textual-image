@@ -15,10 +15,10 @@ from textual.geometry import Region, Size
 from textual.strip import Strip
 from textual.widget import Widget
 
+from textual_kitty._geometry import ImageSize
+from textual_kitty._pixeldata import PixelData
 from textual_kitty._sixel import image_to_sixels
-from textual_kitty.geometry import ImageSize
-from textual_kitty.pixeldata import PixelData
-from textual_kitty.terminal import TerminalSizes, get_terminal_sizes
+from textual_kitty._terminal import TerminalSizes, get_terminal_sizes
 from textual_kitty.widget._base import Image as BaseImage
 
 logger = logging.getLogger(__name__)

@@ -3,7 +3,7 @@
 from types import NoneType
 from typing import NamedTuple, Tuple, cast
 
-from textual_kitty.terminal import TerminalSizes
+from textual_kitty._terminal import TerminalSizes
 
 
 class ImageSize(NamedTuple):

@@ -9,10 +9,10 @@ from rich.control import Control
 from rich.measure import Measurement
 from rich.segment import ControlType, Segment
 
+from textual_kitty._geometry import ImageSize
+from textual_kitty._pixeldata import PixelData
 from textual_kitty._sixel import image_to_sixels
-from textual_kitty.geometry import ImageSize
-from textual_kitty.pixeldata import PixelData
-from textual_kitty.terminal import TerminalError, capture_terminal_response, get_terminal_sizes
+from textual_kitty._terminal import TerminalError, capture_terminal_response, get_terminal_sizes
 
 
 class Image:
