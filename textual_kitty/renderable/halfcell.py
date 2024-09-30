@@ -11,13 +11,13 @@ from rich.measure import Measurement
 from rich.segment import Segment
 from rich.style import Style
 
-from textual_kitty.geometry import ImageSize
-from textual_kitty.pixeldata import PixelData
-from textual_kitty.terminal import get_terminal_sizes
-from textual_kitty.utils import grouped
+from textual_kitty._geometry import ImageSize
+from textual_kitty._pixeldata import PixelData
+from textual_kitty._terminal import get_terminal_sizes
+from textual_kitty._utils import grouped
 
 
-def map_pixel(pixel_value: Tuple[int, int, int]) -> Color:
+def _map_pixel(pixel_value: Tuple[int, int, int]) -> Color:
     """Maps a pixel value to a colored halfcells.
 
     Args:
@@ -70,7 +70,7 @@ class Image:
 
         for upper_row, lower_row in grouped(self._image_data.scaled(width, height), 2):
             for upper_pixel, lower_pixel in zip(upper_row, lower_row):
-                yield Segment("▀", style=Style(color=map_pixel(upper_pixel), bgcolor=map_pixel(lower_pixel)))  # type: ignore
+                yield Segment("▀", style=Style(color=_map_pixel(upper_pixel), bgcolor=_map_pixel(lower_pixel)))  # type: ignore
             yield Segment("\n")
 
     def __rich_measure__(self, console: Console, options: ConsoleOptions) -> Measurement:

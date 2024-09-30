@@ -2,7 +2,7 @@ from pathlib import Path
 
 from rich.console import ConsoleDimensions, ConsoleOptions
 
-from textual_kitty.terminal import TerminalSizes
+from textual_kitty._terminal import TerminalSizes
 
 TEST_IMAGE = Path(__file__).parent.parent / "textual_kitty" / "gracehopper.jpg"
 

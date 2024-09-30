@@ -2,7 +2,7 @@ from itertools import groupby
 
 from PIL import Image as PILImage
 
-from textual_kitty.utils import grouped
+from textual_kitty._utils import grouped
 
 DCS = "\x1bP"
 ST = "\x1b\\"
