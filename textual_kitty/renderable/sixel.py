@@ -58,7 +58,7 @@ class Image:
         # This way rich realizes how much space the renderable uses.
         for _ in range(cell_height):
             yield Segment(" " * cell_width + "\n")
-        yield Control.move(0, -cell_height)
+        yield Control.move(0, -cell_height + 1)
 
         scaled_image = self._image_data.scaled(pixel_width, pixel_height)
         sixel_data = image_to_sixels(scaled_image.pil_image)
