@@ -180,11 +180,11 @@ class Image:
         )
         id_char = _NUMBER_TO_DIACRITIC[(self.terminal_image_id >> 24) & 255]
         for r in range(height):
-            line = ""
-            for c in range(width):
-                line += f"{chr(_PLACEHOLDER)}{chr(_NUMBER_TO_DIACRITIC[r])}{chr(_NUMBER_TO_DIACRITIC[c])}{chr(id_char)}"
-            line += "\n"
-            yield Segment(line, style=style)
+            line = "".join(
+                f"{chr(_PLACEHOLDER)}{chr(_NUMBER_TO_DIACRITIC[r])}{chr(_NUMBER_TO_DIACRITIC[c])}{chr(id_char)}"
+                for c in range(width)
+            )
+            yield Segment(line + "\n", style=style)
 
 
 def query_terminal_support() -> bool:
