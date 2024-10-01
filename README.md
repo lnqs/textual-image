@@ -71,6 +71,21 @@ _Note_: Testing has been conducted primarily using Kitty for TGP and xterm for S
 
 ✅ = Supported; ❌ = Not Supported; ⚫ = To Be Tested
 
+### Enabling Sixel Support on xterm
+
+Sixel on xterm is disabled by default. To enable it, add `+lc` and `-ti vt340` options when launching xterm:
+
+```sh
+xterm +lc -ti vt340
+```
+
+Alternatively, you can add these options to your xterm configuration file (`~/.Xresources` or `~/.Xdefaults`) to make the change permanent:
+
+```sh
+echo 'XTerm*decTerminalID: vt340' >> ~/.Xresources
+xrdb -merge ~/.Xresources
+```
+
 ## Installation
 
 Install _textual-kitty_ using pip with the following commands:
