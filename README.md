@@ -2,20 +2,74 @@
 
 *Render images directly in your terminal using [Textual](https://www.textualize.io/) and [Rich](https://github.com/Textualize/rich).* 
 
-
 ![Demo App Screen #1](./demo1.png)
 &nbsp;&nbsp;&nbsp;
 ![Demo App Screen #1](./demo2.png)
 
-_textual-kitty_ offers both a Rich renderable and a Textual Widget that leverage the [Terminal Graphics Protocol (TGP)](https://sw.kovidgoyal.net/kitty/graphics-protocol/) protocol to display images in your terminal. For terminals that don't support TGP, fallback rendering using Unicode characters is available.
-
+_textual-kitty_ offers both Rich renderables and Textual Widgets that leverage the [Terminal Graphics Protocol (TGP)](https://sw.kovidgoyal.net/kitty/graphics-protocol/) and [Sixel](https://en.wikipedia.org/wiki/Sixel) protocols to display images in your terminal. For terminals that don't support these protocols, fallback rendering using Unicode characters is available.
 
 ## Supported Terminals
 
-The _Terminal Graphics Protocol_ (TGP) was initially introduced by the [Kitty](https://sw.kovidgoyal.net/kitty/) terminal emulator and is completely supported therein. Additionally, TGP is largely implemented in [WezTerm](https://wezfurlong.org/wezterm/index.html) and partially supported by [Konsole](https://konsole.kde.org/) and [wayst](https://github.com/91861/wayst).
+- **Terminal Graphics Protocol (TGP)**: Initially introduced by the [Kitty](https://sw.kovidgoyal.net/kitty/) terminal emulator, fully supported in Kitty, and largely implemented in [WezTerm](https://wezfurlong.org/wezterm/index.html) and partially supported by [Konsole](https://konsole.kde.org/) and [wayst](https://github.com/91861/wayst).
+- **Sixel Graphics**: Supported by various terminal emulators including [xterm](https://invisible-island.net/xterm/) and others.
 
+_Note_: Testing has been conducted primarily using Kitty for TGP and xterm for Sixel. And only on Linux so far. Feedback and interoperability testing on other terminal emulators would be highly valued.
 
-_Note_: Testing has been conducted primarily using Kitty. Feedback and interoperability testing on other terminal emulators would be highly valued.
+### Support Matrix
+
+*Based on [Are We Sixel Yet?](https://www.arewesixelyet.com/)*
+
+| Terminal            | TPG support | Sixel support | Works with textual-kitty |
+|---------------------|:-----------:|:-------------:|:------------------------:|
+| Alacritty           |          ❌ |            ❌ |                          |
+| Black Box           |          ❌ |            ✅ |                       ⚫ |
+| Bobcat              |          ❌ |            ✅ |                       ⚫ |
+| ConEmu              |          ❌ |            ❌ |                          |
+| Contour             |          ❌ |            ✅ |                       ⚫ |
+| ctx terminal        |          ❌ |            ✅ |                       ⚫ |
+| Darktile            |          ❌ |            ✅ |                       ⚫ |
+| DomTerm             |          ❌ |            ✅ |                       ⚫ |
+| Eat                 |          ❌ |            ✅ |                       ⚫ |
+| Elementary Terminal |          ❌ |            ❌ |                          |
+| foot                |          ❌ |            ✅ |                       ⚫ |
+| GNOME Terminal      |          ❌ |            ❌ |                          |
+| guake               |          ❌ |            ❌ |                          |
+| iTerm2              |          ❌ |            ✅ |                       ⚫ |
+| kitty               |          ✅ |            ❌ |                       ✅ |
+| konsole             |          ✅ |            ✅ |                       ⚫ |
+| LaTerminal          |          ❌ |            ✅ |                       ⚫ |
+| MacTerm             |          ❌ |            ✅ |                       ⚫ |
+| mintty              |          ❌ |            ✅ |                       ⚫ |
+| mlterm              |          ❌ |            ✅ |                       ⚫ |
+| MobaXterm           |          ❌ |            ❌ |                          |
+| PuTTY               |          ❌ |            ❌ |                          |
+| Rio terminal        |          ❌ |            ❌ |                          |
+| Rlogin              |          ❌ |            ✅ |                       ⚫ |
+| suckless st         |          ❌ |            ❌ |                          |
+| SwiftTerm           |          ❌ |            ✅ |                       ⚫ |
+| SyncTERM            |          ❌ |            ✅ |                       ⚫ |
+| TeraTerm            |          ❌ |            ❌ |                          |
+| Terminal.app        |          ❌ |            ❌ |                          |
+| Terminology         |          ❌ |            ❌ |                          |
+| termux              |          ❌ |            ❌ |                          |
+| Tilix               |          ❌ |            ❌ |                          |
+| tmux                |          ❌ |            ✅ |                       ⚫ |
+| toyterm             |          ❌ |            ✅ |                       ⚫ |
+| URxvt               |          ❌ |            ❌ |                          |
+| U++                 |          ❌ |            ✅ |                       ⚫ |
+| Visual Studio Code  |          ❌ |            ✅ |                       ⚫ |
+| wayst               |          ✅ |            ✅ |                       ⚫ |
+| wezterm             |          ✅ |            ✅ |                       ⚫ |
+| Windows Console     |          ❌ |            ❌ |                          |
+| Windows Terminal    |          ❌ |            ✅ |                       ⚫ |
+| xfce-terminal       |          ❌ |            ✅ |                       ⚫ |
+| xterm               |          ❌ |            ✅ |                       ✅ |
+| xterm.js            |          ❌ |            ✅ |                       ⚫ |
+| yaft                |          ❌ |            ✅ |                       ⚫ |
+| Yakuake             |          ❌ |            ✅ |                       ⚫ |
+| Zellij              |          ❌ |            ✅ |                       ⚫ |
+
+✅ = Supported; ❌ = Not Supported; ⚫ = To Be Tested
 
 ## Installation
 
@@ -33,7 +87,7 @@ pip install textual-kitty[textual]
 
 ## Demonstration
 
-Once installed, run demo application to see the module in action.
+Once installed, run the demo application to see the module in action.
 
 For a demonstration of the Rich renderable, use:
 ```sh
@@ -45,7 +99,7 @@ For a demonstration of the Textual Widget, use:
 python -m textual_kitty textual
 ```
 
-The module will automatically select the best available rendering option. If you wish to specify a particular rendering method, use the `-p` argument with one of the following values: `tgp`, `halfcell`, or `unicode`.
+The module will automatically select the best available rendering option. If you wish to specify a particular rendering method, use the `-p` argument with one of the following values: `tgp`, `sixel`, `halfcell`, or `unicode`.
 
 For more information, use:
 ```sh
@@ -70,12 +124,11 @@ The `Image` constructor accepts either a string, a `pathlib.Path` representing t
 
 By default, the image is rendered in its original dimensions. You can modify this behavior by specifying the `width` and/or `height` parameters. These can be defined as an integer (number of cells), a percentage string (e.g., `50%`), or the literal `auto` to automatically scale while maintaining the aspect ratio.
 
-`textual_kitty.renderable.Image` defaults to the best available rendering method. To specify a explicit rendering method, use one of the following classes: `textual_kitty.renderable.tgp.Image`, `textual_kitty.renderable.halfcell.Image`, or `textual_kitty.renderable.unicode.Image`.
+`textual_kitty.renderable.Image` defaults to the best available rendering method. To specify an explicit rendering method, use one of the following classes: `textual_kitty.renderable.tgp.Image`, `textual_kitty.renderable.sixel.Image`, `textual_kitty.renderable.halfcell.Image`, or `textual_kitty.renderable.unicode.Image`.
 
 ### Textual Integration
 
 For integration with Textual, _textual-kitty_ offers a Textual `Widget` to render images:
-
 
 ```python
 from textual.app import App, ComposeResult
@@ -107,14 +160,18 @@ ImageApp().run()
 
 If a different image is set, the Widget will update to display the new image.
 
-By default, the best available rendering option is used. To override this, you can instantiate `textual_kitty.widget.TGPImage`, `textual_kitty.widget.HalfcellImage`, or `textual_kitty.widget.UnicodeImage` directly.
+By default, the best available rendering option is used. To override this, you can instantiate `textual_kitty.widget.TGPImage`, `textual_kitty.widget.SixelImage`, `textual_kitty.widget.HalfcellImage`, or `textual_kitty.widget.UnicodeImage` directly.
 
 _*Note*_: The process of determining the best available rendering option involves querying the terminal, which means sending and receiving data. Since Textual starts threads to handle input and output, this query will **not work** once the Textual app has started. Therefore, make sure that `textual_kitty.renderable` is imported **before** running the Textual app (which is typically the case in most use cases).
+
+## Limitations
+
+- **Sixel Support in Textual**: Sixel support in Textual is not particularly performant due to the way Textual handles rendering. The Sixel graphics are injected into the rendering process in a somewhat hacky manner, which affects performance. Scrolling and changing styles of images can lead to a lot of flickering. But for mostly static images it should work fine. If not, please file an issue on GitHub.
 
 ## Contribution
 
 If you find this module useful, please consider starring the repository on GitHub.
 
-This project began by moving some TGP functionality from a private project to a public GitHub repository and PyPI package, with some additional code added along the way. If you encounter any issues, please file an issue on GitHub.
+This project began by moving some TGP functionality from a private project to a public GitHub repository and PyPI package, with some additional code added along the way to support Sixel graphics. If you encounter any issues, please file an issue on GitHub.
 
 Contributions via pull requests are welcome and encouraged.
