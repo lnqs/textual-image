@@ -12,20 +12,26 @@ authors = [
 readme = "README.md"
 
 classifiers = [
-  "Development Status :: 4 - Beta",
+    "Development Status :: 4 - Beta",
 
-  "Intended Audience :: Developers",
+    "Intended Audience :: Developers",
 
-  "Topic :: Software Development :: Libraries",
-  "Topic :: Software Development :: User Interfaces",
+    "Environment :: Console",
 
-  "License :: OSI Approved :: GNU General Public License (GPL)",
-  "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: User Interfaces",
 
-  "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: GNU General Public License (GPL)",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+
+    "Operating System :: POSIX :: Linux",
+
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+ 
+    "Typing :: Typed",
 ]
 
 dependencies = [
@@ -51,6 +57,9 @@ dev = [
     "ruff",
     "syrupy",
     "textual-dev",
+    "tox",
+    "typing-extensions",
+    "typos",
 ]
 
 [tool.setuptools]
@@ -87,4 +96,40 @@ exclude_lines = ["if __name__ == .__main__.:"]
 
 [tool.mypy]
 strict = true
+exclude = ['build/']
 
+[tool.tox]
+isolated_build = true
+envlist = ["format-check", "lint", "spell-check", "types", "py310", "py311", "py312"]
+
+[tool.tox.env.format-check]
+basepython = ["py312"]
+description = "Format check"
+skip_install = true
+deps = "ruff"
+commands = [["ruff", "format", "--check", { replace = "posargs", default = ["."] }]]
+
+[tool.tox.env.lint]
+basepython = ["py312"]
+description = "Lint"
+skip_install = true
+deps = "ruff"
+commands = [["ruff", "check", { replace = "posargs", default = ["."] }]]
+
+[tool.tox.env.spell-check]
+basepython = ["py312"]
+description = "Spell check"
+skip_install = true
+deps = "typos"
+commands = [["typos", { replace = "posargs", default = ["."] }]]
+
+[tool.tox.env.types]
+basepython = ["py312"]
+description = "Type checking"
+deps = ".[textual,dev]"
+commands = [["mypy", { replace = "posargs", default = ["."] }]]
+
+[tool.tox.env_run_base]
+description = "Run tests under {base_python}"
+deps = ".[textual,dev]"
+commands = [["pytest", "--cov=textual_kitty", "--cov-report=term-missing", "{tty:--color=yes}", "{posargs}"]]

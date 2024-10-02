@@ -1,8 +1,11 @@
 *.egg-info/
-.env
-.venv
 .coverage
+.env
+.python-version
+.tox/
+.venv
 __pycache__
+build/
 dist/
 env
 venv

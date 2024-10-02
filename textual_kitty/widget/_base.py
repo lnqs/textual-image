@@ -1,13 +1,14 @@
 """Provides a Textual `Widget` to render images in the terminal."""
 
 from pathlib import Path
-from typing import Literal, Tuple, Type, cast, override
+from typing import Literal, Tuple, Type, cast
 
 from PIL import Image as PILImage
 from textual.app import RenderResult
 from textual.css.styles import RenderStyles
 from textual.geometry import Size
 from textual.widget import Widget
+from typing_extensions import override
 
 from textual_kitty._geometry import ImageSize
 from textual_kitty._pixeldata import PixelMeta

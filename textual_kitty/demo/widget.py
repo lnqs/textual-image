@@ -176,8 +176,8 @@ class SizingPlayground(Container):
         height_unit = "" if height_unit == "cells" else height_unit
 
         if (width_unit == "auto" or width_value != "") and (height_unit == "auto" or height_value != ""):
-            width = f"{width_value if width_unit != 'auto' else ""}{width_unit}"
-            height = f"{height_value if height_unit != 'auto' else ""}{height_unit}"
+            width = f"{width_value if width_unit != 'auto' else ''}{width_unit}"
+            height = f"{height_value if height_unit != 'auto' else ''}{height_unit}"
 
             image = self.query_one(Image)
             image.styles.width = Scalar.parse(width)
