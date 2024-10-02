@@ -20,7 +20,7 @@ jobs:
       uses: ./.github/actions/check
       with:
         python-version: ${{ matrix.python-version }}
-        envs: "${{ matrix.python-version == '3.12' && 'format-check, lint, spell-check, types, rich-only, ' }}${{ matrix.python-version }}"
+        envs: "${{ matrix.python-version == '3.12' && 'format-check, lint, spell-check, types, rich-only, ' || '' }}${{ matrix.python-version }}"
 
   build:
     name: Build
