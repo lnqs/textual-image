@@ -1,4 +1,8 @@
 # textual-image
+![PyPI - Version](https://img.shields.io/pypi/v/textual-image)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/textual-image)
+![GitHub deployments](https://img.shields.io/github/deployments/lnqs/textual-image/pypi)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/textual-image)
 
 **Render images directly in your terminal using [Textual](https://www.textualize.io/) and [Rich](https://github.com/Textualize/rich).**
 
