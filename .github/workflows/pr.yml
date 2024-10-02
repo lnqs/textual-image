@@ -3,10 +3,17 @@ name: Check PR
 on:
   pull_request:
 
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   check:
     name: Check
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
 
     steps:
     - name: Checkout
@@ -14,6 +21,9 @@ jobs:
 
     - name: Check
       uses: ./.github/actions/check
+      with:
+        python-version: ${{ matrix.python-version }}
+        envs: "${{ matrix.python-version == '3.12' && 'format-check, lint, spell-check, types, rich-only, ' || '' }}${{ matrix.python-version }}"
 
   build:
     name: Build
