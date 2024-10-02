@@ -2,7 +2,7 @@
 
 import logging
 from pathlib import Path
-from typing import Iterable, NamedTuple, override
+from typing import Iterable, NamedTuple
 
 from PIL import Image as PILImage
 from rich.console import Console, ConsoleOptions, RenderResult
@@ -14,6 +14,7 @@ from textual.app import ComposeResult
 from textual.geometry import Region, Size
 from textual.strip import Strip
 from textual.widget import Widget
+from typing_extensions import override
 
 from textual_kitty._geometry import ImageSize
 from textual_kitty._pixeldata import PixelData

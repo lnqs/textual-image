@@ -1,3 +1,4 @@
+import sys
 from array import array
 from typing import IO
 from unittest.mock import patch
@@ -7,9 +8,14 @@ from pytest import raises
 from tests.data import TERMINAL_SIZES
 from textual_kitty._terminal import TerminalError, TerminalSizes, capture_terminal_response, get_terminal_sizes
 
+if sys.version_info >= (3, 12):
+    IntArray = array[int]
+else:
+    IntArray = array
+
 
 def test_get_terminal_sizes_on_tty_success() -> None:
-    def ioctl(fd: IO[bytes], request: int, buf: array[int]) -> None:
+    def ioctl(fd: IO[bytes], request: int, buf: IntArray) -> None:
         buf[0], buf[1], buf[2], buf[3], _, _ = TERMINAL_SIZES
 
     with patch("sys.__stdout__.isatty", return_value=True):
@@ -27,7 +33,7 @@ def test_get_terminal_sizes_on_tty_no_screen_size() -> None:
         cell_height=TERMINAL_SIZES.cell_height,
     )
 
-    def ioctl(fd: IO[bytes], request: int, buf: array[int]) -> None:
+    def ioctl(fd: IO[bytes], request: int, buf: IntArray) -> None:
         buf[0], buf[1], buf[2], buf[3], _, _ = terminal_sizes
 
     with patch("sys.__stdout__.isatty", return_value=True):
@@ -67,7 +73,7 @@ def test_capture_terminal_response() -> None:
     ), patch("textual_kitty._terminal.select") as select, patch("os.read") as read:
         stdin.buffer.fileno.return_value = 42
         select.return_value = [[42], [], []]
-        read.side_effect = [c.to_bytes() for c in b"[S]message[E]"]
+        read.side_effect = [c.to_bytes(1, sys.byteorder) for c in b"[S]message[E]"]
 
         with capture_terminal_response("[S]", "[E]") as response:
             pass
@@ -89,7 +95,7 @@ def test_capture_terminal_response() -> None:
     ), patch("textual_kitty._terminal.select") as select, patch("os.read") as read:
         stdin.buffer.fileno.return_value = 42
         select.return_value = [[42], [], []]
-        read.side_effect = [c.to_bytes() for c in b"not the expected message"]
+        read.side_effect = [c.to_bytes(1, sys.byteorder) for c in b"not the expected message"]
 
         with raises(TerminalError):
             with capture_terminal_response("[S]", "[E]") as response:
