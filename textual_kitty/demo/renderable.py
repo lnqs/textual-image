@@ -3,7 +3,6 @@
 """Showcase textual-kitty's Rich renderables."""
 
 from argparse import ArgumentParser
-from enum import Enum
 from pathlib import Path
 
 from rich.console import Console
@@ -28,20 +27,18 @@ from textual_kitty.renderable import (
 
 TEST_IMAGE = Path(__file__).parent / ".." / "gracehopper.jpg"
 
-
-class RenderingMethods(Enum):
-    """Available rendering methods."""
-
-    auto = AutoRenderable
-    tgp = TGPRenderable
-    sixel = SixelRenderable
-    halfcell = HalfcellRenderable
-    unicode = UnicodeRenderable
+RENDERING_METHODS = {
+    "auto": AutoRenderable,
+    "tgp": TGPRenderable,
+    "sixel": SixelRenderable,
+    "halfcell": HalfcellRenderable,
+    "unicode": UnicodeRenderable,
+}
 
 
-def run(rendering_method: RenderingMethods = RenderingMethods.auto) -> None:
+def run(rendering_method: str = "auto") -> None:
     """Showcase textual-kitty's Rich renderables."""
-    Image = rendering_method.value
+    Image = RENDERING_METHODS[rendering_method]
 
     table = Table.grid(padding=1, pad_edge=True)
     table.title = "textual-kitty's features"
@@ -75,6 +72,6 @@ def run(rendering_method: RenderingMethods = RenderingMethods.auto) -> None:
 
 if __name__ == "__main__":
     parser = ArgumentParser(description="Demo the capabilities of textual-kitty")
-    parser.add_argument("-m", "--method", choices=[m.name for m in RenderingMethods], default="auto")
+    parser.add_argument("-m", "--method", choices=RENDERING_METHODS.keys(), default="auto")
     arguments = parser.parse_args()
-    run(RenderingMethods[arguments.method])
+    run(arguments.method)
