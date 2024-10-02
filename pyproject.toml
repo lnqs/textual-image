@@ -56,7 +56,6 @@ dev = [
     "pytest-cov",
     "ruff",
     "syrupy",
-    "textual-dev",
     "tox",
     "typing-extensions",
     "typos",
@@ -100,7 +99,7 @@ exclude = ['build/']
 
 [tool.tox]
 isolated_build = true
-envlist = ["format-check", "lint", "spell-check", "types", "py310", "py311", "py312"]
+envlist = ["format-check", "lint", "spell-check", "types", "py310", "py311", "py312", "rich-only"]
 
 [tool.tox.env.format-check]
 basepython = ["py312"]
@@ -133,3 +132,9 @@ commands = [["mypy", { replace = "posargs", default = ["."] }]]
 description = "Run tests under {base_python}"
 deps = ".[textual,dev]"
 commands = [["pytest", "--cov=textual_kitty", "--cov-report=term-missing", "{tty:--color=yes}", "{posargs}"]]
+
+[tool.tox.env.rich-only]
+basepython = ["py312"]
+description = "Test with Rich only"
+deps = ".[dev]"
+commands = [["pytest", "{tty:--color=yes}", "{posargs}"]]

@@ -1,14 +1,18 @@
 from typing import Any, AsyncContextManager, cast
+from unittest import skipUnless
 from unittest.mock import patch
 
-from textual.app import App
-from textual.pilot import Pilot
-from textual.widgets import Input, Select, TabbedContent
-
-from textual_kitty.demo.widget import RenderingMethods, run
+from tests.data import TEXTUAL_ENABLED
 
 
+@skipUnless(TEXTUAL_ENABLED, "Textual support disabled")
 async def test_demo() -> None:
+    from textual.app import App
+    from textual.pilot import Pilot
+    from textual.widgets import Input, Select, TabbedContent
+
+    from textual_kitty.demo.widget import RenderingMethods, run
+
     # This is incredibly hacky. But is seems to work.
     awaitable = None
 

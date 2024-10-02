@@ -1,12 +1,17 @@
+from unittest import skipUnless
+
 from PIL import Image as PILImage
 from PIL import ImageOps
-from textual.app import App, ComposeResult
 
-from tests.data import TEST_IMAGE
-from textual_kitty.widget import Image
+from tests.data import TEST_IMAGE, TEXTUAL_ENABLED
 
 
+@skipUnless(TEXTUAL_ENABLED, "Textual support disabled")
 async def test_app() -> None:
+    from textual.app import App, ComposeResult
+
+    from textual_kitty.widget import Image
+
     class TestApp(App[None]):
         CSS = """
         .auto {
