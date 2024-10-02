@@ -1,5 +1,37 @@
 # Changelog
 
+## [0.5.0](https://github.com/lnqs/textual-image/compare/v0.4.0...v0.5.0) (2024-10-02)
+
+
+### ⚠ BREAKING CHANGES
+
+* rename to textual-image
+* consistent usage of underscore for symbols
+
+### Features
+
+* improve demo ([26595b0](https://github.com/lnqs/textual-image/commit/26595b037d08ebb89ca230913dfa78dbf275d002))
+* sixel support ([3afd860](https://github.com/lnqs/textual-image/commit/3afd860a345c9409f4f95ad3059d348fd5993057))
+
+
+### Bug Fixes
+
+* fix render method selection in demo ([79c12c1](https://github.com/lnqs/textual-image/commit/79c12c1946cd9f5a78b0f0bcb9698d8f81586f4c))
+
+
+### Documentation
+
+* add demo gif to readme ([960d334](https://github.com/lnqs/textual-image/commit/960d334e9e6d10550ccd97a9037cae893c6a7fc4))
+* add information about tested terminals ([3e9f738](https://github.com/lnqs/textual-image/commit/3e9f73811b5ffc2c203f500f0a60c295d1ae5b47))
+* add sixel support to README ([52ab610](https://github.com/lnqs/textual-image/commit/52ab6104016bf4eeca7e881957df0f9e562e6286))
+* describe how to enable Sixels on xterm ([f68697c](https://github.com/lnqs/textual-image/commit/f68697cd6e359bc4a883d7e090dc05e3faf0183e))
+
+
+### Miscellaneous Chores
+
+* consistent usage of underscore for symbols ([0b0d6e8](https://github.com/lnqs/textual-image/commit/0b0d6e80676b5b79a7dd8bff9ad8386e1a56dfa0))
+* rename to textual-image ([5552677](https://github.com/lnqs/textual-image/commit/5552677a070058ead5d2240030b9da6a489e8f88))
+
 ## [0.4.0](https://github.com/lnqs/textual-image/compare/v0.3.0...v0.4.0) (2024-09-28)
 
 
