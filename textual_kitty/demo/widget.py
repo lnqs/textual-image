@@ -3,9 +3,8 @@
 """Showcase textual-kitty's Textual Widgets."""
 
 from argparse import ArgumentParser
-from enum import Enum
 from pathlib import Path
-from typing import Type, cast
+from typing import cast
 
 from textual import on
 from textual.app import App, ComposeResult
@@ -18,19 +17,17 @@ from textual.widgets.option_list import Option
 
 from textual_kitty.widget import HalfcellImage, SixelImage, TGPImage, UnicodeImage
 from textual_kitty.widget import Image as AutoImage
-from textual_kitty.widget._base import Image as BaseImage
 
 TEST_IMAGE = Path(__file__).parent / ".." / "gracehopper.jpg"
 
 
-class RenderingMethods(Enum):
-    """Available rendering methods."""
-
-    auto = AutoImage
-    tgp = TGPImage
-    sixel = SixelImage
-    halfcell = HalfcellImage
-    unicode = UnicodeImage
+RENDERING_METHODS = {
+    "auto": AutoImage,
+    "tgp": TGPImage,
+    "sixel": SixelImage,
+    "halfcell": HalfcellImage,
+    "unicode": UnicodeImage,
+}
 
 
 class SizeGallery(Container):
@@ -68,13 +65,14 @@ class SizeGallery(Container):
     }
     """
 
-    image_type: reactive[Type[BaseImage] | None] = reactive(None, recompose=True)
+    image_type: reactive[str | None] = reactive(None, recompose=True)
 
     def compose(self) -> ComposeResult:
         """Yields child widgets."""
-        Image = self.image_type
-        if not Image:
+        if not self.image_type:
             return
+
+        Image = RENDERING_METHODS[self.image_type]
 
         with Container() as c:
             c.border_title = "width: none; height: none;"
@@ -132,13 +130,14 @@ class SizingPlayground(Container):
     }
     """
 
-    image_type: reactive[Type[BaseImage] | None] = reactive(None, recompose=True)
+    image_type: reactive[str | None] = reactive(None, recompose=True)
 
     def compose(self) -> ComposeResult:
         """Yields child widgets."""
-        Image = self.image_type
-        if not Image:
+        if not self.image_type:
             return
+
+        Image = RENDERING_METHODS[self.image_type]
 
         with ScrollableContainer():
             yield Image(TEST_IMAGE)
@@ -161,8 +160,8 @@ class SizingPlayground(Container):
     @on(Select.Changed)
     def size_changed(self, event: Input.Changed | Select.Changed) -> None:
         """Handles changes in size selectors."""
-        Image = self.image_type
-        assert Image
+        assert self.image_type
+        Image = RENDERING_METHODS[self.image_type]
 
         width_value = self.query_one("#width-value", Input).value
         width_unit = self.query_one("#width-unit", Select).value
@@ -213,14 +212,14 @@ class ManyGallery(Container):
     }
     """
 
-    image_type: reactive[Type[BaseImage] | None] = reactive(None, recompose=True)
+    image_type: reactive[str | None] = reactive(None, recompose=True)
     image_count = reactive(8, recompose=True)
 
     def compose(self) -> ComposeResult:
         """Yields child widgets."""
-        Image = self.image_type
-        if not Image:
+        if not self.image_type:
             return
+        Image = RENDERING_METHODS[self.image_type]
 
         with HorizontalScroll():
             for _ in range(self.image_count):
@@ -279,7 +278,7 @@ class RenderingMethodSelectionScreen(ModalScreen[str]):
     def compose(self) -> ComposeResult:
         """Yields child widgets."""
         with Container():
-            options = OptionList(*(Option(m.name, id=m.name) for m in RenderingMethods))
+            options = OptionList(*(Option(m, id=m) for m in RENDERING_METHODS.keys()))
             options.border_title = "Rendering method"
             options.highlighted = options.get_option_index(self.current_method)
             yield options
@@ -300,7 +299,7 @@ class DemoApp(App[None]):
     }
     """
 
-    image_type: reactive[Type[BaseImage] | None] = reactive(None, recompose=True)
+    image_type: reactive[str | None] = reactive(None, recompose=True)
 
     def compose(self) -> ComposeResult:
         """Yields child widgets."""
@@ -317,10 +316,8 @@ class DemoApp(App[None]):
 
     def action_select_rendering_method(self) -> None:
         """Shows a modal to select the rendering method."""
-        self.push_screen(
-            RenderingMethodSelectionScreen(next(m.name for m in RenderingMethods if m.value is self.image_type)),
-            lambda m: self.set_rendering_method(m),
-        )
+        assert self.image_type
+        self.push_screen(RenderingMethodSelectionScreen(self.image_type), lambda m: self.set_rendering_method(m))
 
     def set_rendering_method(self, rendering_method: str) -> None:
         """Sets the rendering method.
@@ -328,18 +325,18 @@ class DemoApp(App[None]):
         Args:
             rendering_method: Rendering method to use.
         """
-        self.image_type = RenderingMethods[rendering_method].value
+        self.image_type = rendering_method
 
 
-def run(rendering_method: RenderingMethods = RenderingMethods.auto) -> None:
+def run(rendering_method: str = "auto") -> None:
     """Showcase textual-kitty's Rich renderables."""
     app = DemoApp()
-    app.image_type = rendering_method.value
+    app.image_type = rendering_method
     app.run()
 
 
 if __name__ == "__main__":
     parser = ArgumentParser(description="Demo the capabilities of textual-kitty")
-    parser.add_argument("-m", "--method", choices=[m.name for m in RenderingMethods], default="auto")
+    parser.add_argument("-m", "--method", choices=RENDERING_METHODS.keys(), default="auto")
     arguments = parser.parse_args()
-    run(RenderingMethods[arguments.method])
+    run(arguments.method)

@@ -11,7 +11,7 @@ async def test_demo() -> None:
     from textual.pilot import Pilot
     from textual.widgets import Input, Select, TabbedContent
 
-    from textual_kitty.demo.widget import RenderingMethods, run
+    from textual_kitty.demo.widget import run
 
     # This is incredibly hacky. But is seems to work.
     awaitable = None
@@ -22,7 +22,7 @@ async def test_demo() -> None:
 
     # This doesn't actually test much, but at least we run the code.
     with patch.object(App, "run", run_wrapper):
-        run(RenderingMethods.unicode)
+        run("unicode")
         async with cast(AsyncContextManager[Pilot[Any]], awaitable) as pilot:
             # Switch to the sizing playground
             pilot.app.query_one(TabbedContent).active = "sizing-playground"
