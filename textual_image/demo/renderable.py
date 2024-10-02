@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""Showcase textual-kitty's Rich renderables."""
+"""Showcase textual-image's Rich renderables."""
 
 from argparse import ArgumentParser
 from pathlib import Path
@@ -9,19 +9,19 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
-from textual_kitty.renderable import (
+from textual_image.renderable import (
     HalfcellImage as HalfcellRenderable,
 )
-from textual_kitty.renderable import (
+from textual_image.renderable import (
     Image as AutoRenderable,
 )
-from textual_kitty.renderable import (
+from textual_image.renderable import (
     SixelImage as SixelRenderable,
 )
-from textual_kitty.renderable import (
+from textual_image.renderable import (
     TGPImage as TGPRenderable,
 )
-from textual_kitty.renderable import (
+from textual_image.renderable import (
     UnicodeImage as UnicodeRenderable,
 )
 
@@ -37,11 +37,11 @@ RENDERING_METHODS = {
 
 
 def run(rendering_method: str = "auto") -> None:
-    """Showcase textual-kitty's Rich renderables."""
+    """Showcase textual-image's Rich renderables."""
     Image = RENDERING_METHODS[rendering_method]
 
     table = Table.grid(padding=1, pad_edge=True)
-    table.title = "textual-kitty's features"
+    table.title = "textual-image's features"
     table.add_column("Feature", no_wrap=True, justify="center", style="bold red")
     table.add_column("Demonstration")
 
@@ -71,7 +71,7 @@ def run(rendering_method: str = "auto") -> None:
 
 
 if __name__ == "__main__":
-    parser = ArgumentParser(description="Demo the capabilities of textual-kitty")
+    parser = ArgumentParser(description="Demo the capabilities of textual-image")
     parser.add_argument("-m", "--method", choices=RENDERING_METHODS.keys(), default="auto")
     arguments = parser.parse_args()
     run(arguments.method)

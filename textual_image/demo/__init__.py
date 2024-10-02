@@ -1,0 +1,1 @@
+"""Showcase textual-image."""

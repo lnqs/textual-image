@@ -10,10 +10,10 @@ from textual.geometry import Size
 from textual.widget import Widget
 from typing_extensions import override
 
-from textual_kitty._geometry import ImageSize
-from textual_kitty._pixeldata import PixelMeta
-from textual_kitty._terminal import get_terminal_sizes
-from textual_kitty.renderable._protocol import ImageRenderable
+from textual_image._geometry import ImageSize
+from textual_image._pixeldata import PixelMeta
+from textual_image._terminal import get_terminal_sizes
+from textual_image.renderable._protocol import ImageRenderable
 
 
 class Image(Widget):

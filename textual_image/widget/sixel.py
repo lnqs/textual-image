@@ -16,11 +16,11 @@ from textual.strip import Strip
 from textual.widget import Widget
 from typing_extensions import override
 
-from textual_kitty._geometry import ImageSize
-from textual_kitty._pixeldata import PixelData
-from textual_kitty._sixel import image_to_sixels
-from textual_kitty._terminal import TerminalSizes, get_terminal_sizes
-from textual_kitty.widget._base import Image as BaseImage
+from textual_image._geometry import ImageSize
+from textual_image._pixeldata import PixelData
+from textual_image._sixel import image_to_sixels
+from textual_image._terminal import TerminalSizes, get_terminal_sizes
+from textual_image.widget._base import Image as BaseImage
 
 logger = logging.getLogger(__name__)
 
@@ -85,7 +85,7 @@ class Image(BaseImage, Renderable=_NoopRenderable):
 class _ImageSixelImpl(Widget, can_focus=False, inherit_css=False):
     """Widget implementation injecting Sixel data into the rendering process.
 
-    This class is meant to be used only by `textual_kitty.widgets.sixel.Image`.
+    This class is meant to be used only by `textual_image.widgets.sixel.Image`.
     It creates and renders Sixel data.
 
     It is done in this child widget to simplify the process -- this class assumes it never has to render any borders or spacings,

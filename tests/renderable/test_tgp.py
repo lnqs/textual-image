@@ -11,8 +11,8 @@ from syrupy.assertion import SnapshotAssertion
 
 from tests.data import CONSOLE_OPTIONS, TEST_IMAGE
 from tests.utils import render
-from textual_kitty._terminal import TerminalError
-from textual_kitty.renderable.tgp import (
+from textual_image._terminal import TerminalError
+from textual_image.renderable.tgp import (
     _TGP_MESSAGE_END,
     _TGP_MESSAGE_START,
     Image,
@@ -42,11 +42,11 @@ def test_measure() -> None:
 def test_cleanup() -> None:
     renderable = Image(TEST_IMAGE, width=4)
 
-    with patch("textual_kitty.renderable.tgp._send_tgp_message") as send_terminal_graphics_protocol_message:
+    with patch("textual_image.renderable.tgp._send_tgp_message") as send_terminal_graphics_protocol_message:
         renderable.cleanup()
     assert not send_terminal_graphics_protocol_message.called
 
-    with patch("textual_kitty.renderable.tgp._send_tgp_message") as send_terminal_graphics_protocol_message:
+    with patch("textual_image.renderable.tgp._send_tgp_message") as send_terminal_graphics_protocol_message:
         render(renderable)
         renderable.cleanup()
     assert send_terminal_graphics_protocol_message.called
@@ -78,14 +78,14 @@ def test_query_terminal_support() -> None:
     ) -> Iterator[SimpleNamespace]:
         raise TimeoutError()
 
-    with patch("textual_kitty.renderable.tgp.capture_terminal_response", response_success):
-        with patch("textual_kitty.renderable.tgp._send_tgp_message"):
+    with patch("textual_image.renderable.tgp.capture_terminal_response", response_success):
+        with patch("textual_image.renderable.tgp._send_tgp_message"):
             assert query_terminal_support()
 
-    with patch("textual_kitty.renderable.tgp.capture_terminal_response", response_failure):
-        with patch("textual_kitty.renderable.tgp._send_tgp_message"):
+    with patch("textual_image.renderable.tgp.capture_terminal_response", response_failure):
+        with patch("textual_image.renderable.tgp._send_tgp_message"):
             assert not query_terminal_support()
 
-    with patch("textual_kitty.renderable.tgp.capture_terminal_response", response_exception):
-        with patch("textual_kitty.renderable.tgp._send_tgp_message"):
+    with patch("textual_image.renderable.tgp.capture_terminal_response", response_exception):
+        with patch("textual_image.renderable.tgp._send_tgp_message"):
             assert not query_terminal_support()

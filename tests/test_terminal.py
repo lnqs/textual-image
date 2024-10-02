@@ -6,7 +6,7 @@ from unittest.mock import patch
 from pytest import raises
 
 from tests.data import TERMINAL_SIZES
-from textual_kitty._terminal import TerminalError, TerminalSizes, capture_terminal_response, get_terminal_sizes
+from textual_image._terminal import TerminalError, TerminalSizes, capture_terminal_response, get_terminal_sizes
 
 if sys.version_info >= (3, 12):
     IntArray = array[int]
@@ -19,7 +19,7 @@ def test_get_terminal_sizes_on_tty_success() -> None:
         buf[0], buf[1], buf[2], buf[3], _, _ = TERMINAL_SIZES
 
     with patch("sys.__stdout__.isatty", return_value=True):
-        with patch("textual_kitty._terminal.ioctl", side_effect=ioctl):
+        with patch("textual_image._terminal.ioctl", side_effect=ioctl):
             assert get_terminal_sizes() == TERMINAL_SIZES
 
 
@@ -37,13 +37,13 @@ def test_get_terminal_sizes_on_tty_no_screen_size() -> None:
         buf[0], buf[1], buf[2], buf[3], _, _ = terminal_sizes
 
     with patch("sys.__stdout__.isatty", return_value=True):
-        with patch("textual_kitty._terminal.ioctl", side_effect=ioctl):
+        with patch("textual_image._terminal.ioctl", side_effect=ioctl):
             assert get_terminal_sizes() == terminal_sizes
 
 
 def test_get_terminal_sizes_on_tty_failure() -> None:
     with patch("sys.__stdout__.isatty", return_value=True):
-        with patch("textual_kitty._terminal.ioctl", side_effect=OSError()):
+        with patch("textual_image._terminal.ioctl", side_effect=OSError()):
             with raises(TerminalError):
                 get_terminal_sizes()
 
@@ -70,7 +70,7 @@ def test_capture_terminal_response() -> None:
 
     with patch("sys.__stdin__") as stdin, patch("termios.tcgetattr"), patch("termios.tcsetattr"), patch(
         "tty.setcbreak"
-    ), patch("textual_kitty._terminal.select") as select, patch("os.read") as read:
+    ), patch("textual_image._terminal.select") as select, patch("os.read") as read:
         stdin.buffer.fileno.return_value = 42
         select.return_value = [[42], [], []]
         read.side_effect = [c.to_bytes(1, sys.byteorder) for c in b"[S]message[E]"]
@@ -82,7 +82,7 @@ def test_capture_terminal_response() -> None:
 
     with patch("sys.__stdin__") as stdin, patch("termios.tcgetattr"), patch("termios.tcsetattr"), patch(
         "tty.setcbreak"
-    ), patch("textual_kitty._terminal.select") as select:
+    ), patch("textual_image._terminal.select") as select:
         stdin.buffer.fileno.return_value = 42
         select.return_value = [[], [], []]
 
@@ -92,7 +92,7 @@ def test_capture_terminal_response() -> None:
 
     with patch("sys.__stdin__") as stdin, patch("termios.tcgetattr"), patch("termios.tcsetattr"), patch(
         "tty.setcbreak"
-    ), patch("textual_kitty._terminal.select") as select, patch("os.read") as read:
+    ), patch("textual_image._terminal.select") as select, patch("os.read") as read:
         stdin.buffer.fileno.return_value = 42
         select.return_value = [[42], [], []]
         read.side_effect = [c.to_bytes(1, sys.byteorder) for c in b"not the expected message"]

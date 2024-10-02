@@ -3,7 +3,7 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "textual-kitty"
+name = "textual-image"
 version = "0.4.0"
 description = "Render images via Kitty's Terminal Graphics Protocol with Rich and Textual"
 authors = [
@@ -40,10 +40,10 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/lnqs/textual-kitty"
-Documentation = "https://github.com/lnqs/textual-kitty"
-Repository = "https://github.com/lnqs/textual-kitty"
-Issues = "https://github.com/lnqs/textual-kitty/issues"
+Homepage = "https://github.com/lnqs/textual-image"
+Documentation = "https://github.com/lnqs/textual-image"
+Repository = "https://github.com/lnqs/textual-image"
+Issues = "https://github.com/lnqs/textual-image/issues"
 
 [project.optional-dependencies]
 textual = [
@@ -62,7 +62,7 @@ dev = [
 ]
 
 [tool.setuptools]
-packages = ["textual_kitty"]
+packages = ["textual_image"]
 
 [tool.ruff]
 lint.select = ["B", "D", "F", "I", "T", "Q"]
@@ -130,7 +130,7 @@ commands = [["mypy", "{posargs:.}"]]
 [tool.tox.env_run_base]
 description = "Run tests under {base_python}"
 deps = ".[textual,dev]"
-commands = [["pytest", "--cov=textual_kitty", "--cov-report=term-missing", "{tty:--color=yes}", "{posargs}"]]
+commands = [["pytest", "--cov=textual_image", "--cov-report=term-missing", "{tty:--color=yes}", "{posargs}"]]
 
 [tool.tox.env.rich-only]
 basepython = ["3.12"]

@@ -9,10 +9,10 @@ from rich.control import Control
 from rich.measure import Measurement
 from rich.segment import ControlType, Segment
 
-from textual_kitty._geometry import ImageSize
-from textual_kitty._pixeldata import PixelData
-from textual_kitty._sixel import image_to_sixels
-from textual_kitty._terminal import TerminalError, capture_terminal_response, get_terminal_sizes
+from textual_image._geometry import ImageSize
+from textual_image._pixeldata import PixelData
+from textual_image._sixel import image_to_sixels
+from textual_image._terminal import TerminalError, capture_terminal_response, get_terminal_sizes
 
 
 class Image:
@@ -26,9 +26,9 @@ class Image:
         Args:
             image: Path to an image file or `PIL.Image.Image` instance with the image data to render.
             width: Width specification to render the image.
-                See `textual_kitty.geometry.ImageSize` for details about possible values.
+                See `textual_image.geometry.ImageSize` for details about possible values.
             height: height specification to render the image.
-                See `textual_kitty.geometry.ImageSize` for details about possible values.
+                See `textual_image.geometry.ImageSize` for details about possible values.
         """
         self._image_data = PixelData(image)
         self._render_size = ImageSize(self._image_data.width, self._image_data.height, width, height)

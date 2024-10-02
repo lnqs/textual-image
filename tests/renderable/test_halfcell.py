@@ -4,7 +4,7 @@ from syrupy.assertion import SnapshotAssertion
 
 from tests.data import CONSOLE_OPTIONS, TEST_IMAGE
 from tests.utils import render
-from textual_kitty.renderable.halfcell import Image
+from textual_image.renderable.halfcell import Image
 
 
 def test_render(snapshot: SnapshotAssertion) -> None:
