@@ -1,10 +1,8 @@
 # textual-image
 
-*Render images directly in your terminal using [Textual](https://www.textualize.io/) and [Rich](https://github.com/Textualize/rich).* 
+**Render images directly in your terminal using [Textual](https://www.textualize.io/) and [Rich](https://github.com/Textualize/rich).**
 
-![Demo App Screen #1](./demo1.png)
-&nbsp;&nbsp;&nbsp;
-![Demo App Screen #1](./demo2.png)
+![Demo App](./demo.gif)
 
 _textual-image_ offers both Rich renderables and Textual Widgets that leverage the [Terminal Graphics Protocol (TGP)](https://sw.kovidgoyal.net/kitty/graphics-protocol/) and [Sixel](https://en.wikipedia.org/wiki/Sixel) protocols to display images in your terminal. For terminals that don't support these protocols, fallback rendering using Unicode characters is available.
 
