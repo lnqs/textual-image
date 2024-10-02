@@ -1,4 +1,4 @@
-from textual_kitty._utils import clamp, grouped
+from textual_image._utils import clamp, grouped
 
 
 def test_grouped() -> None:

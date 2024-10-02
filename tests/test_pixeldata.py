@@ -3,7 +3,7 @@ from base64 import b64decode
 from PIL import Image as PILImage
 
 from tests.data import TEST_IMAGE
-from textual_kitty._pixeldata import PixelData, PixelMeta, ensure_image
+from textual_image._pixeldata import PixelData, PixelMeta, ensure_image
 
 
 def test_ensure_image() -> None:

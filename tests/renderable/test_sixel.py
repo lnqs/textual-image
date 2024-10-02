@@ -9,7 +9,7 @@ from syrupy.assertion import SnapshotAssertion
 
 from tests.data import CONSOLE_OPTIONS, TEST_IMAGE
 from tests.utils import render
-from textual_kitty.renderable.sixel import (
+from textual_image.renderable.sixel import (
     Image,
     query_terminal_support,
 )
@@ -48,14 +48,14 @@ def test_query_terminal_support() -> None:
     with patch("sys.__stdout__", None):
         assert not query_terminal_support()
 
-    with patch("textual_kitty.renderable.sixel.capture_terminal_response", response_success):
+    with patch("textual_image.renderable.sixel.capture_terminal_response", response_success):
         with patch("sys.__stdout__"):
             assert query_terminal_support()
 
-    with patch("textual_kitty.renderable.sixel.capture_terminal_response", response_failure):
+    with patch("textual_image.renderable.sixel.capture_terminal_response", response_failure):
         with patch("sys.__stdout__"):
             assert not query_terminal_support()
 
-    with patch("textual_kitty.renderable.sixel.capture_terminal_response", response_exception):
+    with patch("textual_image.renderable.sixel.capture_terminal_response", response_exception):
         with patch("sys.__stdout__"):
             assert not query_terminal_support()

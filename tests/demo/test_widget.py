@@ -11,7 +11,7 @@ async def test_demo() -> None:
     from textual.pilot import Pilot
     from textual.widgets import Input, Select, TabbedContent
 
-    from textual_kitty.demo.widget import run
+    from textual_image.demo.widget import run
 
     # This is incredibly hacky. But is seems to work.
     awaitable = None

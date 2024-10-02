@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""Showcase textual-kitty's Textual Widgets."""
+"""Showcase textual-image's Textual Widgets."""
 
 from argparse import ArgumentParser
 from pathlib import Path
@@ -15,8 +15,8 @@ from textual.screen import ModalScreen
 from textual.widgets import Button, Footer, Header, Input, Label, OptionList, Select, TabbedContent, TabPane
 from textual.widgets.option_list import Option
 
-from textual_kitty.widget import HalfcellImage, SixelImage, TGPImage, UnicodeImage
-from textual_kitty.widget import Image as AutoImage
+from textual_image.widget import HalfcellImage, SixelImage, TGPImage, UnicodeImage
+from textual_image.widget import Image as AutoImage
 
 TEST_IMAGE = Path(__file__).parent / ".." / "gracehopper.jpg"
 
@@ -290,7 +290,7 @@ class RenderingMethodSelectionScreen(ModalScreen[str]):
 
 
 class DemoApp(App[None]):
-    """App showcasing textual-kitty's image rendering capabilities."""
+    """App showcasing textual-image's image rendering capabilities."""
 
     BINDINGS = [("ctrl+r", "select_rendering_method", "rendering method")]
 
@@ -329,14 +329,14 @@ class DemoApp(App[None]):
 
 
 def run(rendering_method: str = "auto") -> None:
-    """Showcase textual-kitty's Rich renderables."""
+    """Showcase textual-image's Rich renderables."""
     app = DemoApp()
     app.image_type = rendering_method
     app.run()
 
 
 if __name__ == "__main__":
-    parser = ArgumentParser(description="Demo the capabilities of textual-kitty")
+    parser = ArgumentParser(description="Demo the capabilities of textual-image")
     parser.add_argument("-m", "--method", choices=RENDERING_METHODS.keys(), default="auto")
     arguments = parser.parse_args()
     run(arguments.method)

@@ -10,7 +10,7 @@ from tests.data import TEST_IMAGE, TEXTUAL_ENABLED
 async def test_app() -> None:
     from textual.app import App, ComposeResult
 
-    from textual_kitty.widget import Image
+    from textual_image.widget import Image
 
     class TestApp(App[None]):
         CSS = """

@@ -3,11 +3,11 @@ from pathlib import Path
 
 from rich.console import ConsoleDimensions, ConsoleOptions
 
-from textual_kitty._terminal import TerminalSizes
+from textual_image._terminal import TerminalSizes
 
 TEXTUAL_ENABLED = bool(find_spec("textual"))
 
-TEST_IMAGE = Path(__file__).parent.parent / "textual_kitty" / "gracehopper.jpg"
+TEST_IMAGE = Path(__file__).parent.parent / "textual_image" / "gracehopper.jpg"
 
 TERMINAL_SIZES = TerminalSizes(
     rows=58,

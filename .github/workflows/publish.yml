@@ -60,7 +60,7 @@ jobs:
 
     environment:
       name: pypi
-      url: https://pypi.org/p/textual-kitty
+      url: https://pypi.org/p/textual-image
 
     permissions:
       id-token: write
