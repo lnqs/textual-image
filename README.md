@@ -13,11 +13,11 @@ _textual-kitty_ offers both Rich renderables and Textual Widgets that leverage t
 - **Terminal Graphics Protocol (TGP)**: Initially introduced by the [Kitty](https://sw.kovidgoyal.net/kitty/) terminal emulator, fully supported in Kitty, and largely implemented in [WezTerm](https://wezfurlong.org/wezterm/index.html) and partially supported by [Konsole](https://konsole.kde.org/) and [wayst](https://github.com/91861/wayst).
 - **Sixel Graphics**: Supported by various terminal emulators including [xterm](https://invisible-island.net/xterm/) and others.
 
-_Note_: Testing has been conducted primarily using Kitty for TGP and xterm for Sixel. And only on Linux so far. Feedback and interoperability testing on other terminal emulators would be highly valued.
+_Note_: Testing has been conducted primarily using Kitty for TGP and xterm for Sixel on Linux, with some sanity checks on other terminals. Feedback and interoperability testing on other terminal emulators and operating systems would be highly valued.
 
-### Support Matrix
+See the Support Matrix below on what was tested already.
 
-*Based on [Are We Sixel Yet?](https://www.arewesixelyet.com/)*
+### Support Matrix [^1]
 
 | Terminal            | TPG support | Sixel support | Works with textual-kitty |
 |---------------------|:-----------:|:-------------:|:------------------------:|
@@ -31,12 +31,12 @@ _Note_: Testing has been conducted primarily using Kitty for TGP and xterm for S
 | DomTerm             |          ❌ |            ✅ |                       ⚫ |
 | Eat                 |          ❌ |            ✅ |                       ⚫ |
 | Elementary Terminal |          ❌ |            ❌ |                          |
-| foot                |          ❌ |            ✅ |                       ⚫ |
+| foot                |          ❌ |            ✅ |                       ✅ |
 | GNOME Terminal      |          ❌ |            ❌ |                          |
 | guake               |          ❌ |            ❌ |                          |
 | iTerm2              |          ❌ |            ✅ |                       ⚫ |
 | kitty               |          ✅ |            ❌ |                       ✅ |
-| konsole             |          ✅ |            ✅ |                       ⚫ |
+| konsole             |          ✅ |            ✅ |                   ❓[^2] |
 | LaTerminal          |          ❌ |            ✅ |                       ⚫ |
 | MacTerm             |          ❌ |            ✅ |                       ⚫ |
 | mintty              |          ❌ |            ✅ |                       ⚫ |
@@ -53,13 +53,13 @@ _Note_: Testing has been conducted primarily using Kitty for TGP and xterm for S
 | Terminology         |          ❌ |            ❌ |                          |
 | termux              |          ❌ |            ❌ |                          |
 | Tilix               |          ❌ |            ❌ |                          |
-| tmux                |          ❌ |            ✅ |                       ⚫ |
+| tmux                |          ❌ |            ✅ |                   ✅[^3] |
 | toyterm             |          ❌ |            ✅ |                       ⚫ |
 | URxvt               |          ❌ |            ❌ |                          |
 | U++                 |          ❌ |            ✅ |                       ⚫ |
-| Visual Studio Code  |          ❌ |            ✅ |                       ⚫ |
-| wayst               |          ✅ |            ✅ |                       ⚫ |
-| wezterm             |          ✅ |            ✅ |                       ⚫ |
+| Visual Studio Code  |          ❌ |            ✅ |                   ✅[^4] |
+| wayst               |          ✅ |            ✅ |                   ❓[^5] |
+| wezterm             |          ✅ |            ✅ |                   ❓[^6] |
 | Windows Console     |          ❌ |            ❌ |                          |
 | Windows Terminal    |          ❌ |            ✅ |                       ⚫ |
 | xfce-terminal       |          ❌ |            ✅ |                       ⚫ |
@@ -67,9 +67,17 @@ _Note_: Testing has been conducted primarily using Kitty for TGP and xterm for S
 | xterm.js            |          ❌ |            ✅ |                       ⚫ |
 | yaft                |          ❌ |            ✅ |                       ⚫ |
 | Yakuake             |          ❌ |            ✅ |                       ⚫ |
-| Zellij              |          ❌ |            ✅ |                       ⚫ |
+| Zellij              |          ❌ |            ✅ |                   ❌[^7] |
 
-✅ = Supported; ❌ = Not Supported; ⚫ = To Be Tested
+✅ = Supported; ❌ = Not Supported; ⚫ = To Be Tested; ❓ = Works, but with glitches (further investigation needed)
+
+[^1]: Based on [Are We Sixel Yet?](https://www.arewesixelyet.com/)
+[^2]: Reports to support TGP but doesn't draw images. If set to Sixel explicitly, it works besides a few minor glitches.
+[^3]: Works only in a Sixel enabled terminal, TGP does not work with tmux.
+[^4]: The `terminal.integrated.enableImages` setting has to be enabled.
+[^5]: Both TGP and Sixel draw graphics, but only with major glitches.
+[^6]: TGP draws graphics, but with major glitches; Sixel works fine but doesn't get auto-selected due to reporting TGP support.
+[^7]: Reports to support Sixel, but doesn't draw anything.
 
 ### Enabling Sixel Support on xterm
 
