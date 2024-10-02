@@ -1,30 +1,26 @@
 name: Run linter and tests
 description: Runs the format check, linter, type check and tests
 
+inputs:
+  python-version:
+    description: Python version to use
+    required: true
+  envs:
+    description: tox envs to run as comma-separated list
+    required: true
+
 runs:
   using: composite
   steps:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: "3.x"
+        python-version: ${{ inputs.python-version }}
 
-    - name: Install dependencies
+    - name: Install tox
       shell: bash
-      run: python3 -m pip install -e .[dev] --user
+      run: python3 -m pip install tox --user
 
-    - name: Format check
+    - name: Run checks
       shell: bash
-      run: ruff format --check
-
-    - name: Linting
-      shell: bash
-      run: ruff check
-
-    - name: Type check
-      shell: bash
-      run: mypy .
-
-    - name: Test
-      shell: bash
-      run: pytest --cov=textual_kitty --cov-report term-missing
+      run: tox -e "${{ inputs.envs }}"
