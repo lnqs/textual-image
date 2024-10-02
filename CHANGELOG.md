@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.1](https://github.com/lnqs/textual-image/compare/v0.5.0...v0.5.1) (2024-10-02)
+
+
+### Documentation
+
+* add badges to README.md ([f3239db](https://github.com/lnqs/textual-image/commit/f3239db1b40673f69ded016f046d59fff05599ac))
+
 ## [0.5.0](https://github.com/lnqs/textual-image/compare/v0.4.0...v0.5.0) (2024-10-02)
 
 
