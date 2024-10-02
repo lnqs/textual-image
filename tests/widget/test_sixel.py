@@ -1,14 +1,19 @@
+from unittest import skipUnless
+
 from PIL import Image as PILImage
 from PIL import ImageOps
 from rich.console import Console
 from rich.measure import Measurement
-from textual.app import App, ComposeResult
 
-from tests.data import CONSOLE_OPTIONS, TEST_IMAGE
-from textual_kitty.widget.sixel import Image, _NoopRenderable
+from tests.data import CONSOLE_OPTIONS, TEST_IMAGE, TEXTUAL_ENABLED
 
 
+@skipUnless(TEXTUAL_ENABLED, "Textual support disabled")
 async def test_app() -> None:
+    from textual.app import App, ComposeResult
+
+    from textual_kitty.widget.sixel import Image
+
     class TestApp(App[None]):
         CSS = """
         .auto {
@@ -40,5 +45,8 @@ async def test_app() -> None:
         await pilot.pause()
 
 
+@skipUnless(TEXTUAL_ENABLED, "Textual support disabled")
 def test_measure_noop_renderable() -> None:
+    from textual_kitty.widget.sixel import _NoopRenderable
+
     assert _NoopRenderable(TEST_IMAGE).__rich_measure__(Console(), CONSOLE_OPTIONS) == Measurement(0, 0)
