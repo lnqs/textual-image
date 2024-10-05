@@ -21,24 +21,16 @@ class TerminalError(Exception):
     pass
 
 
-class TerminalSizes(NamedTuple):
-    """Size of several terminal features."""
+class CellSize(NamedTuple):
+    """Size of terminal cells."""
 
-    rows: int
-    """Width of the terminal in cells."""
-    columns: int
-    """Height of the terminal in cells."""
-    screen_width: int
-    """Width of the terminal in pixels."""
-    screen_height: int
-    """Height of the terminal in pixels."""
-    cell_width: int
+    width: int
     """Width of a terminal cell in pixels."""
-    cell_height: int
+    height: int
     """Height of a terminal cell in pixels."""
 
 
-def get_terminal_sizes() -> TerminalSizes:
+def get_cell_size() -> CellSize:
     """Get size information from the terminal.
 
     Returns:
@@ -73,14 +65,7 @@ def get_terminal_sizes() -> TerminalSizes:
     cell_width = int(screen_width / columns) or 8
     cell_height = int(screen_height / rows) or 16
 
-    return TerminalSizes(
-        rows=rows,
-        columns=columns,
-        screen_width=screen_width,
-        screen_height=screen_height,
-        cell_width=cell_width,
-        cell_height=cell_height,
-    )
+    return CellSize(cell_width, cell_height)
 
 
 @contextmanager

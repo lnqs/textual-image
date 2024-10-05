@@ -3,23 +3,19 @@ from pathlib import Path
 
 from rich.console import ConsoleDimensions, ConsoleOptions
 
-from textual_image._terminal import TerminalSizes
+from textual_image._terminal import CellSize
 
 TEXTUAL_ENABLED = bool(find_spec("textual"))
 
 TEST_IMAGE = Path(__file__).parent.parent / "textual_image" / "gracehopper.jpg"
 
-TERMINAL_SIZES = TerminalSizes(
-    rows=58,
-    columns=120,
-    screen_width=960,
-    screen_height=928,
-    cell_width=8,
-    cell_height=16,
+CELL_SIZE = CellSize(
+    width=8,
+    height=16,
 )
 
 CONSOLE_OPTIONS = ConsoleOptions(
-    size=ConsoleDimensions(TERMINAL_SIZES.columns, TERMINAL_SIZES.rows),
+    size=ConsoleDimensions(120, 58),
     legacy_windows=False,
     min_width=10,
     max_width=20,
