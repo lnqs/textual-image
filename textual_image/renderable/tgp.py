@@ -15,7 +15,7 @@ from rich.style import Style
 
 from textual_image._geometry import ImageSize
 from textual_image._pixeldata import PixelData
-from textual_image._terminal import TerminalError, capture_terminal_response, get_terminal_sizes
+from textual_image._terminal import TerminalError, capture_terminal_response, get_cell_size
 
 logger = logging.getLogger(__name__)
 
@@ -117,7 +117,7 @@ class Image:
         Returns:
             `Segment`s to display.
         """
-        terminal_sizes = get_terminal_sizes()
+        terminal_sizes = get_cell_size()
         cell_width, cell_height = self._render_size.get_cell_size(options.max_width, options.max_height, terminal_sizes)
         pixel_width, pixel_height = self._render_size.get_pixel_size(
             options.max_width, options.max_height, terminal_sizes
@@ -142,7 +142,7 @@ class Image:
         Returns:
             A `Measurement` containing minimum and maximum widths required to render the object
         """
-        terminal_sizes = get_terminal_sizes()
+        terminal_sizes = get_cell_size()
         width, _ = self._render_size.get_cell_size(options.max_width, options.max_height, terminal_sizes)
         return Measurement(width, width)
 

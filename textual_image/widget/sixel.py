@@ -19,7 +19,7 @@ from typing_extensions import override
 from textual_image._geometry import ImageSize
 from textual_image._pixeldata import PixelData
 from textual_image._sixel import image_to_sixels
-from textual_image._terminal import TerminalSizes, get_terminal_sizes
+from textual_image._terminal import CellSize, get_cell_size
 from textual_image.widget._base import Image as BaseImage
 
 logger = logging.getLogger(__name__)
@@ -32,7 +32,7 @@ class _CachedSixels(NamedTuple):
     image: str | Path | PILImage.Image
     content_crop: Region
     content_size: Size
-    terminal_sizes: TerminalSizes
+    terminal_sizes: CellSize
     sixel_data: str
 
     def is_hit(
@@ -40,7 +40,7 @@ class _CachedSixels(NamedTuple):
         image: str | Path | PILImage.Image,
         content_crop: Region,
         content_size: Size,
-        terminal_sizes: TerminalSizes,
+        terminal_sizes: CellSize,
     ) -> bool:
         return (
             image == self.image
@@ -119,7 +119,7 @@ class _ImageSixelImpl(Widget, can_focus=False, inherit_css=False):
             return []
 
         # Inject the sixel data. We can only do it here because we don't know the crop region before.
-        terminal_sizes = get_terminal_sizes()
+        terminal_sizes = get_cell_size()
 
         if self._cached_sixels and self._cached_sixels.is_hit(self.image, crop, self.content_size, terminal_sizes):
             logger.debug(f"using Sixel data from cache for crop region {crop}")
@@ -138,7 +138,7 @@ class _ImageSixelImpl(Widget, can_focus=False, inherit_css=False):
         lines = [Strip([])] * (crop.height - 1) + [Strip(sixel_segments, cell_length=crop.width)]
         return lines
 
-    def _scale_image(self, image_data: PixelData, terminal_sizes: TerminalSizes) -> PixelData:
+    def _scale_image(self, image_data: PixelData, terminal_sizes: CellSize) -> PixelData:
         assert isinstance(self.parent, Image)
 
         styled_width, styled_height = self.parent._get_styled_size()
@@ -149,11 +149,11 @@ class _ImageSixelImpl(Widget, can_focus=False, inherit_css=False):
 
         return image_data.scaled(pixel_width, pixel_height)
 
-    def _crop_image(self, image: PixelData, crop: Region, terminal_sizes: TerminalSizes) -> PixelData:
-        crop_pixels_left = crop.x * terminal_sizes.cell_width
-        crop_pixels_top = crop.y * terminal_sizes.cell_height
-        crop_pixels_right = crop.right * terminal_sizes.cell_width
-        crop_pixels_bottom = crop.bottom * terminal_sizes.cell_height
+    def _crop_image(self, image: PixelData, crop: Region, terminal_sizes: CellSize) -> PixelData:
+        crop_pixels_left = crop.x * terminal_sizes.width
+        crop_pixels_top = crop.y * terminal_sizes.height
+        crop_pixels_right = crop.right * terminal_sizes.width
+        crop_pixels_bottom = crop.bottom * terminal_sizes.height
 
         return image.cropped(crop_pixels_left, crop_pixels_top, crop_pixels_right, crop_pixels_bottom)
 

@@ -12,7 +12,7 @@ from typing_extensions import override
 
 from textual_image._geometry import ImageSize
 from textual_image._pixeldata import PixelMeta
-from textual_image._terminal import get_terminal_sizes
+from textual_image._terminal import get_cell_size
 from textual_image.renderable._protocol import ImageRenderable
 
 
@@ -109,7 +109,7 @@ class Image(Widget):
     @override
     def get_content_width(self, container: Size, viewport: Size) -> int:
         styled_width, styled_height = self._get_styled_size()
-        terminal_sizes = get_terminal_sizes()
+        terminal_sizes = get_cell_size()
         width, _ = ImageSize(
             self._image_width, self._image_height, width=styled_width, height=styled_height
         ).get_cell_size(container.width, container.height, terminal_sizes)
@@ -118,7 +118,7 @@ class Image(Widget):
     @override
     def get_content_height(self, container: Size, viewport: Size, width: int) -> int:
         styled_width, styled_height = self._get_styled_size()
-        terminal_sizes = get_terminal_sizes()
+        terminal_sizes = get_cell_size()
         _, height = ImageSize(
             self._image_width, self._image_height, width=styled_width, height=styled_height
         ).get_cell_size(width, container.height, terminal_sizes)

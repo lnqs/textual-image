@@ -3,7 +3,7 @@
 from types import NoneType
 from typing import NamedTuple, Tuple, cast
 
-from textual_image._terminal import TerminalSizes
+from textual_image._terminal import CellSize
 
 
 class ImageSize(NamedTuple):
@@ -51,7 +51,7 @@ class ImageSize(NamedTuple):
             return
         raise ValueError(f"Invalid size: {value}")
 
-    def get_cell_size(self, max_width: int, max_height: int, terminal_sizes: TerminalSizes) -> Tuple[int, int]:
+    def get_cell_size(self, max_width: int, max_height: int, terminal_sizes: CellSize) -> Tuple[int, int]:
         """Calculates the render size based on original image size, size specification and terminal cell sizes.
 
         Args:
@@ -72,9 +72,9 @@ class ImageSize(NamedTuple):
 
         # Just use the original image size for dimensions that're `None`
         if self.width is None:
-            width = round(self.source_pixel_width / terminal_sizes.cell_width)
+            width = round(self.source_pixel_width / terminal_sizes.width)
         if self.height is None:
-            height = round(self.source_pixel_height / terminal_sizes.cell_height)
+            height = round(self.source_pixel_height / terminal_sizes.height)
 
         # Explicitly given cell sizes
         if isinstance(self.width, int):
@@ -92,18 +92,18 @@ class ImageSize(NamedTuple):
         # but keep the ratio if `height` was set
         if self.width == "auto" and self.height is not None:
             ratio = self.source_pixel_width / self.source_pixel_height
-            scaled_pixel_height: float = (height or max_height) * terminal_sizes.cell_height
+            scaled_pixel_height: float = (height or max_height) * terminal_sizes.height
             scaled_pixel_width = scaled_pixel_height * ratio
-            width = min(round(scaled_pixel_width / terminal_sizes.cell_width), max_width)
+            width = min(round(scaled_pixel_width / terminal_sizes.width), max_width)
         elif self.width == "auto":
             width = max_width
 
         # Same for height
         if self.height == "auto" and self.width is not None:
             ratio = self.source_pixel_width / self.source_pixel_height
-            scaled_pixel_width = cast(int, width) * terminal_sizes.cell_width
+            scaled_pixel_width = cast(int, width) * terminal_sizes.width
             scaled_pixel_height = scaled_pixel_width / ratio
-            height = round(scaled_pixel_height / terminal_sizes.cell_height)
+            height = round(scaled_pixel_height / terminal_sizes.height)
         elif self.height == "auto":
             height = max_height
 
@@ -112,13 +112,13 @@ class ImageSize(NamedTuple):
         if self.width == "auto" and self.height == "auto" and cast(int, height) > max_height:
             height = max_height
             ratio = self.source_pixel_width / self.source_pixel_height
-            scaled_pixel_height = height * terminal_sizes.cell_height
+            scaled_pixel_height = height * terminal_sizes.height
             scaled_pixel_width = scaled_pixel_height * ratio
-            width = round(scaled_pixel_width / terminal_sizes.cell_width)
+            width = round(scaled_pixel_width / terminal_sizes.width)
 
         return cast(Tuple[int, int], (width, height))
 
-    def get_pixel_size(self, max_width: int, max_height: int, terminal_sizes: TerminalSizes) -> Tuple[int, int]:
+    def get_pixel_size(self, max_width: int, max_height: int, terminal_sizes: CellSize) -> Tuple[int, int]:
         """Calculates the pixel size to use for rendering based on original image size, size specification and terminal cell sizes.
 
         Args:
@@ -130,4 +130,4 @@ class ImageSize(NamedTuple):
             The render size in pixels as tuple of (width, height).
         """
         width, height = self.get_cell_size(max_width, max_height, terminal_sizes)
-        return width * terminal_sizes.cell_width, height * terminal_sizes.cell_height
+        return width * terminal_sizes.width, height * terminal_sizes.height

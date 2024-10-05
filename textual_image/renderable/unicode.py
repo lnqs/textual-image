@@ -10,7 +10,7 @@ from rich.segment import Segment
 
 from textual_image._geometry import ImageSize
 from textual_image._pixeldata import PixelData
-from textual_image._terminal import get_terminal_sizes
+from textual_image._terminal import get_cell_size
 from textual_image._utils import clamp
 
 _CHARACTERS = [
@@ -70,7 +70,7 @@ class Image:
         Returns:
             `Segment`s to display.
         """
-        terminal_sizes = get_terminal_sizes()
+        terminal_sizes = get_cell_size()
 
         # We draw one character per pixel. Therefore we just scale to the amount of cells and are done.
         # No need to care about the scaled pixel size.
@@ -89,6 +89,6 @@ class Image:
         Returns:
             A `Measurement` containing minimum and maximum widths required to render the object
         """
-        terminal_sizes = get_terminal_sizes()
+        terminal_sizes = get_cell_size()
         width, _ = self._render_size.get_cell_size(options.max_width, options.max_height, terminal_sizes)
         return Measurement(width, width)
