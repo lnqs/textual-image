@@ -1,50 +1,18 @@
 import sys
 from array import array
-from typing import IO
+from contextlib import contextmanager
+from types import SimpleNamespace
+from typing import IO, Iterator
 from unittest.mock import patch
 
 from pytest import raises
 
-from tests.data import CELL_SIZE
-from textual_image._terminal import CellSize, TerminalError, capture_terminal_response, get_cell_size
+from textual_image._terminal import TerminalError, capture_terminal_response, get_cell_size
 
 if sys.version_info >= (3, 12):
     IntArray = array[int]
 else:
     IntArray = array
-
-
-def test_get_cell_size_on_tty_success() -> None:
-    def ioctl(fd: IO[bytes], request: int, buf: IntArray) -> None:
-        buf[0] = 58
-        buf[1] = 120
-        buf[2] = 960
-        buf[3] = 928
-
-    with patch("sys.__stdout__.isatty", return_value=True):
-        with patch("textual_image._terminal.ioctl", side_effect=ioctl):
-            assert get_cell_size() == CELL_SIZE
-
-
-def test_get_cell_size_on_tty_no_screen_size() -> None:
-    cell_size = CellSize(CELL_SIZE.width, CELL_SIZE.height)
-
-    def ioctl(fd: IO[bytes], request: int, buf: IntArray) -> None:
-        buf[0] = 58
-        buf[1] = 120
-        buf[2] = 0
-        buf[3] = 0
-
-    with patch("sys.__stdout__.isatty", return_value=True):
-        with patch("textual_image._terminal.ioctl", side_effect=ioctl):
-            assert get_cell_size() == cell_size
-
-
-def test_get_cell_size_on_tty_failure() -> None:
-    with patch("sys.__stdout__.isatty", return_value=True):
-        with patch("textual_image._terminal.ioctl", side_effect=OSError()):
-            with raises(TerminalError):
-                get_cell_size()
 
 
 def test_get_cell_size_stdout_closed() -> None:
@@ -53,12 +21,63 @@ def test_get_cell_size_stdout_closed() -> None:
             get_cell_size()
 
 
+def test_get_cell_size_on_tty_ioctl_success() -> None:
+    if hasattr(get_cell_size, "_result"):
+        delattr(get_cell_size, "_result")
+
+    def ioctl(fd: IO[bytes], request: int, buf: IntArray) -> None:
+        buf[0] = 58
+        buf[1] = 120
+        buf[2] = 960
+        buf[3] = 928
+
+    with patch("sys.__stdout__.isatty", return_value=True):
+        with patch("textual_image._terminal.ioctl", ioctl):
+            assert get_cell_size() == (8, 16)
+
+
+def test_get_cell_size_on_tty_escape_sequence() -> None:
+    if hasattr(get_cell_size, "_result"):
+        delattr(get_cell_size, "_result")
+
+    @contextmanager
+    def capture_terminal_response(
+        start_marker: str, end_marker: str, timeout: float | None = None
+    ) -> Iterator[SimpleNamespace]:
+        yield SimpleNamespace(sequence="\x1b[6;8;16t")
+
+    with patch("sys.__stdout__.isatty", return_value=True):
+        with patch("textual_image._terminal.ioctl", side_effect=OSError()):
+            with patch("textual_image._terminal.capture_terminal_response", capture_terminal_response):
+                get_cell_size()
+
+
+def test_get_cell_size_on_tty_failure() -> None:
+    if hasattr(get_cell_size, "_result"):
+        delattr(get_cell_size, "_result")
+
+    @contextmanager
+    def capture_terminal_response(
+        start_marker: str, end_marker: str, timeout: float | None = None
+    ) -> Iterator[SimpleNamespace]:
+        raise TimeoutError()
+
+    with patch("sys.__stdout__.isatty", return_value=True):
+        with patch("textual_image._terminal.ioctl", side_effect=OSError()):
+            with patch("textual_image._terminal.capture_terminal_response", capture_terminal_response):
+                with raises(TerminalError):
+                    get_cell_size()
+
+
 def test_get_cell_size_stdout_not_a_tty() -> None:
+    if hasattr(get_cell_size, "_result"):
+        delattr(get_cell_size, "_result")
+
     with patch("sys.__stdout__.isatty", return_value=False):
         term_size = get_cell_size()
 
-    assert term_size.width == 8
-    assert term_size.height == 16
+    assert term_size.width == 10
+    assert term_size.height == 20
 
 
 def test_capture_terminal_response() -> None:
