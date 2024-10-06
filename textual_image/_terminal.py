@@ -1,16 +1,17 @@
 """Functionality to interact with the terminal."""
 
 import logging
-import os
 import sys
-import termios
-import tty
-from array import array
 from contextlib import contextmanager
-from fcntl import ioctl
-from select import select
 from types import SimpleNamespace
 from typing import Iterator, NamedTuple, cast
+
+# pragma: no cover: start -- platform specific, we always will only execute one branch
+if sys.platform == "win32":
+    from textual_image._win32 import capture_mode, get_tiocgwinsz, read
+else:
+    from textual_image._posix import capture_mode, get_tiocgwinsz, read
+# pragma: no cover: stop
 
 logger = logging.getLogger(__name__)
 
@@ -51,9 +52,7 @@ def get_cell_size() -> CellSize:
     if sys.__stdout__.isatty():
         # Try to get the cell size via ioctl
         try:
-            buf = array("H", [0, 0, 0, 0])
-            ioctl(sys.__stdout__, termios.TIOCGWINSZ, buf)
-            rows, columns, screen_width, screen_height = buf
+            rows, columns, screen_width, screen_height = get_tiocgwinsz()
             width = int(screen_width / columns)
             height = int(screen_height / rows)
         except OSError:
@@ -77,7 +76,7 @@ def get_cell_size() -> CellSize:
         height = 20
 
     cell_size = CellSize(width, height)
-    setattr(get_cell_size, "_result", cell_size)  # noqa
+    setattr(get_cell_size, "_result", cell_size)
     return cell_size
 
 
@@ -105,26 +104,17 @@ def capture_terminal_response(
         The terminal's response
     """
     if not sys.__stdin__:
-        raise TerminalError("stdout is closed")
+        raise TerminalError("stdin is closed")
 
     response = SimpleNamespace(sequence="")
 
     stdin = sys.__stdin__.buffer.fileno()
-    old_term_mode = termios.tcgetattr(stdin)
-    tty.setcbreak(stdin, termios.TCSANOW)
 
-    try:
+    with capture_mode():
         yield response
 
         while not response.sequence.endswith(end_marker):
-            readable, _, _ = select([stdin], [], [], timeout)
-            if not readable:
-                raise TimeoutError("Timeout waiting for response")
-
-            response.sequence += os.read(stdin, 1).decode()
+            response.sequence += read(stdin, 1, timeout)
 
             if not response.sequence.startswith(start_marker[: len(response.sequence)]):
                 raise TerminalError("Unexpected response from terminal")
-
-    finally:
-        termios.tcsetattr(stdin, termios.TCSANOW, old_term_mode)

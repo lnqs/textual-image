@@ -1,11 +1,11 @@
 from importlib import reload
 from unittest.mock import patch
 
-import textual_image.renderable
-from textual_image.renderable import halfcell, sixel, tgp, unicode
-
 
 def test_determining_best_renderable() -> None:
+    import textual_image.renderable
+    from textual_image.renderable import halfcell, sixel, tgp, unicode
+
     with patch("sys.__stdout__.isatty", return_value=True):
         with patch("textual_image.renderable.tgp.query_terminal_support", return_value=True):
             module = reload(textual_image.renderable)

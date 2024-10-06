@@ -1,8 +1,8 @@
 # textual-image
-![PyPI - Version](https://img.shields.io/pypi/v/textual-image)
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/textual-image)
-![GitHub deployments](https://img.shields.io/github/deployments/lnqs/textual-image/pypi)
-![PyPI - Downloads](https://img.shields.io/pypi/dm/textual-image)
+[![PyPI - Version](https://img.shields.io/pypi/v/textual-image)](https://pypi.org/project/textual-image/)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/textual-image)](https://pypi.org/project/textual-image/)
+[![GitHub deployments](https://img.shields.io/github/deployments/lnqs/textual-image/pypi)](https://github.com/lnqs/textual-image/actions/workflows/publish.yml)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/textual-image)](https://www.pepy.tech/projects/textual-image)
 
 **Render images directly in your terminal using [Textual](https://www.textualize.io/) and [Rich](https://github.com/Textualize/rich).**
 
@@ -15,7 +15,7 @@ _textual-image_ offers both Rich renderables and Textual Widgets that leverage t
 - **Terminal Graphics Protocol (TGP)**: Initially introduced by the [Kitty](https://sw.kovidgoyal.net/kitty/) terminal emulator, fully supported in Kitty, and largely implemented in [WezTerm](https://wezfurlong.org/wezterm/index.html) and partially supported by [Konsole](https://konsole.kde.org/) and [wayst](https://github.com/91861/wayst).
 - **Sixel Graphics**: Supported by various terminal emulators including [xterm](https://invisible-island.net/xterm/) and others.
 
-_Note_: Testing has been conducted primarily using Kitty for TGP and xterm for Sixel on Linux, with some sanity checks on other terminals. Feedback and interoperability testing on other terminal emulators and operating systems would be highly valued.
+_Note_: Testing has been conducted primarily using Kitty for TGP and xterm for Sixel on Linux. Both Windows and macOS are also supported, but more testing is necessary. Feedback on different platforms and terminal emulators is very welcome.
 
 See the Support Matrix below on what was tested already.
 

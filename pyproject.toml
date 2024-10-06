@@ -66,6 +66,7 @@ packages = ["textual_image"]
 
 [tool.ruff]
 lint.select = ["B", "D", "F", "I", "T", "Q"]
+lint.ignore = ["B010"]
 line-length = 120
 exclude = [
     ".env",
@@ -91,10 +92,15 @@ asyncio_default_fixture_loop_scope = "function"
 
 [tool.coverage.report]
 fail_under = 100
-exclude_lines = ["if __name__ == .__main__.:"]
+exclude_lines = ["if __name__ == .__main__.:", "if sys.platform"]
+exclude_also = [
+    "no cover: start(?s:.)*?no cover: stop",
+    "\\A(?s:.*# pragma: exclude file.*)\\Z"
+]
 
 [tool.mypy]
 strict = true
+warn_unused_ignores = false
 exclude = ['build/']
 
 [tool.tox]
