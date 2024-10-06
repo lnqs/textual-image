@@ -10,7 +10,7 @@ from contextlib import contextmanager
 from fcntl import ioctl
 from select import select
 from types import SimpleNamespace
-from typing import Iterator, NamedTuple
+from typing import Iterator, NamedTuple, cast
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +33,8 @@ class CellSize(NamedTuple):
 def get_cell_size() -> CellSize:
     """Get size information from the terminal.
 
+    This function is querying the terminal only once. For any call after the first, a cached result is returned.
+
     Returns:
         The size information
 
@@ -40,32 +42,43 @@ def get_cell_size() -> CellSize:
     if not sys.__stdout__:
         raise TerminalError("stdout is closed")
 
+    if hasattr(get_cell_size, "_result"):
+        return cast(CellSize, get_cell_size._result)
+
+    width = 0
+    height = 0
+
     if sys.__stdout__.isatty():
+        # Try to get the cell size via ioctl
         try:
             buf = array("H", [0, 0, 0, 0])
             ioctl(sys.__stdout__, termios.TIOCGWINSZ, buf)
-
             rows, columns, screen_width, screen_height = buf
+            width = int(screen_width / columns)
+            height = int(screen_height / rows)
+        except OSError:
+            logger.debug("Failed to get cell size via ioctl, falling back to escape sequence")
 
-            # If we can't get the cell size (not all terminals support this) we're just assuming some hopefully reasonable numbers.
-            # Does this suck? Yes. Is there something we can do about it? Not really.
-            if not screen_width or not screen_height:
-                logger.warning("Terminal doesn't support getting pixel size; falling back to assumptions")
+    if sys.__stdout__.isatty() and (height == 0 or width == 0):
+        # Didn't work, let's try to do it via escape sequence
+        try:
+            with capture_terminal_response("\x1b[", "t", 0.1) as response:
+                sys.__stdout__.write("\x1b[16t")
+                sys.__stdout__.flush()
 
-        except OSError as e:
-            raise TerminalError("Unsupported terminal") from e
+            sequence = response.sequence[len("\x1b[") : -len("t")]
+            _, height, width = [int(v) for v in sequence.split(";")]
+        except (TerminalError, TimeoutError) as e:
+            raise TerminalError("Failed to get cell size") from e
 
-    else:
-        logger.debug("Not connected to a terminal, assuming reasonable size information")
-        rows = 24
-        columns = 80
-        screen_width = 0
-        screen_height = 0
+    if not sys.__stdout__.isatty():
+        logger.debug("Not connected to a terminal, assuming VT340 sizes")
+        width = 10
+        height = 20
 
-    cell_width = int(screen_width / columns) or 8
-    cell_height = int(screen_height / rows) or 16
-
-    return CellSize(cell_width, cell_height)
+    cell_size = CellSize(width, height)
+    setattr(get_cell_size, "_result", cell_size)  # noqa
+    return cell_size
 
 
 @contextmanager

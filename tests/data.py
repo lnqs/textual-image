@@ -10,8 +10,8 @@ TEXTUAL_ENABLED = bool(find_spec("textual"))
 TEST_IMAGE = Path(__file__).parent.parent / "textual_image" / "gracehopper.jpg"
 
 CELL_SIZE = CellSize(
-    width=8,
-    height=16,
+    width=10,
+    height=20,
 )
 
 CONSOLE_OPTIONS = ConsoleOptions(
