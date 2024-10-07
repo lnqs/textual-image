@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.6.0](https://github.com/lnqs/textual-image/compare/v0.5.0...v0.6.0) (2024-10-07)
+
+
+### Features
+
+* basic Windows support ([79d1114](https://github.com/lnqs/textual-image/commit/79d1114df02c86f583c089b33710d62d492642c4))
+* use escape sequence to get cell size ([a13bb9c](https://github.com/lnqs/textual-image/commit/a13bb9c768011e67e4a743a04584357d2bcbc320))
+
+
+### Documentation
+
+* add badges to README.md ([f3239db](https://github.com/lnqs/textual-image/commit/f3239db1b40673f69ded016f046d59fff05599ac))
+
 ## [0.5.0](https://github.com/lnqs/textual-image/compare/v0.4.0...v0.5.0) (2024-10-02)
 
 
