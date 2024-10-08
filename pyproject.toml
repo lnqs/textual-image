@@ -61,8 +61,8 @@ dev = [
     "typos",
 ]
 
-[tool.setuptools]
-packages = ["textual_image"]
+[tool.setuptools.packages.find]
+include = ["textual_image*"]
 
 [tool.ruff]
 lint.select = ["B", "D", "F", "I", "T", "Q"]
