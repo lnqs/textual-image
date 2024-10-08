@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.1](https://github.com/lnqs/textual-image/compare/v0.6.0...v0.6.1) (2024-10-08)
+
+
+### Bug Fixes
+
+* add missing files in distribution ([3370879](https://github.com/lnqs/textual-image/commit/33708793bb3a7437d72bfa3279d4858ec03e9683))
+
 ## [0.6.0](https://github.com/lnqs/textual-image/compare/v0.5.0...v0.6.0) (2024-10-07)
 
 
