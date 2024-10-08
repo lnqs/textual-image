@@ -21,8 +21,8 @@ classifiers = [
     "Topic :: Software Development :: Libraries",
     "Topic :: Software Development :: User Interfaces",
 
-    "License :: OSI Approved :: GNU General Public License (GPL)",
-    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)",
+    "License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)",
 
     "Operating System :: POSIX :: Linux",
 
