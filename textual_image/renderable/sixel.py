@@ -14,6 +14,9 @@ from textual_image._pixeldata import PixelData
 from textual_image._sixel import image_to_sixels
 from textual_image._terminal import TerminalError, capture_terminal_response, get_cell_size
 
+# Random no-op control code to prevent Rich from messing with our data
+_NULL_CONTROL = [(ControlType.CURSOR_FORWARD, 0)]
+
 
 class Image:
     """Rich Renderable to render images as Sixels (https://en.wikipedia.org/wiki/Sixel)."""
@@ -64,7 +67,7 @@ class Image:
         sixel_data = image_to_sixels(scaled_image.pil_image)
 
         # We add a random no-op control code to prevent Rich from messing with our data
-        yield Segment(sixel_data, control=[(ControlType.CURSOR_FORWARD, 0)])
+        yield Segment(sixel_data, control=_NULL_CONTROL)
 
     def __rich_measure__(self, console: Console, options: ConsoleOptions) -> Measurement:
         """Called by Rich to get the render width without actually rendering the object.
