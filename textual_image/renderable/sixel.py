@@ -61,13 +61,17 @@ class Image:
         # This way rich realizes how much space the renderable uses.
         for _ in range(cell_height):
             yield Segment(" " * cell_width + "\n")
-        yield Control.move(0, -cell_height + 1)
+
+        # Save cursor position to restore if after drawing the sixels
+        yield Segment("\x1b7", control=_NULL_CONTROL)
+        yield Control.move(0, -cell_height)
 
         scaled_image = self._image_data.scaled(pixel_width, pixel_height)
         sixel_data = image_to_sixels(scaled_image.pil_image)
 
         # We add a random no-op control code to prevent Rich from messing with our data
         yield Segment(sixel_data, control=_NULL_CONTROL)
+        yield Segment("\x1b8", control=_NULL_CONTROL)
 
     def __rich_measure__(self, console: Console, options: ConsoleOptions) -> Measurement:
         """Called by Rich to get the render width without actually rendering the object.
