@@ -12,77 +12,154 @@ _textual-image_ offers both Rich renderables and Textual Widgets that leverage t
 
 ## Supported Terminals
 
-- **Terminal Graphics Protocol (TGP)**: Initially introduced by the [Kitty](https://sw.kovidgoyal.net/kitty/) terminal emulator, fully supported in Kitty, and largely implemented in [WezTerm](https://wezfurlong.org/wezterm/index.html) and partially supported by [Konsole](https://konsole.kde.org/) and [wayst](https://github.com/91861/wayst).
-- **Sixel Graphics**: Supported by various terminal emulators including [xterm](https://invisible-island.net/xterm/) and others.
+- **Terminal Graphics Protocol (TGP)**: Initially introduced by the [Kitty](https://sw.kovidgoyal.net/kitty/) terminal emulator. While support is partially available in other terminals, it doesn't seem to be really usable there.
+- **Sixel Graphics**: Supported by various terminal emulators including [xterm](https://invisible-island.net/xterm/) and a lot of others.
 
-_Note_: Testing has been conducted primarily using Kitty for TGP and xterm for Sixel on Linux. Both Windows and macOS are also supported, but more testing is necessary. Feedback on different platforms and terminal emulators is very welcome.
+_Note_: As implementation of these protocols differ a lot feedback on different terminal emulators is very welcome.
 
 See the Support Matrix below on what was tested already.
 
 ### Support Matrix [^1]
 
-| Terminal            | TPG support | Sixel support | Works with textual-image |
+[^1]: Based on [Are We Sixel Yet?](https://www.arewesixelyet.com/)
+
+| Terminal            | TGP support | Sixel support | Works with textual-image |
 |---------------------|:-----------:|:-------------:|:------------------------:|
-| Alacritty           |          ❌ |            ❌ |                          |
-| Black Box           |          ❌ |            ✅ |                       ⚫ |
-| Bobcat              |          ❌ |            ✅ |                       ⚫ |
-| ConEmu              |          ❌ |            ❌ |                          |
-| Contour             |          ❌ |            ✅ |                       ⚫ |
-| ctx terminal        |          ❌ |            ✅ |                       ⚫ |
-| Darktile            |          ❌ |            ✅ |                       ⚫ |
-| DomTerm             |          ❌ |            ✅ |                       ⚫ |
-| Eat                 |          ❌ |            ✅ |                       ⚫ |
-| Elementary Terminal |          ❌ |            ❌ |                          |
+| Black Box           |          ❌ |            ✅ |                       ✅ |
 | foot                |          ❌ |            ✅ |                       ✅ |
 | GNOME Terminal      |          ❌ |            ❌ |                          |
-| guake               |          ❌ |            ❌ |                          |
-| iTerm2              |          ❌ |            ✅ |                       ⚫ |
+| iTerm2              |          ❌ |            ✅ |                       ✅ |
 | kitty               |          ✅ |            ❌ |                       ✅ |
-| konsole             |          ✅ |            ✅ |                   ❓[^2] |
-| LaTerminal          |          ❌ |            ✅ |                       ⚫ |
-| MacTerm             |          ❌ |            ✅ |                       ⚫ |
-| mintty              |          ❌ |            ✅ |                       ⚫ |
-| mlterm              |          ❌ |            ✅ |                       ⚫ |
-| MobaXterm           |          ❌ |            ❌ |                          |
-| PuTTY               |          ❌ |            ❌ |                          |
-| Rio terminal        |          ❌ |            ❌ |                          |
-| Rlogin              |          ❌ |            ✅ |                       ⚫ |
-| suckless st         |          ❌ |            ❌ |                          |
-| SwiftTerm           |          ❌ |            ✅ |                       ⚫ |
-| SyncTERM            |          ❌ |            ✅ |                       ⚫ |
-| TeraTerm            |          ❌ |            ❌ |                          |
-| Terminal.app        |          ❌ |            ❌ |                          |
-| Terminology         |          ❌ |            ❌ |                          |
-| termux              |          ❌ |            ❌ |                          |
-| Tilix               |          ❌ |            ❌ |                          |
-| tmux                |          ❌ |            ✅ |                   ✅[^3] |
-| toyterm             |          ❌ |            ✅ |                       ⚫ |
-| URxvt               |          ❌ |            ❌ |                          |
-| U++                 |          ❌ |            ✅ |                       ⚫ |
-| Visual Studio Code  |          ❌ |            ✅ |                   ✅[^4] |
-| wayst               |          ✅ |            ✅ |                   ❓[^5] |
-| wezterm             |          ✅ |            ✅ |                   ❓[^6] |
+| konsole             |          ✅ |            ✅ |                       ✅ |
+| tmux                |          ❌ |            ✅ |                       ✅ |
+| Visual Studio Code  |          ❌ |            ✅ |                       ✅ |
+| wezterm             |          ✅ |            ✅ |                       ✅ |
 | Windows Console     |          ❌ |            ❌ |                          |
-| Windows Terminal    |          ❌ |            ✅ |                       ⚫ |
-| xfce-terminal       |          ❌ |            ✅ |                       ⚫ |
+| Windows Terminal    |          ❌ |            ✅ |                       ✅ |
 | xterm               |          ❌ |            ✅ |                       ✅ |
-| xterm.js            |          ❌ |            ✅ |                       ⚫ |
-| yaft                |          ❌ |            ✅ |                       ⚫ |
-| Yakuake             |          ❌ |            ✅ |                       ⚫ |
-| Zellij              |          ❌ |            ✅ |                   ❌[^7] |
 
-✅ = Supported; ❌ = Not Supported; ⚫ = To Be Tested; ❓ = Works, but with glitches (further investigation needed)
+✅ = Supported; ❌ = Not Supported
 
-[^1]: Based on [Are We Sixel Yet?](https://www.arewesixelyet.com/)
-[^2]: Reports to support TGP but doesn't draw images. If set to Sixel explicitly, it works besides a few minor glitches.
-[^3]: Works only in a Sixel enabled terminal, TGP does not work with tmux.
-[^4]: The `terminal.integrated.enableImages` setting has to be enabled.
-[^5]: Both TGP and Sixel draw graphics, but only with major glitches.
-[^6]: TGP draws graphics, but with major glitches; Sixel works fine but doesn't get auto-selected due to reporting TGP support.
-[^7]: Reports to support Sixel, but doesn't draw anything.
+### BlackBox
 
-### Enabling Sixel Support on xterm
+**Homepage**: https://gitlab.gnome.org/raggesilver/blackbox  
+**TGP support**: No  
+**Sixel support**: Yes  
+**Works**: Yes
 
+**Notes**:  
+*Preferences -> Advanced -> Sixel Support* has to be enabled.
+
+Needs to be linked against a version of VTE with Sixel support enabled.
+This is the case for the Flatpak version of BlackBox, but not on most Linux distribution's native packages.
+
+### foot
+
+**Homepage**: https://codeberg.org/dnkl/foot  
+**TGP support**: No  
+**Sixel support**: Yes  
+**Works**: Yes
+
+**Notes:**  
+Works out of the box, no known issues.
+
+### GNOME Terminal
+
+**Homepage**: https://gitlab.gnome.org/GNOME/gnome-terminal  
+**TGP support**: No  
+**Sixel support**: No  
+**Works**: No
+
+**Notes:**  
+Relies on VTE Sixel implementation (<https://gitlab.gnome.org/GNOME/vte/-/issues/253>). While that one is available in an experimental state, I didn't find any resources if it's somehow possible to enable Sixel support on the terminal.
+
+### iTerm2
+
+**Homepage**: https://iterm2.com/  
+**TGP support**: No  
+**Sixel support**: Yes  
+**Works**: Yes
+
+**Notes:**  
+Works out of the box.
+
+### Kitty
+
+**Homepage**: https://sw.kovidgoyal.net/kitty/  
+**TGP support**: Yes  
+**Sixel support**: No  
+**Works**: Yes
+
+**Notes:**  
+Works out of the box.
+
+### Konsole
+
+**Homepage**: https://konsole.kde.org/  
+**TGP support**: Partially  
+**Sixel support**: Yes  
+**Works**: Yes
+
+**Notes:**  
+TGP support is not in a usable state. However, Sixel is working out of the box with a few minor graphical glitches in Textual.
+
+### tmux
+
+**Homepage**: https://github.com/tmux/tmux/wiki  
+**TGP support**: No  
+**Sixel support**: Yes  
+**Works**: Partially
+
+**Notes:**  
+tmux doesn't support TGP, even on a TGP enabled terminal nothing will render. Sixel generally works, but heavily depends on the underlying terminal. In some terminals it works great, in others major bugs occur, even if the terminal without tmux works.
+
+### Visual Studio Code
+
+**Homepage**: https://code.visualstudio.com/  
+**TGP support**: No  
+**Sixel support**: Yes  
+**Works**: Yes
+
+**Notes:**  
+The `terminal.integrated.enableImages` setting has to be enabled.
+
+### WezTerm
+
+**Homepage**: https://wezfurlong.org/wezterm/index.html  
+**TGP support**: No  
+**Sixel support**: Yes  
+**Works**: Yes
+
+**Notes:**  
+Works out of the box.
+
+### Windows Console
+
+**TGP support**: No  
+**Sixel support**: No  
+**Works**: No
+
+**Notes:**  
+Windows Console and Windows Terminal are two different pieces of software. The latter one is supported.
+
+### Windows Terminal
+
+**Homepage**: https://github.com/microsoft/terminal
+**TGP support**: No  
+**Sixel support**: Yes  
+**Works**: Yes
+
+**Notes:**  
+Sixel support was added in version 1.22, which is currently the pre-release.
+
+### xterm
+
+**Homepage**: https://invisible-island.net/xterm/
+**TGP support**: No  
+**Sixel support**: Yes  
+**Works**: Yes
+
+**Notes:**  
 Sixel on xterm is disabled by default. To enable it, add `+lc` and `-ti vt340` options when launching xterm:
 
 ```sh
