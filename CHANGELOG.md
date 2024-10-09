@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.6.2](https://github.com/lnqs/textual-image/compare/v0.6.1...v0.6.2) (2024-10-09)
+
+
+### Bug Fixes
+
+* improve cursor position handling for sixels ([bb37ee4](https://github.com/lnqs/textual-image/commit/bb37ee41d3b7c27d7f826ae704c2bd96845c6218))
+* reorder preferred rendering methods ([a5a4efb](https://github.com/lnqs/textual-image/commit/a5a4efb80253e589071c26ea8339eed8283be88f))
+
+
+### Documentation
+
+* cleanup compatibility matrix ([652f7ee](https://github.com/lnqs/textual-image/commit/652f7ee91b7a6b6fd30b122ae756999ac37a308d))
+* describe the high image issue in the README ([84389ee](https://github.com/lnqs/textual-image/commit/84389ee1eb14502cefaa44358cac8ba739834bc5))
+
 ## [0.6.1](https://github.com/lnqs/textual-image/compare/v0.6.0...v0.6.1) (2024-10-08)
 
 
