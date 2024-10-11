@@ -144,7 +144,7 @@ Windows Console and Windows Terminal are two different pieces of software. The l
 
 ### Windows Terminal
 
-**Homepage**: https://github.com/microsoft/terminal
+**Homepage**: https://github.com/microsoft/terminal  
 **TGP support**: No  
 **Sixel support**: Yes  
 **Works**: Yes
@@ -154,7 +154,7 @@ Sixel support was added in version 1.22, which is currently the pre-release.
 
 ### xterm
 
-**Homepage**: https://invisible-island.net/xterm/
+**Homepage**: https://invisible-island.net/xterm/  
 **TGP support**: No  
 **Sixel support**: Yes  
 **Works**: Yes
