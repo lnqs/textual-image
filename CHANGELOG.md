@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.3](https://github.com/lnqs/textual-image/compare/v0.6.2...v0.6.3) (2024-10-11)
+
+
+### Bug Fixes
+
+* add missing py.typed marker ([db0f83f](https://github.com/lnqs/textual-image/commit/db0f83f90b37bedaba5e064ebd7a020b7673a74e))
+
 ## [0.6.2](https://github.com/lnqs/textual-image/compare/v0.6.1...v0.6.2) (2024-10-09)
 
 
