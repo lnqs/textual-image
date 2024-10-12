@@ -38,3 +38,10 @@ async def test_app() -> None:
         with PILImage.open(TEST_IMAGE) as test_image:
             app.query_one(Image).image = ImageOps.flip(test_image)
         assert app.query_one(Image).image != TEST_IMAGE
+
+
+@skipUnless(TEXTUAL_ENABLED, "Textual support disabled")
+def test_render_without_image() -> None:
+    from textual_image.widget import Image
+
+    assert Image().render() == ""

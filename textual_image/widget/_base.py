@@ -97,7 +97,8 @@ class Image(Widget):
 
     @override
     def render(self) -> RenderResult:
-        assert self._image  # Should never happen, as Textual isn't supposed to call this while we report a size of 0
+        if not self._image:
+            return ""
 
         if self._renderable:
             self._renderable.cleanup()
