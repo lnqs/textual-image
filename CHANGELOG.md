@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.4](https://github.com/lnqs/textual-image/compare/v0.6.3...v0.6.4) (2024-10-12)
+
+
+### Bug Fixes
+
+* fix failing assertion ([00e2d01](https://github.com/lnqs/textual-image/commit/00e2d010a57b8d02f9eb2db371132b109e5c51b2))
+
 ## [0.6.3](https://github.com/lnqs/textual-image/compare/v0.6.2...v0.6.3) (2024-10-11)
 
 
