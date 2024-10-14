@@ -111,9 +111,11 @@ class Image(Widget):
     def get_content_width(self, container: Size, viewport: Size) -> int:
         styled_width, styled_height = self._get_styled_size()
         terminal_sizes = get_cell_size()
+        # If Textual doesn't know the container height yet it's reported as 0. To prevent our
+        # image to be size 0x0 if set to auto, pass a really high number in that case.
         width, _ = ImageSize(
             self._image_width, self._image_height, width=styled_width, height=styled_height
-        ).get_cell_size(container.width, container.height, terminal_sizes)
+        ).get_cell_size(container.width, container.height or 2**32, terminal_sizes)
         return width
 
     @override
@@ -122,7 +124,7 @@ class Image(Widget):
         terminal_sizes = get_cell_size()
         _, height = ImageSize(
             self._image_width, self._image_height, width=styled_width, height=styled_height
-        ).get_cell_size(width, container.height, terminal_sizes)
+        ).get_cell_size(width, container.height or 2**32, terminal_sizes)
         return height
 
     def _get_styled_size(self) -> Tuple[None | Literal["auto"] | int, None | Literal["auto"] | int]:
