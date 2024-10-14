@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.5](https://github.com/lnqs/textual-image/compare/v0.6.4...v0.6.5) (2024-10-14)
+
+
+### Bug Fixes
+
+* prevent image from not being rendered ([05566f9](https://github.com/lnqs/textual-image/commit/05566f93e34dff8fa84035b9865f15aaf4d55cbe))
+
 ## [0.6.4](https://github.com/lnqs/textual-image/compare/v0.6.3...v0.6.4) (2024-10-12)
 
 
