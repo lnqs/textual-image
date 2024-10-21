@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.6](https://github.com/lnqs/textual-image/compare/v0.6.5...v0.6.6) (2024-10-21)
+
+
+### Bug Fixes
+
+* include demo image ([4d1e516](https://github.com/lnqs/textual-image/commit/4d1e516946e8f64a5c6fc60310e9fba654a84241))
+
 ## [0.6.5](https://github.com/lnqs/textual-image/compare/v0.6.4...v0.6.5) (2024-10-14)
 
 
