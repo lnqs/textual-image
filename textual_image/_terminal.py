@@ -32,48 +32,25 @@ class CellSize(NamedTuple):
 
 
 def get_cell_size() -> CellSize:
-    """Get size information from the terminal.
-
-    This function is querying the terminal only once. For any call after the first, a cached result is returned.
-
-    Returns:
-        The size information
-
-    """
+    """Get size information from the terminal."""
     if not sys.__stdout__:
         raise TerminalError("stdout is closed")
 
     if hasattr(get_cell_size, "_result"):
         return cast(CellSize, get_cell_size._result)
 
-    width = 0
-    height = 0
+    # Default fallback values
+    width = 10
+    height = 20
 
     if sys.__stdout__.isatty():
-        # Try to get the cell size via ioctl
         try:
+            # Try to get the cell size via ioctl
             rows, columns, screen_width, screen_height = get_tiocgwinsz()
             width = int(screen_width / columns)
             height = int(screen_height / rows)
         except OSError:
-            logger.debug("Failed to get cell size via ioctl, falling back to escape sequence")
-
-    if sys.__stdout__.isatty() and (height == 0 or width == 0):
-        # Didn't work, let's try to do it via escape sequence
-        try:
-            with capture_terminal_response("\x1b[", "t", 0.1) as response:
-                sys.__stdout__.write("\x1b[16t")
-                sys.__stdout__.flush()
-
-            sequence = response.sequence[len("\x1b[") : -len("t")]
-            _, height, width = [int(v) for v in sequence.split(";")]
-        except (TerminalError, TimeoutError) as e:
-            raise TerminalError("Failed to get cell size") from e
-
-    if not sys.__stdout__.isatty():
-        logger.debug("Not connected to a terminal, assuming VT340 sizes")
-        width = 10
-        height = 20
+            logger.debug("Failed to get cell size via ioctl, using default values")
 
     cell_size = CellSize(width, height)
     setattr(get_cell_size, "_result", cell_size)
