@@ -39,13 +39,12 @@ def get_cell_size() -> CellSize:
     if hasattr(get_cell_size, "_result"):
         return cast(CellSize, get_cell_size._result)
 
-    # Default fallback values
+# default VT340 cell size
     width = 10
     height = 20
 
     if sys.__stdout__.isatty():
         try:
-            # Try to get the cell size via ioctl
             rows, columns, screen_width, screen_height = get_tiocgwinsz()
             width = int(screen_width / columns)
             height = int(screen_height / rows)
