@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.7.0](https://github.com/lnqs/textual-image/compare/v0.6.6...v0.7.0) (2024-12-28)
+
+
+### Features
+
+* python 3.13 support ([f14cdab](https://github.com/lnqs/textual-image/commit/f14cdabc399462359309920f6877b8fea9859c24))
+
+
+### Bug Fixes
+
+* re-rendering widget on image change ([59f83d6](https://github.com/lnqs/textual-image/commit/59f83d648d0ef927f8a680ebb484072f19f5b6cc))
+
 ## [0.6.6](https://github.com/lnqs/textual-image/compare/v0.6.5...v0.6.6) (2024-10-21)
 
 
