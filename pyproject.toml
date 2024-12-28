@@ -30,6 +30,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
  
     "Typing :: Typed",
 ]
@@ -105,7 +106,7 @@ exclude = ['build/']
 
 [tool.tox]
 isolated_build = true
-envlist = ["format-check", "lint", "spell-check", "types", "3.10", "3.11", "3.12", "rich-only"]
+envlist = ["format-check", "lint", "spell-check", "types", "3.10", "3.11", "3.12", "3.13", "rich-only"]
 
 [tool.tox.env.format-check]
 description = "Format check"
@@ -114,21 +115,21 @@ deps = "ruff"
 commands = [["ruff", "format", "--check", "{posargs:.}"]]
 
 [tool.tox.env.lint]
-basepython = ["3.12"]
+basepython = ["3.13"]
 description = "Lint"
 skip_install = true
 deps = "ruff"
 commands = [["ruff", "check", "{posargs:.}"]]
 
 [tool.tox.env.spell-check]
-basepython = ["3.12"]
+basepython = ["3.13"]
 description = "Spell check"
 skip_install = true
 deps = "typos"
 commands = [["typos", "{posargs:.}"]]
 
 [tool.tox.env.types]
-basepython = ["3.12"]
+basepython = ["3.13"]
 description = "Type checking"
 deps = ".[textual,dev]"
 commands = [["mypy", "{posargs:.}"]]
@@ -139,7 +140,7 @@ deps = ".[textual,dev]"
 commands = [["pytest", "--cov=textual_image", "--cov-report=term-missing", "{tty:--color=yes}", "{posargs}"]]
 
 [tool.tox.env.rich-only]
-basepython = ["3.12"]
+basepython = ["3.13"]
 description = "Test with Rich only"
 deps = ".[dev]"
 commands = [["pytest", "{tty:--color=yes}", "{posargs}"]]
