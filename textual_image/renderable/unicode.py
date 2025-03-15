@@ -1,7 +1,6 @@
 """Provides a Rich Renderable to render images as grayscale unicode characters."""
 
-from pathlib import Path
-from typing import cast
+from typing import IO, cast
 
 from PIL import Image as PILImage
 from rich.console import Console, ConsoleOptions, RenderResult
@@ -11,7 +10,7 @@ from rich.segment import Segment
 from textual_image._geometry import ImageSize
 from textual_image._pixeldata import PixelData
 from textual_image._terminal import get_cell_size
-from textual_image._utils import clamp
+from textual_image._utils import StrOrBytesPath, clamp
 
 _CHARACTERS = [
     "█",  # FULL BLOCK
@@ -42,12 +41,16 @@ class Image:
     """Rich Renderable to render images as grayscale unicode characters."""
 
     def __init__(
-        self, image: str | Path | PILImage.Image, width: int | str | None = None, height: int | str | None = None
+        self,
+        image: StrOrBytesPath | IO[bytes] | PILImage.Image,
+        width: int | str | None = None,
+        height: int | str | None = None,
     ) -> None:
         """Initialized the `Image`.
 
         Args:
-            image: Path to an image file or `PIL.Image.Image` instance with the image data to render.
+            image: Path to an image file, a byte stream containing image data, or `PIL.Image.Image` instance with the
+                   image data to render.
             width: Width specification to render the image.
                 See `textual_image.geometry.ImageSize` for details about possible values.
             height: height specification to render the image.

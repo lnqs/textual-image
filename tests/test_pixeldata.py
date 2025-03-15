@@ -10,6 +10,10 @@ def test_ensure_image() -> None:
     with ensure_image(TEST_IMAGE) as image:
         assert isinstance(image, PILImage.Image)
 
+    with open(TEST_IMAGE, "rb") as file:
+        with ensure_image(file) as image:
+            assert isinstance(image, PILImage.Image)
+
     with PILImage.open(TEST_IMAGE) as opened_image:
         with ensure_image(opened_image) as image:
             assert isinstance(image, PILImage.Image)

@@ -1,7 +1,6 @@
 """Provides a Rich Renderable to render images as colored half cells."""
 
-from pathlib import Path
-from typing import Tuple
+from typing import IO, Tuple
 
 from PIL import Image as PILImage
 from rich.color import Color
@@ -14,7 +13,7 @@ from rich.style import Style
 from textual_image._geometry import ImageSize
 from textual_image._pixeldata import PixelData
 from textual_image._terminal import get_cell_size
-from textual_image._utils import grouped
+from textual_image._utils import StrOrBytesPath, grouped
 
 
 def _map_pixel(pixel_value: Tuple[int, int, int]) -> Color:
@@ -33,12 +32,16 @@ class Image:
     """Rich Renderable to render images as colored half cells."""
 
     def __init__(
-        self, image: str | Path | PILImage.Image, width: int | str | None = None, height: int | str | None = None
+        self,
+        image: StrOrBytesPath | IO[bytes] | PILImage.Image,
+        width: int | str | None = None,
+        height: int | str | None = None,
     ) -> None:
         """Initialized the `Image`.
 
         Args:
-            image: Path to an image file or `PIL.Image.Image` instance with the image data to render.
+            image: Path to an image file, a byte stream containing image data, or `PIL.Image.Image` instance with the
+                   image data to render.
             width: Width specification to render the image.
                 See `textual_image.geometry.ImageSize` for details about possible values.
             height: height specification to render the image.

@@ -1,8 +1,7 @@
 """Provides a Textual `Widget` to render images as Sixels (<https://en.wikipedia.org/wiki/Sixel>) in the terminal."""
 
 import logging
-from pathlib import Path
-from typing import Iterable, NamedTuple
+from typing import IO, Iterable, NamedTuple
 
 from PIL import Image as PILImage
 from rich.console import Console, ConsoleOptions, RenderResult
@@ -20,6 +19,7 @@ from textual_image._geometry import ImageSize
 from textual_image._pixeldata import PixelData
 from textual_image._sixel import image_to_sixels
 from textual_image._terminal import CellSize, get_cell_size
+from textual_image._utils import StrOrBytesPath
 from textual_image.widget._base import Image as BaseImage
 
 logger = logging.getLogger(__name__)
@@ -29,7 +29,7 @@ _NULL_STYLE = Style()
 
 
 class _CachedSixels(NamedTuple):
-    image: str | Path | PILImage.Image
+    image: StrOrBytesPath | IO[bytes] | PILImage.Image
     content_crop: Region
     content_size: Size
     terminal_sizes: CellSize
@@ -37,7 +37,7 @@ class _CachedSixels(NamedTuple):
 
     def is_hit(
         self,
-        image: str | Path | PILImage.Image,
+        image: StrOrBytesPath | IO[bytes] | PILImage.Image,
         content_crop: Region,
         content_size: Size,
         terminal_sizes: CellSize,
@@ -60,7 +60,10 @@ class _NoopRenderable:
     """
 
     def __init__(
-        self, image: str | Path | PILImage.Image, width: int | str | None = None, height: int | str | None = None
+        self,
+        image: StrOrBytesPath | IO[bytes] | PILImage.Image,
+        width: int | str | None = None,
+        height: int | str | None = None,
     ) -> None:
         pass
 
@@ -105,7 +108,7 @@ class _ImageSixelImpl(Widget, can_focus=False, inherit_css=False):
     @override
     def __init__(
         self,
-        image: str | Path | PILImage.Image | None = None,
+        image: StrOrBytesPath | IO[bytes] | PILImage.Image | None = None,
     ) -> None:
         super().__init__()
         self.image = image
