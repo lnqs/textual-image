@@ -3,15 +3,14 @@
 import io
 from base64 import b64encode
 from contextlib import nullcontext
-from pathlib import Path
-from typing import ContextManager, Iterable, Iterator, Literal, Tuple
+from typing import IO, ContextManager, Iterable, Iterator, Literal, Tuple
 
 from PIL import Image as PILImage
 
-from textual_image._utils import grouped
+from textual_image._utils import StrOrBytesPath, grouped
 
 
-def ensure_image(image: str | Path | PILImage.Image) -> ContextManager[PILImage.Image]:
+def ensure_image(image: StrOrBytesPath | IO[bytes] | PILImage.Image) -> ContextManager[PILImage.Image]:
     """Ensures value to be an `PIL.Image.Image`.
 
     This function accepts either a str or `pathlib.Path` of a path to an image file or a `PIL.Image.Image` instance.
@@ -32,7 +31,7 @@ def ensure_image(image: str | Path | PILImage.Image) -> ContextManager[PILImage.
 class PixelMeta:
     """Provides access to meta information of an image from a path or `PIL.Image.Image` instance."""
 
-    def __init__(self, image: str | Path | PILImage.Image) -> None:
+    def __init__(self, image: StrOrBytesPath | IO[bytes] | PILImage.Image) -> None:
         """Initializes a PixelMeta.
 
         Args:
@@ -46,7 +45,9 @@ class PixelMeta:
 class PixelData:
     """Provides access to pixel data from a path or `PIL.Image.Image` instance."""
 
-    def __init__(self, image: str | Path | PILImage.Image, mode: Literal["grayscale", "rgb"] | None = None) -> None:
+    def __init__(
+        self, image: StrOrBytesPath | IO[bytes] | PILImage.Image, mode: Literal["grayscale", "rgb"] | None = None
+    ) -> None:
         """Initializes a PixelData.
 
         Args:

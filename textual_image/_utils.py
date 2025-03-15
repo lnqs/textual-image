@@ -1,6 +1,9 @@
 """Utility functions."""
 
+import os
 from typing import Iterable, Iterator, TypeVar
+
+StrOrBytesPath = str | bytes | os.PathLike[str] | os.PathLike[bytes]
 
 T = TypeVar("T")
 

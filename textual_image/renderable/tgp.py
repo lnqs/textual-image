@@ -3,9 +3,8 @@
 import logging
 import sys
 from itertools import count
-from pathlib import Path
 from random import randint
-from typing import Iterator
+from typing import IO, Iterator
 
 from PIL import Image as PILImage
 from rich.console import Console, ConsoleOptions, RenderResult
@@ -16,6 +15,7 @@ from rich.style import Style
 from textual_image._geometry import ImageSize
 from textual_image._pixeldata import PixelData
 from textual_image._terminal import TerminalError, capture_terminal_response, get_cell_size
+from textual_image._utils import StrOrBytesPath
 
 logger = logging.getLogger(__name__)
 
@@ -82,12 +82,16 @@ class Image:
     _image_id_counter = count(randint(1, 2**32))
 
     def __init__(
-        self, image: str | Path | PILImage.Image, width: int | str | None = None, height: int | str | None = None
+        self,
+        image: StrOrBytesPath | IO[bytes] | PILImage.Image,
+        width: int | str | None = None,
+        height: int | str | None = None,
     ) -> None:
         """Initialized the `Image`.
 
         Args:
-            image: Path to an image file or `PIL.Image.Image` instance with the image data to render.
+            image: Path to an image file, a byte stream containing image data, or `PIL.Image.Image` instance with the
+                   image data to render.
             width: Width specification to render the image.
                 See `textual_image.geometry.ImageSize` for details about possible values.
             height: height specification to render the image.

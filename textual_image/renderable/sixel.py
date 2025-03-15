@@ -1,7 +1,7 @@
 """Provides a Rich Renderable to render images as Sixels (https://en.wikipedia.org/wiki/Sixel)."""
 
 import sys
-from pathlib import Path
+from typing import IO
 
 from PIL import Image as PILImage
 from rich.console import Console, ConsoleOptions, RenderResult
@@ -13,6 +13,7 @@ from textual_image._geometry import ImageSize
 from textual_image._pixeldata import PixelData
 from textual_image._sixel import image_to_sixels
 from textual_image._terminal import TerminalError, capture_terminal_response, get_cell_size
+from textual_image._utils import StrOrBytesPath
 
 # Random no-op control code to prevent Rich from messing with our data
 _NULL_CONTROL = [(ControlType.CURSOR_FORWARD, 0)]
@@ -22,12 +23,16 @@ class Image:
     """Rich Renderable to render images as Sixels (https://en.wikipedia.org/wiki/Sixel)."""
 
     def __init__(
-        self, image: str | Path | PILImage.Image, width: int | str | None = None, height: int | str | None = None
+        self,
+        image: StrOrBytesPath | IO[bytes] | PILImage.Image,
+        width: int | str | None = None,
+        height: int | str | None = None,
     ) -> None:
         """Initialized the `Image`.
 
         Args:
-            image: Path to an image file or `PIL.Image.Image` instance with the image data to render.
+            image: Path to an image file, a byte stream containing image data, or `PIL.Image.Image` instance with the
+                   image data to render.
             width: Width specification to render the image.
                 See `textual_image.geometry.ImageSize` for details about possible values.
             height: height specification to render the image.

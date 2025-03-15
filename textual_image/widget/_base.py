@@ -1,7 +1,6 @@
 """Provides a Textual `Widget` to render images in the terminal."""
 
-from pathlib import Path
-from typing import Literal, Tuple, Type, cast
+from typing import IO, Literal, Tuple, Type, cast
 
 from PIL import Image as PILImage
 from textual.app import RenderResult
@@ -13,6 +12,7 @@ from typing_extensions import override
 from textual_image._geometry import ImageSize
 from textual_image._pixeldata import PixelMeta
 from textual_image._terminal import get_cell_size
+from textual_image._utils import StrOrBytesPath
 from textual_image.renderable._protocol import ImageRenderable
 
 
@@ -45,7 +45,7 @@ class Image(Widget):
 
     def __init__(
         self,
-        image: str | Path | PILImage.Image | None = None,
+        image: StrOrBytesPath | IO[bytes] | PILImage.Image | None = None,
         *,
         name: str | None = None,
         id: str | None = None,
@@ -55,7 +55,8 @@ class Image(Widget):
         """Initializes the `Image`.
 
         Args:
-            image: Path to an image file or `PIL.Image.Image` instance with the image data to render.
+            image: Path to an image file, a byte stream containing image data, or `PIL.Image.Image` instance with the
+                   image data to render.
             name: The name of the widget.
             id: The ID of the widget in the DOM.
             classes: The CSS classes for the widget.
@@ -63,14 +64,14 @@ class Image(Widget):
         """
         super().__init__(name=name, id=id, classes=classes, disabled=disabled)
         self._renderable: ImageRenderable | None = None
-        self._image: str | Path | PILImage.Image | None = None
+        self._image: StrOrBytesPath | IO[bytes] | PILImage.Image | None = None
         self._image_width: int = 0
         self._image_height: int = 0
 
         self.image = image
 
     @property
-    def image(self) -> str | Path | PILImage.Image | None:
+    def image(self) -> StrOrBytesPath | IO[bytes] | PILImage.Image | None:
         """The image to render.
 
         Path to an image file or `PIL.Image.Image` instance with the image data to render.
@@ -78,7 +79,7 @@ class Image(Widget):
         return self._image
 
     @image.setter
-    def image(self, value: str | Path | PILImage.Image | None) -> None:
+    def image(self, value: StrOrBytesPath | IO[bytes] | PILImage.Image | None) -> None:
         if self._renderable:
             self._renderable.cleanup()
             self._renderable = None
