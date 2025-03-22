@@ -10,7 +10,7 @@ from rich.measure import Measurement
 from syrupy.assertion import SnapshotAssertion
 
 from tests.data import CONSOLE_OPTIONS, TEST_IMAGE
-from tests.utils import render
+from tests.utils import load_non_seekable_bytes_io, render
 from textual_image._terminal import TerminalError
 
 
@@ -29,6 +29,20 @@ def test_overly_large() -> None:
     renderable = Image(TEST_IMAGE, width=2**32)
     with raises(ValueError):
         render(renderable)
+
+
+def test_render_non_seekable() -> None:
+    from textual_image.renderable.tgp import Image
+
+    test_image = load_non_seekable_bytes_io(TEST_IMAGE)
+    renderable = Image(test_image)
+    assert test_image.read() == b""
+    # encoding is not deterministic, so we don't compare the output
+    render(renderable)
+    render(renderable)
+
+    test_image.close()
+    render(renderable)
 
 
 def test_measure() -> None:

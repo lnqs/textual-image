@@ -6,6 +6,7 @@ from rich.console import Console
 from rich.measure import Measurement
 
 from tests.data import CONSOLE_OPTIONS, TEST_IMAGE, TEXTUAL_ENABLED
+from tests.utils import load_non_seekable_bytes_io
 
 
 @skipUnless(TEXTUAL_ENABLED, "Textual support disabled")
@@ -32,6 +33,32 @@ async def test_app() -> None:
             yield Image(TEST_IMAGE, classes="fixed")
             yield Image()
             yield Image(classes="auto")
+
+    app = TestApp()
+
+    # Not testing too much reasonable stuff, but, well, at least the code gets executed
+    async with app.run_test() as pilot:
+        with PILImage.open(TEST_IMAGE) as test_image:
+            app.query_one(Image).image = ImageOps.flip(test_image)
+        assert app.query_one(Image).image != TEST_IMAGE
+        await pilot.pause()
+        await pilot.app.run_action("app.command_palette")
+        await pilot.pause()
+
+
+@skipUnless(TEXTUAL_ENABLED, "Textual support disabled")
+async def test_unseekable_stream() -> None:
+    from textual.app import App, ComposeResult
+
+    from textual_image.widget.sixel import Image
+
+    image = Image(load_non_seekable_bytes_io(TEST_IMAGE))
+
+    class TestApp(App[None]):
+        def compose(self) -> ComposeResult:
+            yield image
+            yield image
+            yield image
 
     app = TestApp()
 
