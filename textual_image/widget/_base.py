@@ -1,5 +1,6 @@
 """Provides a Textual `Widget` to render images in the terminal."""
 
+import io
 from typing import IO, Literal, Tuple, Type, cast
 
 from PIL import Image as PILImage
@@ -12,7 +13,7 @@ from typing_extensions import override
 from textual_image._geometry import ImageSize
 from textual_image._pixeldata import PixelMeta
 from textual_image._terminal import get_cell_size
-from textual_image._utils import StrOrBytesPath
+from textual_image._utils import StrOrBytesPath, is_non_seekable_stream
 from textual_image.renderable._protocol import ImageRenderable
 
 
@@ -84,10 +85,18 @@ class Image(Widget):
             self._renderable.cleanup()
             self._renderable = None
 
-        self._image = value
+        if is_non_seekable_stream(value):
+            # If the value is a non-seekable stream, the data must be read into a seekable object.
+            # This is necessary for two reasons:
+            # 1. Multiple reads are required, which necessitates a seekable stream.
+            # 2. PIL.Image.open may fail to correctly detect the image format when provided with a non-seekable stream.
+            stream = io.BytesIO(cast(IO[bytes], value).read())
+            self._image = PILImage.open(stream)
+        else:
+            self._image = value
 
-        if value:
-            pixel_meta = PixelMeta(value)
+        if self._image:
+            pixel_meta = PixelMeta(self._image)
             self._image_width = pixel_meta.width
             self._image_height = pixel_meta.height
         else:

@@ -1,9 +1,8 @@
 """Utility functions."""
 
+import io
 import os
-from typing import Iterable, Iterator, TypeVar
-
-StrOrBytesPath = str | bytes | os.PathLike[str] | os.PathLike[bytes]
+from typing import Any, Iterable, Iterator, TypeVar
 
 T = TypeVar("T")
 
@@ -45,3 +44,16 @@ def clamp(n: N, minimum: N, maximum: N) -> N:
         The constrained value.
     """
     return max(min(n, maximum), minimum)
+
+
+StrOrBytesPath = str | bytes | os.PathLike[str] | os.PathLike[bytes]
+
+
+def is_non_seekable_stream(stream: Any) -> bool:
+    if not isinstance(stream, io.IOBase) or not hasattr(stream, "seekable"):
+        return False
+
+    try:
+        return not stream.seekable()
+    except Exception:
+        return False

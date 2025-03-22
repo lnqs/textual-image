@@ -8,7 +8,7 @@ from rich.measure import Measurement
 from syrupy.assertion import SnapshotAssertion
 
 from tests.data import CONSOLE_OPTIONS, TEST_IMAGE
-from tests.utils import render
+from tests.utils import load_non_seekable_bytes_io, render
 
 
 def test_render(snapshot: SnapshotAssertion) -> None:
@@ -16,6 +16,18 @@ def test_render(snapshot: SnapshotAssertion) -> None:
 
     renderable = Image(TEST_IMAGE, width=4)
     assert render(renderable) == snapshot
+
+
+def test_render_non_seekable() -> None:
+    from textual_image.renderable.sixel import Image
+
+    test_image = load_non_seekable_bytes_io(TEST_IMAGE)
+    renderable = Image(test_image)
+    assert test_image.read() == b""
+    assert render(renderable) == render(renderable)
+
+    test_image.close()
+    assert render(renderable) == render(renderable)
 
 
 def test_measure() -> None:

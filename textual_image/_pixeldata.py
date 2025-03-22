@@ -3,11 +3,11 @@
 import io
 from base64 import b64encode
 from contextlib import nullcontext
-from typing import IO, ContextManager, Iterable, Iterator, Literal, Tuple
+from typing import IO, ContextManager, Iterable, Iterator, Literal, Tuple, cast
 
 from PIL import Image as PILImage
 
-from textual_image._utils import StrOrBytesPath, grouped
+from textual_image._utils import StrOrBytesPath, grouped, is_non_seekable_stream
 
 
 def ensure_image(image: StrOrBytesPath | IO[bytes] | PILImage.Image) -> ContextManager[PILImage.Image]:
@@ -23,6 +23,13 @@ def ensure_image(image: StrOrBytesPath | IO[bytes] | PILImage.Image) -> ContextM
     Returns:
         A context manager providing a `PIL.Image.Image` instance.
     """
+    if is_non_seekable_stream(image):
+        # If the value is a non-seekable stream, the data must be read into a BytesIO object.
+        # This is necessary for two reasons:
+        # 1. Multiple reads are required, which necessitates a seekable stream.
+        # 2. PIL.Image.open may fail to correctly detect the image format when provided with a non-seekable stream.
+        image = io.BytesIO(cast(IO[bytes], image).read())
+
     if isinstance(image, PILImage.Image):
         return nullcontext(image)
     return PILImage.open(image)
