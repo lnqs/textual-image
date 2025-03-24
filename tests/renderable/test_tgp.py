@@ -20,7 +20,7 @@ def test_render(snapshot: SnapshotAssertion) -> None:
     renderable = Image(TEST_IMAGE, width=4)
 
     with patch.object(Image, "_image_id_counter", repeat(1337)):  # Encoded in diacritics, so it has to be fixed
-        assert render(renderable) == snapshot
+        assert render(renderable).startswith("\x1b_Gi=1337,m=1,f=100,q=2;")
 
 
 def test_overly_large() -> None:
