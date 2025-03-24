@@ -41,7 +41,7 @@ def _get_header(image: PILImage.Image) -> str:
         color_str = ";".join(str(int(channel / 256 * 100)) for channel in color)
         color_registers.append(f"#{i};2;{color_str}")
 
-    return f'{sixel_mode}{raster_attributes}{"".join(color_registers)}'
+    return f"{sixel_mode}{raster_attributes}{''.join(color_registers)}"
 
 
 def _get_body(image: PILImage.Image) -> str:
