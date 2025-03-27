@@ -103,7 +103,7 @@ class Image(Widget):
             self._image_width = 0
             self._image_height = 0
 
-        self.refresh(layout=True, recompose=True)
+        self.refresh(layout=True)
 
     @override
     def render(self) -> RenderResult:
