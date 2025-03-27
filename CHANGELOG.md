@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.1](https://github.com/lnqs/textual-image/compare/v0.8.0...v0.8.1) (2025-03-27)
+
+
+### Bug Fixes
+
+* fix re-rendering TGP images ([e1c13bc](https://github.com/lnqs/textual-image/commit/e1c13bcc808a7f74b33e7d5da012910a0fac9153))
+
 ## [0.8.0](https://github.com/lnqs/textual-image/compare/v0.7.0...v0.8.0) (2025-03-27)
 
 
