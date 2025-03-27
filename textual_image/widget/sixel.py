@@ -54,7 +54,7 @@ class _NoopRenderable:
     """Image renderable rendering nothing.
 
     Used by the Sixel image as placeholder.
-    Rendering the Sixel renderable doesn't work with Textual as it relies printable segments.
+    Rendering the Sixel renderable doesn't work with Textual as it relies on printable segments.
     Instead, Sixel data is injected into the rendering process. To keep our base class happy, we use this class
     as renderable passed to it.
     """
@@ -79,6 +79,12 @@ class _NoopRenderable:
 
 class Image(BaseImage, Renderable=_NoopRenderable):
     """Textual `Widget` to render images as Sixels (<https://en.wikipedia.org/wiki/Sixel>) in the terminal."""
+
+    @override
+    @BaseImage.image.setter  # type: ignore
+    def image(self, value: StrOrBytesPath | IO[bytes] | PILImage.Image | None) -> None:
+        super(__class__, type(self)).image.fset(self, value)  # type: ignore
+        self.refresh(recompose=True)
 
     def compose(self) -> ComposeResult:
         """Called by Textual to create child widgets."""
