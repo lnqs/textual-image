@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.8.0](https://github.com/lnqs/textual-image/compare/v0.7.0...v0.8.0) (2025-03-27)
+
+
+### Features
+
+* add byte stream support ([b697ce0](https://github.com/lnqs/textual-image/commit/b697ce01c6fe3ecbb4d746b1adc78907e58da93d))
+* add non-seekable stream support ([c2b0a76](https://github.com/lnqs/textual-image/commit/c2b0a7698cec1b868b9721877d6d18b77e6947ca))
+
 ## [0.7.0](https://github.com/lnqs/textual-image/compare/v0.6.6...v0.7.0) (2024-12-28)
 
 
