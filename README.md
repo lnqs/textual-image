@@ -150,7 +150,7 @@ Windows Console and Windows Terminal are two different pieces of software. The l
 **Works**: Yes
 
 **Notes:**  
-Sixel support was added in version 1.22, which is currently the pre-release.
+Sixel support was added in version 1.22, please make sure you're on that version.
 
 ### xterm
 
