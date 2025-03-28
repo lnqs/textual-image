@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.2](https://github.com/lnqs/textual-image/compare/v0.8.1...v0.8.2) (2025-03-28)
+
+
+### Documentation
+
+* update Windows Terminal note ([76c5c91](https://github.com/lnqs/textual-image/commit/76c5c91a94f4761cb6b299990e690e9ade95aaf3))
+
 ## [0.8.1](https://github.com/lnqs/textual-image/compare/v0.8.0...v0.8.1) (2025-03-27)
 
 
