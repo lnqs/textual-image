@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.8.2](https://github.com/lnqs/textual-image/compare/v0.8.1...v0.8.2) (2025-04-01)
+
+
+### Bug Fixes
+
+* fall back to default cell size ([524f6e4](https://github.com/lnqs/textual-image/commit/524f6e47d6add6daa8f16050be4212ff493d90eb))
+
+
+### Documentation
+
+* update Windows Terminal note ([76c5c91](https://github.com/lnqs/textual-image/commit/76c5c91a94f4761cb6b299990e690e9ade95aaf3))
+
 ## [0.8.1](https://github.com/lnqs/textual-image/compare/v0.8.0...v0.8.1) (2025-03-27)
 
 
