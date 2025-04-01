@@ -59,8 +59,7 @@ def test_get_cell_size_on_tty_failure() -> None:
     with patch("sys.__stdout__"):
         with patch("textual_image._terminal.get_tiocgwinsz", side_effect=OSError()):
             with patch("textual_image._terminal.capture_terminal_response", capture_terminal_response):
-                with raises(TerminalError):
-                    get_cell_size()
+                assert get_cell_size() == (10, 20)
 
 
 def test_get_cell_size_stdout_not_a_tty() -> None:
