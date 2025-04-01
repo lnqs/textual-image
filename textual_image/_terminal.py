@@ -55,8 +55,8 @@ def get_cell_size() -> CellSize:
             rows, columns, screen_width, screen_height = get_tiocgwinsz()
             width = int(screen_width / columns)
             height = int(screen_height / rows)
-        except OSError:
-            logger.debug("Failed to get cell size via ioctl, falling back to escape sequence")
+        except OSError as e:
+            logger.debug("Failed to get cell size via ioctl, falling back to escape sequence", exc_info=e)
 
     if sys.__stdout__.isatty() and (height == 0 or width == 0):
         # Didn't work, let's try to do it via escape sequence
@@ -68,10 +68,10 @@ def get_cell_size() -> CellSize:
             sequence = response.sequence[len("\x1b[") : -len("t")]
             _, height, width = [int(v) for v in sequence.split(";")]
         except (TerminalError, TimeoutError) as e:
-            raise TerminalError("Failed to get cell size") from e
+            logger.warning("Failed to get cell size via escape sequence, assuming VT340 sizes", exc_info=e)
 
-    if not sys.__stdout__.isatty():
-        logger.debug("Not connected to a terminal, assuming VT340 sizes")
+    if height == 0 or width == 0:
+        # Still didn't work, use VT340 sizes as default
         width = 10
         height = 20
 
