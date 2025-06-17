@@ -33,6 +33,7 @@ See the Support Matrix below on what was tested already.
 | konsole             |          ✅ |            ✅ |                       ✅ |
 | tmux                |          ❌ |            ✅ |                       ✅ |
 | Visual Studio Code  |          ❌ |            ✅ |                       ✅ |
+| Warp                |          ❌ |            ❌ |                       ❌ |
 | wezterm             |          ✅ |            ✅ |                       ✅ |
 | Windows Console     |          ❌ |            ❌ |                          |
 | Windows Terminal    |          ❌ |            ✅ |                       ✅ |
@@ -122,6 +123,16 @@ tmux doesn't support TGP, even on a TGP enabled terminal nothing will render. Si
 
 **Notes:**  
 The `terminal.integrated.enableImages` setting has to be enabled.
+
+### Warp
+
+**Homepage**: https://www.warp.dev/  
+**TGP support**: No  
+**Sixel support**: No  
+**Works**: No
+
+**Notes:**  
+Warp partially supports TGP and reports so when queried for it. But as it does not support TGP's unicode placeholders which are used by textual-image the actual rendering fails.
 
 ### WezTerm
 
@@ -270,6 +281,7 @@ _*Note*_: The process of determining the best available rendering option involve
 
 - **High Sixel images in Rich**: As terminal emulators don't implement the Sixel protocol exactly consistent, a workaround to get the cursor position in Rich right had to be implemented. This breaks as soon as the image is higher that the terminal window itself. Rendering will still happen, but the image may be displaced and borders around it may be broken.
 - **Sixel Support in Textual**: Sixel support in Textual is not particularly performant due to the way Textual handles rendering. The Sixel graphics are injected into the rendering process in a somewhat hacky manner, which affects performance. Scrolling and changing styles of images can lead to a lot of flickering. But for mostly static images it should work fine. If not, please file an issue on GitHub.
+- **textual-serve**: *textual-serve* is not supported. Due to the different nature of image rendering in terminals and browsers it would be a completely different implementation. It may be added one day but not in the near future.
 
 ## Contribution
 
