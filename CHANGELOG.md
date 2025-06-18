@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.3](https://github.com/lnqs/textual-image/compare/v0.8.2...v0.8.3) (2025-06-18)
+
+
+### Documentation
+
+* mention warp and textual-serve in README ([7c38db8](https://github.com/lnqs/textual-image/commit/7c38db8a8f334394b0b8bc333c887fc0a8a9746d))
+
 ## [0.8.2](https://github.com/lnqs/textual-image/compare/v0.8.1...v0.8.2) (2025-04-01)
 
 
