@@ -128,7 +128,7 @@ class _ImageSixelImpl(Widget, can_focus=False, inherit_css=False):
         try:
             if not self.image or not self.screen.is_active:
                 return []
-        except NoScreen:# if no screen, return empty list
+        except NoScreen:  # if no screen, return empty list
             return []
 
         # Inject the sixel data. We can only do it here because we don't know the crop region before.

@@ -1,4 +1,5 @@
 from unittest import skipUnless
+from unittest.mock import PropertyMock, patch
 
 from PIL import Image as PILImage
 from PIL import ImageOps
@@ -77,3 +78,28 @@ def test_measure_noop_renderable() -> None:
     from textual_image.widget.sixel import _NoopRenderable
 
     assert _NoopRenderable(TEST_IMAGE).__rich_measure__(Console(), CONSOLE_OPTIONS) == Measurement(0, 0)
+
+
+@skipUnless(TEXTUAL_ENABLED, "Textual support disabled")
+async def test_handling_no_screen_on_render() -> None:
+    from textual.app import App, ComposeResult
+    from textual.dom import NoScreen
+    from textual.geometry import Region
+
+    from textual_image.widget.sixel import Image, _ImageSixelImpl
+
+    class TestApp(App[None]):
+        def compose(self) -> ComposeResult:
+            yield Image(TEST_IMAGE)
+
+    app = TestApp()
+
+    async with app.run_test():
+        sixel_impl = app.query_one(_ImageSixelImpl)
+
+        result = sixel_impl.render_lines(Region(10, 10, 10, 10))
+        assert result
+
+        with patch.object(_ImageSixelImpl, "screen", PropertyMock(side_effect=NoScreen)):
+            result = sixel_impl.render_lines(Region(10, 10, 10, 10))
+            assert not result
