@@ -10,10 +10,10 @@ from rich.measure import Measurement
 from rich.segment import ControlType, Segment
 from rich.style import Style
 from textual.app import ComposeResult
+from textual.dom import NoScreen
 from textual.geometry import Region, Size
 from textual.strip import Strip
 from textual.widget import Widget
-from textual.dom import NoScreen
 from typing_extensions import override
 
 from textual_image._geometry import ImageSize
