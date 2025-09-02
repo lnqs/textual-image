@@ -10,6 +10,7 @@ from rich.measure import Measurement
 from rich.segment import ControlType, Segment
 from rich.style import Style
 from textual.app import ComposeResult
+from textual.dom import NoScreen
 from textual.geometry import Region, Size
 from textual.strip import Strip
 from textual.widget import Widget
@@ -124,7 +125,10 @@ class _ImageSixelImpl(Widget, can_focus=False, inherit_css=False):
     def render_lines(self, crop: Region) -> list[Strip]:
         # We don't render anything if the screen isn't active. Textual may try to tint the widget which leads to weird
         # effects.
-        if not self.image or not self.screen.is_active:
+        try:
+            if not self.image or not self.screen.is_active:
+                return []
+        except NoScreen:  # if no screen, return empty list
             return []
 
         # Inject the sixel data. We can only do it here because we don't know the crop region before.
