@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.4](https://github.com/lnqs/textual-image/compare/v0.8.3...v0.8.4) (2025-09-02)
+
+
+### Bug Fixes
+
+* no screen error fallback ([#74](https://github.com/lnqs/textual-image/issues/74)) ([9cce067](https://github.com/lnqs/textual-image/commit/9cce06720332b8ea22f68e7dd806040504f60fa3))
+
 ## [0.8.3](https://github.com/lnqs/textual-image/compare/v0.8.2...v0.8.3) (2025-06-18)
 
 
