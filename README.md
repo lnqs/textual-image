@@ -260,7 +260,7 @@ You can also set the image using the `image` property of an `Image` instance:
 
 ```python
 from textual.app import App, ComposeResult
-from textual_image.textual import Image
+from textual_image.widget import Image
 
 class ImageApp(App[None]):
     def compose(self) -> ComposeResult:
