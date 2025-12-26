@@ -72,7 +72,7 @@ class Image:
         height *= 2
 
         for upper_row, lower_row in grouped(self._image_data.scaled(width, height), 2):
-            for upper_pixel, lower_pixel in zip(upper_row, lower_row):
+            for upper_pixel, lower_pixel in zip(upper_row, lower_row, strict=True):
                 yield Segment("▀", style=Style(color=_map_pixel(upper_pixel), bgcolor=_map_pixel(lower_pixel)))  # type: ignore
             yield Segment("\n")
 
