@@ -34,6 +34,7 @@ async def test_demo() -> None:
             pilot.app.query_one(TabbedContent).active = "many-images"
             await pilot.pause()
             await pilot.click("#add-image")
+            await pilot.pause()
             await pilot.click("#remove-image")
 
             # Open rendering method selector and select another method
