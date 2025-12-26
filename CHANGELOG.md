@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.5](https://github.com/lnqs/textual-image/compare/v0.8.4...v0.8.5) (2025-12-26)
+
+
+### Documentation
+
+* fix wrong example ([14d360b](https://github.com/lnqs/textual-image/commit/14d360bf22b083d0705cd0730b9b212fc1f86582))
+
 ## [0.8.4](https://github.com/lnqs/textual-image/compare/v0.8.3...v0.8.4) (2025-09-02)
 
 
