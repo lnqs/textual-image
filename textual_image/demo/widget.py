@@ -15,7 +15,7 @@ from textual.screen import ModalScreen
 from textual.widgets import Button, Footer, Header, Input, Label, OptionList, Select, TabbedContent, TabPane
 from textual.widgets.option_list import Option
 
-from textual_image.widget import HalfcellImage, SixelImage, TGPImage, UnicodeImage
+from textual_image.widget import HalfcellImage, ITerm2Image, SixelImage, TGPImage, UnicodeImage
 from textual_image.widget import Image as AutoImage
 
 TEST_IMAGE = Path(__file__).parent / ".." / "gracehopper.jpg"
@@ -25,6 +25,7 @@ RENDERING_METHODS = {
     "auto": AutoImage,
     "tgp": TGPImage,
     "sixel": SixelImage,
+    "iterm2": ITerm2Image,
     "halfcell": HalfcellImage,
     "unicode": UnicodeImage,
 }

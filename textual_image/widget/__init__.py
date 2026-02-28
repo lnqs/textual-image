@@ -5,10 +5,12 @@ from typing import Type
 from textual_image._terminal import get_cell_size
 from textual_image.renderable import Image as AutoRenderable
 from textual_image.renderable.halfcell import Image as HalfcellRenderable
+from textual_image.renderable.iterm2 import Image as ITerm2Renderable
 from textual_image.renderable.sixel import Image as SixelRenderable
 from textual_image.renderable.tgp import Image as TGPRenderable
 from textual_image.renderable.unicode import Image as UnicodeRenderable
 from textual_image.widget._base import Image as BaseImage
+from textual_image.widget.iterm2 import Image as ITerm2Image
 from textual_image.widget.sixel import Image as SixelImage
 
 # Run `get_cell_size()` once to fill the cache,
@@ -22,10 +24,12 @@ class AutoImage(BaseImage, Renderable=AutoRenderable):
     pass
 
 
-# This is bit annoying, but as all renderables but the Sixel one can just be thrown in the base class, while
-# we need a dedicated one for Sixel, we have to do this `if`.
-if AutoRenderable is SixelRenderable:
-    Image: Type[AutoImage | SixelImage] = SixelImage
+# This is bit annoying, but as all renderables but the Sixel and iTerm2 ones can just be thrown in the base class,
+# while we need dedicated ones for Sixel and iTerm2, we have to do this `if`.
+if AutoRenderable is ITerm2Renderable:
+    Image = ITerm2Image
+elif AutoRenderable is SixelRenderable:
+    Image: Type[AutoImage | SixelImage | ITerm2Image] = SixelImage
 else:
     Image = AutoImage
 
@@ -52,6 +56,7 @@ __all__ = [
     "Image",
     "TGPImage",
     "SixelImage",
+    "ITerm2Image",
     "HalfcellImage",
     "UnicodeImage",
 ]

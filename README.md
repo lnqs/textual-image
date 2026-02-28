@@ -8,12 +8,13 @@
 
 ![Demo App](./demo.gif)
 
-_textual-image_ offers both Rich renderables and Textual Widgets that leverage the [Terminal Graphics Protocol (TGP)](https://sw.kovidgoyal.net/kitty/graphics-protocol/) and [Sixel](https://en.wikipedia.org/wiki/Sixel) protocols to display images in your terminal. For terminals that don't support these protocols, fallback rendering using Unicode characters is available.
+_textual-image_ offers both Rich renderables and Textual Widgets that leverage the [Terminal Graphics Protocol (TGP)](https://sw.kovidgoyal.net/kitty/graphics-protocol/), [Sixel](https://en.wikipedia.org/wiki/Sixel), and [iTerm2 Inline Images](https://iterm2.com/documentation-images.html) protocols to display images in your terminal. For terminals that don't support these protocols, fallback rendering using Unicode characters is available.
 
 ## Supported Terminals
 
 - **Terminal Graphics Protocol (TGP)**: Initially introduced by the [Kitty](https://sw.kovidgoyal.net/kitty/) terminal emulator. While support is partially available in other terminals, it doesn't seem to be really usable there.
 - **Sixel Graphics**: Supported by various terminal emulators including [xterm](https://invisible-island.net/xterm/) and a lot of others.
+- **iTerm2 Inline Images Protocol**: Supported by [iTerm2](https://iterm2.com/) and other terminals implementing the [OSC 1337 File protocol](https://iterm2.com/documentation-images.html). Available as an explicit rendering option.
 
 _Note_: As implementation of these protocols differ a lot feedback on different terminal emulators is very welcome.
 
@@ -23,32 +24,35 @@ See the Support Matrix below on what was tested already.
 
 [^1]: Based on [Are We Sixel Yet?](https://www.arewesixelyet.com/)
 
-| Terminal            | TGP support | Sixel support | Works with textual-image |
-|---------------------|:-----------:|:-------------:|:------------------------:|
-| Black Box           |          ❌ |            ✅ |                       ✅ |
-| foot                |          ❌ |            ✅ |                       ✅ |
-| GNOME Terminal      |          ❌ |            ❌ |                          |
-| iTerm2              |          ❌ |            ✅ |                       ✅ |
-| kitty               |          ✅ |            ❌ |                       ✅ |
-| konsole             |          ✅ |            ✅ |                       ✅ |
-| tmux                |          ❌ |            ✅ |                       ✅ |
-| Visual Studio Code  |          ❌ |            ✅ |                       ✅ |
-| Warp                |          ❌ |            ❌ |                       ❌ |
-| wezterm             |          ✅ |            ✅ |                       ✅ |
-| Windows Console     |          ❌ |            ❌ |                          |
-| Windows Terminal    |          ❌ |            ✅ |                       ✅ |
-| xterm               |          ❌ |            ✅ |                       ✅ |
+| Terminal            | TGP support | Sixel support | iTerm2 protocol | Works with textual-image |
+|---------------------|:-----------:|:-------------:|:---------------:|:------------------------:|
+| Black Box           |          ❌ |            ✅ |              ❌ |                       ✅ |
+| foot                |          ❌ |            ✅ |              ❌ |                       ✅ |
+| ghostty             |          ✅ |            ❌ |              ❌ |                       ✅ |
+| GNOME Terminal      |          ❌ |            ❌ |              ❌ |                          |
+| iTerm2              |          ❌ |            ✅ |              ✅ |                       ✅ |
+| kitty               |          ✅ |            ❌ |              ❌ |                       ✅ |
+| konsole             |          ✅ |            ✅ |              ❌ |                       ✅ |
+| tmux                |          ❌ |            ✅ |              ❌ |                       ✅ |
+| rio                 |          ❌ |            ❌ |              ❔ |                       ✅ |
+| Visual Studio Code  |          ❌ |            ✅ |              ❌ |                       ✅ |
+| Warp                |          ❌ |            ❌ |              ❌ |                       ❌ |
+| wezterm             |          ❔ |            ✅ |              ❌ |                       ✅ |
+| Windows Console     |          ❌ |            ❌ |              ❌ |                          |
+| Windows Terminal    |          ❌ |            ✅ |              ❌ |                       ✅ |
+| xterm               |          ❌ |            ✅ |              ❌ |                       ✅ |
 
-✅ = Supported; ❌ = Not Supported
+✅ = Supported; ❌ = Not Supported; ❔ = Questionable support
 
 ### BlackBox
 
-**Homepage**: https://gitlab.gnome.org/raggesilver/blackbox  
-**TGP support**: No  
-**Sixel support**: Yes  
+**Homepage**: https://gitlab.gnome.org/raggesilver/blackbox
+**TGP support**: No
+**Sixel support**: Yes
+**iTerm2 protocol**: No
 **Works**: Yes
 
-**Notes**:  
+**Notes**:
 *Preferences -> Advanced -> Sixel Support* has to be enabled.
 
 Needs to be linked against a version of VTE with Sixel support enabled.
@@ -56,121 +60,143 @@ This is the case for the Flatpak version of BlackBox, but not on most Linux dist
 
 ### foot
 
-**Homepage**: https://codeberg.org/dnkl/foot  
-**TGP support**: No  
-**Sixel support**: Yes  
+**Homepage**: https://codeberg.org/dnkl/foot
+**TGP support**: No
+**Sixel support**: Yes
+**iTerm2 protocol**: No
 **Works**: Yes
 
-**Notes:**  
+**Notes:**
 Works out of the box, no known issues.
 
 ### GNOME Terminal
 
-**Homepage**: https://gitlab.gnome.org/GNOME/gnome-terminal  
-**TGP support**: No  
-**Sixel support**: No  
+**Homepage**: https://gitlab.gnome.org/GNOME/gnome-terminal
+**TGP support**: No
+**Sixel support**: No
+**iTerm2 protocol**: No
 **Works**: No
 
-**Notes:**  
+**Notes:**
 Relies on VTE Sixel implementation (<https://gitlab.gnome.org/GNOME/vte/-/issues/253>). While that one is available in an experimental state, I didn't find any resources if it's somehow possible to enable Sixel support on the terminal.
 
 ### iTerm2
 
-**Homepage**: https://iterm2.com/  
-**TGP support**: No  
-**Sixel support**: Yes  
+**Homepage**: https://iterm2.com/
+**TGP support**: No
+**Sixel support**: Yes
+**iTerm2 protocol**: Yes
 **Works**: Yes
 
-**Notes:**  
-Works out of the box.
+**Notes:**
+Works out of the box via iTerm2 and if not, Sixel.
 
 ### Kitty
 
-**Homepage**: https://sw.kovidgoyal.net/kitty/  
-**TGP support**: Yes  
-**Sixel support**: No  
+**Homepage**: https://sw.kovidgoyal.net/kitty/
+**TGP support**: Yes
+**Sixel support**: No
+**iTerm2 protocol**: No
 **Works**: Yes
 
-**Notes:**  
+**Notes:**
 Works out of the box.
 
 ### Konsole
 
-**Homepage**: https://konsole.kde.org/  
-**TGP support**: Partially  
-**Sixel support**: Yes  
+**Homepage**: https://konsole.kde.org/
+**TGP support**: Partially
+**Sixel support**: Yes
+**iTerm2 protocol**: No
 **Works**: Yes
 
-**Notes:**  
+**Notes:**
 TGP support is not in a usable state. However, Sixel is working out of the box with a few minor graphical glitches in Textual.
+
+### rio
+
+**Homepage**: https://rioterm.com
+**TGP support**: No
+**Sixel support**: No
+**iTerm2 protocol**: Questionable
+**Works**: Questionable
+
+**Notes:**
+rio does support iTerm2 Inline Image protocol, but the positions of the images may be at wrong locations.
 
 ### tmux
 
-**Homepage**: https://github.com/tmux/tmux/wiki  
-**TGP support**: No  
-**Sixel support**: Yes  
+**Homepage**: https://github.com/tmux/tmux/wiki
+**TGP support**: No
+**Sixel support**: Yes
 **Works**: Partially
 
-**Notes:**  
+**Notes:**
 tmux doesn't support TGP, even on a TGP enabled terminal nothing will render. Sixel generally works, but heavily depends on the underlying terminal. In some terminals it works great, in others major bugs occur, even if the terminal without tmux works.
 
 ### Visual Studio Code
 
-**Homepage**: https://code.visualstudio.com/  
-**TGP support**: No  
-**Sixel support**: Yes  
+**Homepage**: https://code.visualstudio.com/
+**TGP support**: No
+**Sixel support**: Yes
+**iTerm2 protocol**: No
 **Works**: Yes
 
-**Notes:**  
+**Notes:**
 The `terminal.integrated.enableImages` setting has to be enabled.
 
 ### Warp
 
-**Homepage**: https://www.warp.dev/  
-**TGP support**: No  
-**Sixel support**: No  
+**Homepage**: https://www.warp.dev/
+**TGP support**: No
+**Sixel support**: No
+**iTerm2 protocol**: No
 **Works**: No
 
-**Notes:**  
+**Notes:**
 Warp partially supports TGP and reports so when queried for it. But as it does not support TGP's unicode placeholders which are used by textual-image the actual rendering fails.
 
 ### WezTerm
 
-**Homepage**: https://wezfurlong.org/wezterm/index.html  
-**TGP support**: No  
-**Sixel support**: Yes  
+**Homepage**: https://wezfurlong.org/wezterm/index.html
+**TGP support**: Questionable
+**Sixel support**: Yes
+**iTerm2 protocol**: Yes
 **Works**: Yes
 
-**Notes:**  
-Works out of the box.
+**Notes:**
+Sixel works out of box, however TGP support is questionable. The image may not render at all, or render at the wrong location, while lagging the terminal until an unusable state.
 
 ### Windows Console
 
-**TGP support**: No  
-**Sixel support**: No  
+**TGP support**: No
+**Sixel support**: No
+**iTerm2 protocol**: No
 **Works**: No
 
-**Notes:**  
+**Notes:**
 Windows Console and Windows Terminal are two different pieces of software. The latter one is supported.
 
 ### Windows Terminal
 
-**Homepage**: https://github.com/microsoft/terminal  
-**TGP support**: No  
-**Sixel support**: Yes  
+**Homepage**: https://github.com/microsoft/terminal
+**TGP support**: No
+**Sixel support**: Yes
+**iTerm2 protocol**: No
 **Works**: Yes
 
-**Notes:**  
+**Notes:**
 Sixel support was added in version 1.22, please make sure you're on that version.
 
 ### xterm
 
-**Homepage**: https://invisible-island.net/xterm/  
-**TGP support**: No  
-**Sixel support**: Yes  
+**Homepage**: https://invisible-island.net/xterm/
+**TGP support**: No
+**Sixel support**: Yes
+**iTerm2 protocol**: No
 **Works**: Yes
 
-**Notes:**  
+**Notes:**
 Sixel on xterm is disabled by default. To enable it, add `+lc` and `-ti vt340` options when launching xterm:
 
 ```sh
@@ -212,7 +238,7 @@ For a demonstration of the Textual Widget, use:
 python -m textual_image textual
 ```
 
-The module will automatically select the best available rendering option. If you wish to specify a particular rendering method, use the `-p` argument with one of the following values: `tgp`, `sixel`, `halfcell`, or `unicode`.
+The module will automatically select the best available rendering option. If you wish to specify a particular rendering method, use the `-p` argument with one of the following values: `tgp`, `sixel`, `iterm2`, `halfcell`, or `unicode`.
 
 For more information, use:
 ```sh
@@ -237,7 +263,7 @@ The `Image` constructor accepts either a string, a `pathlib.Path` representing t
 
 By default, the image is rendered in its original dimensions. You can modify this behavior by specifying the `width` and/or `height` parameters. These can be defined as an integer (number of cells), a percentage string (e.g., `50%`), or the literal `auto` to automatically scale while maintaining the aspect ratio.
 
-`textual_image.renderable.Image` defaults to the best available rendering method. To specify an explicit rendering method, use one of the following classes: `textual_image.renderable.tgp.Image`, `textual_image.renderable.sixel.Image`, `textual_image.renderable.halfcell.Image`, or `textual_image.renderable.unicode.Image`.
+`textual_image.renderable.Image` defaults to the best available rendering method. To specify an explicit rendering method, use one of the following classes: `textual_image.renderable.tgp.Image`, `textual_image.renderable.sixel.Image`, `textual_image.renderable.iterm2.Image`, `textual_image.renderable.halfcell.Image`, or `textual_image.renderable.unicode.Image`.
 
 ### Textual Integration
 
@@ -273,7 +299,7 @@ ImageApp().run()
 
 If a different image is set, the Widget will update to display the new image.
 
-By default, the best available rendering option is used. To override this, you can instantiate `textual_image.widget.TGPImage`, `textual_image.widget.SixelImage`, `textual_image.widget.HalfcellImage`, or `textual_image.widget.UnicodeImage` directly.
+By default, the best available rendering option is used. To override this, you can instantiate `textual_image.widget.TGPImage`, `textual_image.widget.SixelImage`, `textual_image.widget.ITerm2Image`, `textual_image.widget.HalfcellImage`, or `textual_image.widget.UnicodeImage` directly.
 
 _*Note*_: The process of determining the best available rendering option involves querying the terminal, which means sending and receiving data. Since Textual starts threads to handle input and output, this query will **not work** once the Textual app has started. Therefore, make sure that `textual_image.renderable` is imported **before** running the Textual app (which is typically the case in most use cases).
 
@@ -281,6 +307,7 @@ _*Note*_: The process of determining the best available rendering option involve
 
 - **High Sixel images in Rich**: As terminal emulators don't implement the Sixel protocol exactly consistent, a workaround to get the cursor position in Rich right had to be implemented. This breaks as soon as the image is higher that the terminal window itself. Rendering will still happen, but the image may be displaced and borders around it may be broken.
 - **Sixel Support in Textual**: Sixel support in Textual is not particularly performant due to the way Textual handles rendering. The Sixel graphics are injected into the rendering process in a somewhat hacky manner, which affects performance. Scrolling and changing styles of images can lead to a lot of flickering. But for mostly static images it should work fine. If not, please file an issue on GitHub.
+- **iTerm2 Support in Textual**: Same issue as Sixel, borders may not be at the right places, the image may push up the entire app.
 - **textual-serve**: *textual-serve* is not supported. Due to the different nature of image rendering in terminals and browsers it would be a completely different implementation. It may be added one day but not in the near future.
 
 ## Contribution
