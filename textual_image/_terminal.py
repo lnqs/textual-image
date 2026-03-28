@@ -1,6 +1,7 @@
 """Functionality to interact with the terminal."""
 
 import logging
+import os
 import sys
 from contextlib import contextmanager
 from types import SimpleNamespace
@@ -69,6 +70,16 @@ def get_cell_size() -> CellSize:
             _, height, width = [int(v) for v in sequence.split(";")]
         except (TerminalError, TimeoutError) as e:
             logger.warning("Failed to get cell size via escape sequence, assuming VT340 sizes", exc_info=e)
+
+    if height == 0 or width == 0:
+        # Try environment variables (set by textual-serve for web terminals)
+        match os.environ:
+            case {
+                "TEXTUAL_CELL_WIDTH": str(width_str),
+                "TEXTUAL_CELL_HEIGHT": str(height_str),
+            } if width_str.isdigit() and height_str.isdigit():
+                width = int(width_str)
+                height = int(height_str)
 
     if height == 0 or width == 0:
         # Still didn't work, use VT340 sizes as default

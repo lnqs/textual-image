@@ -62,6 +62,27 @@ def test_get_cell_size_on_tty_failure() -> None:
                 assert get_cell_size() == (10, 20)
 
 
+def test_get_cell_size_env_variable_fallback() -> None:
+    if hasattr(get_cell_size, "_result"):
+        delattr(get_cell_size, "_result")
+
+    @contextmanager
+    def capture_terminal_response(
+        start_marker: str, end_marker: str, timeout: float | None = None
+    ) -> Iterator[SimpleNamespace]:
+        raise TimeoutError()
+
+    env = {"TEXTUAL_CELL_WIDTH": "12", "TEXTUAL_CELL_HEIGHT": "24"}
+    with patch("sys.__stdout__"):
+        with patch("textual_image._terminal.get_tiocgwinsz", side_effect=OSError()):
+            with patch("textual_image._terminal.capture_terminal_response", capture_terminal_response):
+                with patch.dict("os.environ", env, clear=True):
+                    result = get_cell_size()
+
+    assert result.width == 12
+    assert result.height == 24
+
+
 def test_get_cell_size_stdout_not_a_tty() -> None:
     if hasattr(get_cell_size, "_result"):
         delattr(get_cell_size, "_result")
