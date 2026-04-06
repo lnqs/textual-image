@@ -49,6 +49,9 @@ Issues = "https://github.com/lnqs/textual-image/issues"
 textual = [
     "textual>=0.68.0",
 ]
+numpy = [
+    "numpy>=2.0.0",
+]
 dev = [
     "mypy",
     "pytest",
@@ -92,7 +95,7 @@ asyncio_default_fixture_loop_scope = "function"
 
 [tool.coverage.report]
 fail_under = 100
-exclude_lines = ["if __name__ == .__main__.:", "if sys.platform"]
+exclude_lines = ["if __name__ == .__main__.:", "if sys.platform", "pragma: no cover"]
 exclude_also = [
     "no cover: start(?s:.)*?no cover: stop",
     "\\A(?s:.*# pragma: exclude file.*)\\Z"
@@ -102,6 +105,16 @@ exclude_also = [
 strict = true
 warn_unused_ignores = false
 exclude = ['build/']
+
+[tool.typos.default]
+extend-ignore-identifiers-re = [
+    "arange",
+]
+
+[tool.typos.files]
+extend-exclude = [
+    "tests/renderable/__snapshots__/*.ambr",
+]
 
 [tool.tox]
 isolated_build = true
@@ -130,12 +143,12 @@ commands = [["typos", "{posargs:.}"]]
 [tool.tox.env.types]
 basepython = ["3.14"]
 description = "Type checking"
-deps = ".[textual,dev]"
+deps = ".[textual,numpy,dev]"
 commands = [["mypy", "{posargs:.}"]]
 
 [tool.tox.env_run_base]
 description = "Run tests under {base_python}"
-deps = ".[textual,dev]"
+deps = ".[textual,numpy,dev]"
 commands = [["pytest", "--cov=textual_image", "--cov-report=term-missing", "{tty:--color=yes}", "{posargs}"]]
 
 [tool.tox.env.rich-only]

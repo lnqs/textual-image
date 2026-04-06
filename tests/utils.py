@@ -17,6 +17,7 @@ def render(renderable: RenderableType) -> str:
         color_system="truecolor",
         legacy_windows=False,
         force_terminal=True,
+        no_color=False,
     )
     with patch("sys.__stdout__", stdout):
         console.print(renderable)
