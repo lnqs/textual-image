@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.0](https://github.com/lnqs/textual-image/compare/v0.8.5...v0.9.0) (2026-04-06)
+
+
+### Features
+
+* ability to override cell size using env vars ([448ecff](https://github.com/lnqs/textual-image/commit/448ecff8e6b7810e8e4e97ef2b2246c537e99b4d))
+
 ## [0.8.5](https://github.com/lnqs/textual-image/compare/v0.8.4...v0.8.5) (2025-12-26)
 
 
