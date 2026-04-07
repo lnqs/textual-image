@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.0](https://github.com/lnqs/textual-image/compare/v0.9.0...v0.10.0) (2026-04-07)
+
+
+### Features
+
+* sixel encoding optimization ([c73b2f7](https://github.com/lnqs/textual-image/commit/c73b2f7b1911cc38bb75958751884697f5f19c85))
+
 ## [0.9.0](https://github.com/lnqs/textual-image/compare/v0.8.5...v0.9.0) (2026-04-06)
 
 
