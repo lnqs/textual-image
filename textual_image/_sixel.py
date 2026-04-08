@@ -58,6 +58,7 @@ _QUANTIZE_METHODS: dict[QuantizeMethod, PILImage.Quantize] = {
 AnyBytes: TypeAlias = bytes | bytearray
 Segment: TypeAlias = tuple[int, int, int]  # (start_col, end_col, color)
 ColorSpans: TypeAlias = dict[int, tuple[int, int]]  # {color: (start_col, end_col)}
+BackgroundColor: TypeAlias = tuple[int, int, int, float]  # (R, G, B, alpha)
 
 
 @dataclass(frozen=True)
@@ -87,11 +88,16 @@ class SixelOptions:
     quantize: QuantizeMethod = "fastoctree"
 
 
-def image_to_sixels(image: PILImage.Image, options: SixelOptions | None = None) -> str:
+def image_to_sixels(
+    image: PILImage.Image,
+    options: SixelOptions | None = None,
+    background: BackgroundColor | None = None,
+) -> str:
     """Convert a PIL Image to a sixel-encoded string."""
     options = options or SixelOptions()
+    background = background or (0, 0, 0, 1.0)
 
-    image = _prepare_image(image, options)
+    image = _prepare_image(image, options, background)
     raw_data = image.tobytes()
 
     if _HAS_NUMPY:
@@ -105,8 +111,28 @@ def image_to_sixels(image: PILImage.Image, options: SixelOptions | None = None) 
     return (header + b"".join(chunks) + _ST).decode("ascii")
 
 
-def _prepare_image(image: PILImage.Image, options: SixelOptions) -> PILImage.Image:
+def _has_transparency(image: PILImage.Image) -> bool:
+    """Check if an image has an alpha channel or palette transparency."""
+    return image.mode in ("RGBA", "LA", "PA") or (image.mode == "P" and "transparency" in image.info)
+
+
+def _composite_on_background(image: PILImage.Image, background: BackgroundColor) -> PILImage.Image:
+    """Alpha-composite *image* onto *background*, returning an RGB image."""
+    rgba = image.convert("RGBA")
+    *bg_rgb, bg_alpha = background
+    bg = PILImage.new("RGBA", rgba.size, (*bg_rgb, int(bg_alpha * 255)))
+    return PILImage.alpha_composite(bg, rgba).convert("RGB")
+
+
+def _prepare_image(
+    image: PILImage.Image,
+    options: SixelOptions,
+    background: BackgroundColor,
+) -> PILImage.Image:
     """Convert any image to paletted mode, skipping requantization when possible."""
+    if _has_transparency(image):
+        image = _composite_on_background(image, background)
+
     n_colors = options.colors
     small_palette = len(set(image.tobytes())) <= n_colors
 
