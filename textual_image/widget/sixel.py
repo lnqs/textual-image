@@ -18,7 +18,7 @@ from typing_extensions import override
 
 from textual_image._geometry import ImageSize
 from textual_image._pixeldata import PixelData
-from textual_image._sixel import SixelOptions, image_to_sixels
+from textual_image._sixel import BackgroundColor, SixelOptions, image_to_sixels
 from textual_image._terminal import CellSize, get_cell_size
 from textual_image._utils import StrOrBytesPath
 from textual_image.widget._base import Image as BaseImage
@@ -35,6 +35,7 @@ class _CachedSixels(NamedTuple):
     content_size: Size
     terminal_sizes: CellSize
     sixel_options: SixelOptions | None
+    background: BackgroundColor
     sixel_data: str
 
     def is_hit(
@@ -44,6 +45,7 @@ class _CachedSixels(NamedTuple):
         content_size: Size,
         terminal_sizes: CellSize,
         sixel_options: SixelOptions | None,
+        background: BackgroundColor,
     ) -> bool:
         return (
             image == self.image
@@ -51,6 +53,7 @@ class _CachedSixels(NamedTuple):
             and content_size == self.content_size
             and terminal_sizes == self.terminal_sizes
             and sixel_options == self.sixel_options
+            and background == self.background
         )
 
 
@@ -167,9 +170,10 @@ class _ImageSixelImpl(Widget, can_focus=False, inherit_css=False):
 
         # Inject the sixel data. We can only do it here because we don't know the crop region before.
         terminal_sizes = get_cell_size()
+        background = self._get_background_rgba()
 
         if self._cached_sixels and self._cached_sixels.is_hit(
-            self.image, crop, self.content_size, terminal_sizes, self._sixel_options
+            self.image, crop, self.content_size, terminal_sizes, self._sixel_options, background
         ):
             logger.debug(f"using Sixel data from cache for crop region {crop}")
             sixel_data = self._cached_sixels.sixel_data
@@ -180,9 +184,9 @@ class _ImageSixelImpl(Widget, can_focus=False, inherit_css=False):
             image_data = self._scale_image(image_data, terminal_sizes)
             image_data = self._crop_image(image_data, crop, terminal_sizes)
 
-            sixel_data = image_to_sixels(image_data.pil_image, self._sixel_options)
+            sixel_data = image_to_sixels(image_data.pil_image, self._sixel_options, background=background)
             self._cached_sixels = _CachedSixels(
-                self.image, crop, self.content_size, terminal_sizes, self._sixel_options, sixel_data
+                self.image, crop, self.content_size, terminal_sizes, self._sixel_options, background, sixel_data
             )
 
         sixel_segments = self._get_sixel_segments(sixel_data)
@@ -207,6 +211,10 @@ class _ImageSixelImpl(Widget, can_focus=False, inherit_css=False):
         crop_pixels_bottom = crop.bottom * terminal_sizes.height
 
         return image.cropped(crop_pixels_left, crop_pixels_top, crop_pixels_right, crop_pixels_bottom)
+
+    def _get_background_rgba(self) -> BackgroundColor:
+        _, color = self.background_colors
+        return (color.r, color.g, color.b, color.a)
 
     def _get_sixel_segments(self, sixel_data: str) -> Iterable[Segment]:
         visible_region = self.screen.find_widget(self).visible_region
