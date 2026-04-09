@@ -184,7 +184,7 @@ class _ImageSixelImpl(Widget, can_focus=False, inherit_css=False):
             image_data = self._scale_image(image_data, terminal_sizes)
             image_data = self._crop_image(image_data, crop, terminal_sizes)
 
-            sixel_data = image_to_sixels(image_data.pil_image, self._sixel_options, background=background)
+            sixel_data = self._image_to_sixels(image_data.pil_image, self._sixel_options, background=background)
             self._cached_sixels = _CachedSixels(
                 self.image, crop, self.content_size, terminal_sizes, self._sixel_options, background, sixel_data
             )
@@ -192,6 +192,14 @@ class _ImageSixelImpl(Widget, can_focus=False, inherit_css=False):
         sixel_segments = self._get_sixel_segments(sixel_data)
         lines = [Strip([])] * (crop.height - 1) + [Strip(sixel_segments, cell_length=crop.width)]
         return lines
+
+    def _image_to_sixels(
+        self,
+        image: PILImage.Image,
+        sixel_options: SixelOptions | None = None,
+        background: BackgroundColor | None = None,
+    ) -> str:
+        return image_to_sixels(image, sixel_options, background)
 
     def _scale_image(self, image_data: PixelData, terminal_sizes: CellSize) -> PixelData:
         assert isinstance(self.parent, Image)
