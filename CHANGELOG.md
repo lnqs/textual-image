@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.0](https://github.com/lnqs/textual-image/compare/v0.10.0...v0.11.0) (2026-04-09)
+
+
+### Features
+
+* add sixel support for transparent images ([cd8095c](https://github.com/lnqs/textual-image/commit/cd8095ca486ce77c00b8d305b2e8786bd24783b6))
+
 ## [0.10.0](https://github.com/lnqs/textual-image/compare/v0.9.0...v0.10.0) (2026-04-07)
 
 
