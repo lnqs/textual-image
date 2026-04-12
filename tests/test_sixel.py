@@ -124,6 +124,46 @@ def test_image_to_sixels_non_rgb() -> None:
     assert rgb_result == rgba_result
 
 
+def test_image_to_sixels_skips_fully_transparent_pixels_without_background() -> None:
+    """Fully transparent pixels should be omitted when no background is supplied."""
+    image = PILImage.new("RGBA", (2, 1))
+    image.putdata([(0, 0, 0, 0), (255, 0, 0, 255)])
+
+    result = image_to_sixels(image)
+
+    assert result == '\x1bP0;1;0q"1;1;2;1#0;2;100;0;0?@-\x1b\\'
+
+
+def test_image_to_sixels_skips_fully_transparent_pixels_with_background() -> None:
+    """Fully transparent pixels should still be omitted when a background is supplied."""
+    image = PILImage.new("RGBA", (2, 1))
+    image.putdata([(0, 0, 0, 0), (255, 0, 0, 255)])
+
+    result = image_to_sixels(image, background=(0, 100, 0, 1.0))
+
+    assert result == '\x1bP0;1;0q"1;1;2;1#0;2;100;0;0?@-\x1b\\'
+
+
+def test_image_to_sixels_semitransparent_pixels_assume_black_background() -> None:
+    """Semi-transparent pixels should be composited against black by default."""
+    image = PILImage.new("RGBA", (1, 1))
+    image.putdata([(255, 0, 0, 128)])
+
+    result = image_to_sixels(image)
+
+    assert result == '\x1bP0;0;0q"1;1;1;1#0;2;50;0;0@-\x1b\\'
+
+
+def test_image_to_sixels_mixed_alpha_pixels_assume_black_background() -> None:
+    """Semi-transparent pixels should still composite when opaque pixels are present."""
+    image = PILImage.new("RGBA", (2, 1))
+    image.putdata([(255, 0, 0, 128), (0, 255, 0, 255)])
+
+    result = image_to_sixels(image)
+
+    assert result == '\x1bP0;0;0q"1;1;2;1#1;2;50;0;0@#0;2;0;100;0@-\x1b\\'
+
+
 def test_image_to_sixels_numpy_path() -> None:
     """Test the numpy-based encoding path."""
     pytest.importorskip("numpy")
@@ -136,6 +176,29 @@ def test_image_to_sixels_numpy_path() -> None:
         expected = image_to_sixels(image)
 
     # Get result via numpy path
+    with patch("textual_image._sixel._HAS_NUMPY", True):
+        result = image_to_sixels(image)
+
+    assert result == expected
+
+
+def test_image_to_sixels_transparent_skip_numpy_matches_pure_python() -> None:
+    """Transparent-pixel masking should match across encoding backends."""
+    pytest.importorskip("numpy")
+
+    image = PILImage.new("RGBA", (2, 2))
+    image.putdata(
+        [
+            (0, 0, 0, 0),
+            (255, 0, 0, 255),
+            (0, 255, 0, 255),
+            (0, 0, 0, 0),
+        ]
+    )
+
+    with patch("textual_image._sixel._HAS_NUMPY", False):
+        expected = image_to_sixels(image)
+
     with patch("textual_image._sixel._HAS_NUMPY", True):
         result = image_to_sixels(image)
 
