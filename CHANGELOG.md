@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.0](https://github.com/lnqs/textual-image/compare/v0.11.0...v0.12.0) (2026-04-12)
+
+
+### Features
+
+* add ability to override sixel encoder func ([1f0cae6](https://github.com/lnqs/textual-image/commit/1f0cae6bddc5a4bb52c8b903c94f973b805b5ede))
+
 ## [0.11.0](https://github.com/lnqs/textual-image/compare/v0.10.0...v0.11.0) (2026-04-09)
 
 
