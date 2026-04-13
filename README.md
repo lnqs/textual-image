@@ -281,7 +281,7 @@ _*Note*_: The process of determining the best available rendering option involve
 
 - **High Sixel images in Rich**: As terminal emulators don't implement the Sixel protocol exactly consistent, a workaround to get the cursor position in Rich right had to be implemented. This breaks as soon as the image is higher that the terminal window itself. Rendering will still happen, but the image may be displaced and borders around it may be broken.
 - **Sixel Support in Textual**: Sixel support in Textual is not particularly performant due to the way Textual handles rendering. The Sixel graphics are injected into the rendering process in a somewhat hacky manner, which affects performance. Scrolling and changing styles of images can lead to a lot of flickering. But for mostly static images it should work fine. If not, please file an issue on GitHub.
-- **textual-serve**: *textual-serve* is not supported. Due to the different nature of image rendering in terminals and browsers it would be a completely different implementation. It may be added one day but not in the near future.
+- **textual-serve**: _textual-serve_ is not supported. As an alternative, [_textual-serve-asgi_](https://github.com/uriyyo/textual-serve-asgi) supports rendering images in the browser.
 
 ## Contribution
 
