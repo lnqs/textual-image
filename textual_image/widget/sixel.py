@@ -190,7 +190,10 @@ class _ImageSixelImpl(Widget, can_focus=False, inherit_css=False):
             )
 
         sixel_segments = self._get_sixel_segments(sixel_data)
-        lines = [Strip([])] * (crop.height - 1) + [Strip(sixel_segments, cell_length=crop.width)]
+        clear_style = self._get_clear_style()
+        clear_segment = Segment(" " * crop.width, style=clear_style)
+        lines = [Strip([clear_segment], cell_length=crop.width) for _ in range(crop.height - 1)]
+        lines.append(Strip([clear_segment, *sixel_segments], cell_length=crop.width))
         return lines
 
     def _image_to_sixels(
@@ -223,6 +226,10 @@ class _ImageSixelImpl(Widget, can_focus=False, inherit_css=False):
     def _get_background_rgba(self) -> BackgroundColor:
         _, color = self.background_colors
         return (color.r, color.g, color.b, color.a)
+
+    def _get_clear_style(self) -> Style:
+        _, color = self.background_colors
+        return Style(bgcolor=color.rich_color)
 
     def _get_sixel_segments(self, sixel_data: str) -> Iterable[Segment]:
         visible_region = self.screen.find_widget(self).visible_region
