@@ -1,5 +1,33 @@
 # Changelog
 
+## [0.12.0](https://github.com/lnqs/textual-image/compare/v0.11.0...v0.12.0) (2026-04-12)
+
+
+### Features
+
+* add ability to override sixel encoder func ([1f0cae6](https://github.com/lnqs/textual-image/commit/1f0cae6bddc5a4bb52c8b903c94f973b805b5ede))
+
+## [0.11.0](https://github.com/lnqs/textual-image/compare/v0.10.0...v0.11.0) (2026-04-09)
+
+
+### Features
+
+* add sixel support for transparent images ([cd8095c](https://github.com/lnqs/textual-image/commit/cd8095ca486ce77c00b8d305b2e8786bd24783b6))
+
+## [0.10.0](https://github.com/lnqs/textual-image/compare/v0.9.0...v0.10.0) (2026-04-07)
+
+
+### Features
+
+* sixel encoding optimization ([c73b2f7](https://github.com/lnqs/textual-image/commit/c73b2f7b1911cc38bb75958751884697f5f19c85))
+
+## [0.9.0](https://github.com/lnqs/textual-image/compare/v0.8.5...v0.9.0) (2026-04-06)
+
+
+### Features
+
+* ability to override cell size using env vars ([448ecff](https://github.com/lnqs/textual-image/commit/448ecff8e6b7810e8e4e97ef2b2246c537e99b4d))
+
 ## [0.8.5](https://github.com/lnqs/textual-image/compare/v0.8.4...v0.8.5) (2025-12-26)
 
 

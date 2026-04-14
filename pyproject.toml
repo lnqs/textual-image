@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "textual-image"
-version = "0.8.5"
+version = "0.12.0"
 description = "Render images via Kitty's Terminal Graphics Protocol with Rich and Textual"
 authors = [
     {name = "Simon Hayessen", email = "simon@lnqs.io"}
@@ -27,10 +27,9 @@ classifiers = [
     "Operating System :: POSIX :: Linux",
 
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
  
     "Typing :: Typed",
 ]
@@ -49,6 +48,9 @@ Issues = "https://github.com/lnqs/textual-image/issues"
 [project.optional-dependencies]
 textual = [
     "textual>=0.68.0",
+]
+numpy = [
+    "numpy>=2.0.0",
 ]
 dev = [
     "mypy",
@@ -93,7 +95,7 @@ asyncio_default_fixture_loop_scope = "function"
 
 [tool.coverage.report]
 fail_under = 100
-exclude_lines = ["if __name__ == .__main__.:", "if sys.platform"]
+exclude_lines = ["if __name__ == .__main__.:", "if sys.platform", "pragma: no cover"]
 exclude_also = [
     "no cover: start(?s:.)*?no cover: stop",
     "\\A(?s:.*# pragma: exclude file.*)\\Z"
@@ -104,9 +106,19 @@ strict = true
 warn_unused_ignores = false
 exclude = ['build/']
 
+[tool.typos.default]
+extend-ignore-identifiers-re = [
+    "arange",
+]
+
+[tool.typos.files]
+extend-exclude = [
+    "tests/renderable/__snapshots__/*.ambr",
+]
+
 [tool.tox]
 isolated_build = true
-envlist = ["format-check", "lint", "spell-check", "types", "3.10", "3.11", "3.12", "3.13", "rich-only"]
+envlist = ["format-check", "lint", "spell-check", "types", "3.12", "3.13", "3.14", "rich-only"]
 
 [tool.tox.env.format-check]
 description = "Format check"
@@ -115,32 +127,32 @@ deps = "ruff"
 commands = [["ruff", "format", "--check", "{posargs:.}"]]
 
 [tool.tox.env.lint]
-basepython = ["3.13"]
+basepython = ["3.14"]
 description = "Lint"
 skip_install = true
 deps = "ruff"
 commands = [["ruff", "check", "{posargs:.}"]]
 
 [tool.tox.env.spell-check]
-basepython = ["3.13"]
+basepython = ["3.14"]
 description = "Spell check"
 skip_install = true
 deps = "typos"
 commands = [["typos", "{posargs:.}"]]
 
 [tool.tox.env.types]
-basepython = ["3.13"]
+basepython = ["3.14"]
 description = "Type checking"
-deps = ".[textual,dev]"
+deps = ".[textual,numpy,dev]"
 commands = [["mypy", "{posargs:.}"]]
 
 [tool.tox.env_run_base]
 description = "Run tests under {base_python}"
-deps = ".[textual,dev]"
+deps = ".[textual,numpy,dev]"
 commands = [["pytest", "--cov=textual_image", "--cov-report=term-missing", "{tty:--color=yes}", "{posargs}"]]
 
 [tool.tox.env.rich-only]
-basepython = ["3.13"]
+basepython = ["3.14"]
 description = "Test with Rich only"
 deps = ".[dev]"
 commands = [["pytest", "{tty:--color=yes}", "{posargs}"]]

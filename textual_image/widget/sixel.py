@@ -18,7 +18,7 @@ from typing_extensions import override
 
 from textual_image._geometry import ImageSize
 from textual_image._pixeldata import PixelData
-from textual_image._sixel import image_to_sixels
+from textual_image._sixel import BackgroundColor, SixelOptions, image_to_sixels
 from textual_image._terminal import CellSize, get_cell_size
 from textual_image._utils import StrOrBytesPath
 from textual_image.widget._base import Image as BaseImage
@@ -34,6 +34,8 @@ class _CachedSixels(NamedTuple):
     content_crop: Region
     content_size: Size
     terminal_sizes: CellSize
+    sixel_options: SixelOptions | None
+    background: BackgroundColor
     sixel_data: str
 
     def is_hit(
@@ -42,12 +44,16 @@ class _CachedSixels(NamedTuple):
         content_crop: Region,
         content_size: Size,
         terminal_sizes: CellSize,
+        sixel_options: SixelOptions | None,
+        background: BackgroundColor,
     ) -> bool:
         return (
             image == self.image
             and content_crop == self.content_crop
             and content_size == self.content_size
             and terminal_sizes == self.terminal_sizes
+            and sixel_options == self.sixel_options
+            and background == self.background
         )
 
 
@@ -81,6 +87,35 @@ class _NoopRenderable:
 class Image(BaseImage, Renderable=_NoopRenderable):
     """Textual `Widget` to render images as Sixels (<https://en.wikipedia.org/wiki/Sixel>) in the terminal."""
 
+    def __init__(
+        self,
+        image: StrOrBytesPath | IO[bytes] | PILImage.Image | None = None,
+        *,
+        name: str | None = None,
+        id: str | None = None,
+        classes: str | None = None,
+        disabled: bool = False,
+        sixel_options: SixelOptions | None = None,
+    ) -> None:
+        """Initialize the Image widget.
+
+        Args:
+            image: The image to display.
+            name: The name of the widget.
+            id: The ID of the widget in the DOM.
+            classes: The CSS classes for the widget.
+            disabled: Whether the widget is disabled or not.
+            sixel_options: Sixel encoding options.
+        """
+        super().__init__(
+            image=image,
+            name=name,
+            id=id,
+            classes=classes,
+            disabled=disabled,
+        )
+        self._sixel_options = sixel_options
+
     @override
     @BaseImage.image.setter  # type: ignore
     def image(self, value: StrOrBytesPath | IO[bytes] | PILImage.Image | None) -> None:
@@ -89,7 +124,7 @@ class Image(BaseImage, Renderable=_NoopRenderable):
 
     def compose(self) -> ComposeResult:
         """Called by Textual to create child widgets."""
-        yield _ImageSixelImpl(self.image)
+        yield _ImageSixelImpl(self.image, self._sixel_options)
 
 
 class _ImageSixelImpl(Widget, can_focus=False, inherit_css=False):
@@ -116,9 +151,11 @@ class _ImageSixelImpl(Widget, can_focus=False, inherit_css=False):
     def __init__(
         self,
         image: StrOrBytesPath | IO[bytes] | PILImage.Image | None = None,
+        sixel_options: SixelOptions | None = None,
     ) -> None:
         super().__init__()
         self.image = image
+        self._sixel_options = sixel_options
         self._cached_sixels: _CachedSixels | None = None
 
     @override
@@ -133,8 +170,11 @@ class _ImageSixelImpl(Widget, can_focus=False, inherit_css=False):
 
         # Inject the sixel data. We can only do it here because we don't know the crop region before.
         terminal_sizes = get_cell_size()
+        background = self._get_background_rgba()
 
-        if self._cached_sixels and self._cached_sixels.is_hit(self.image, crop, self.content_size, terminal_sizes):
+        if self._cached_sixels and self._cached_sixels.is_hit(
+            self.image, crop, self.content_size, terminal_sizes, self._sixel_options, background
+        ):
             logger.debug(f"using Sixel data from cache for crop region {crop}")
             sixel_data = self._cached_sixels.sixel_data
         else:
@@ -144,12 +184,22 @@ class _ImageSixelImpl(Widget, can_focus=False, inherit_css=False):
             image_data = self._scale_image(image_data, terminal_sizes)
             image_data = self._crop_image(image_data, crop, terminal_sizes)
 
-            sixel_data = image_to_sixels(image_data.pil_image)
-            self._cached_sixels = _CachedSixels(self.image, crop, self.content_size, terminal_sizes, sixel_data)
+            sixel_data = self._image_to_sixels(image_data.pil_image, self._sixel_options, background=background)
+            self._cached_sixels = _CachedSixels(
+                self.image, crop, self.content_size, terminal_sizes, self._sixel_options, background, sixel_data
+            )
 
         sixel_segments = self._get_sixel_segments(sixel_data)
         lines = [Strip([])] * (crop.height - 1) + [Strip(sixel_segments, cell_length=crop.width)]
         return lines
+
+    def _image_to_sixels(
+        self,
+        image: PILImage.Image,
+        sixel_options: SixelOptions | None = None,
+        background: BackgroundColor | None = None,
+    ) -> str:
+        return image_to_sixels(image, sixel_options, background)
 
     def _scale_image(self, image_data: PixelData, terminal_sizes: CellSize) -> PixelData:
         assert isinstance(self.parent, Image)
@@ -169,6 +219,10 @@ class _ImageSixelImpl(Widget, can_focus=False, inherit_css=False):
         crop_pixels_bottom = crop.bottom * terminal_sizes.height
 
         return image.cropped(crop_pixels_left, crop_pixels_top, crop_pixels_right, crop_pixels_bottom)
+
+    def _get_background_rgba(self) -> BackgroundColor:
+        _, color = self.background_colors
+        return (color.r, color.g, color.b, color.a)
 
     def _get_sixel_segments(self, sixel_data: str) -> Iterable[Segment]:
         visible_region = self.screen.find_widget(self).visible_region

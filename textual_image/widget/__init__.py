@@ -7,6 +7,7 @@ from textual_image.renderable import Image as AutoRenderable
 from textual_image.renderable.halfcell import Image as HalfcellRenderable
 from textual_image.renderable.iterm2 import Image as ITerm2Renderable
 from textual_image.renderable.sixel import Image as SixelRenderable
+from textual_image.renderable.sixel import SixelOptions
 from textual_image.renderable.tgp import Image as TGPRenderable
 from textual_image.renderable.unicode import Image as UnicodeRenderable
 from textual_image.widget._base import Image as BaseImage
@@ -57,6 +58,7 @@ __all__ = [
     "TGPImage",
     "SixelImage",
     "ITerm2Image",
+    "SixelOptions",
     "HalfcellImage",
     "UnicodeImage",
 ]

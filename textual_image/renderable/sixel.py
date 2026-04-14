@@ -11,7 +11,7 @@ from rich.segment import ControlType, Segment
 
 from textual_image._geometry import ImageSize
 from textual_image._pixeldata import PixelData
-from textual_image._sixel import image_to_sixels
+from textual_image._sixel import SixelOptions, image_to_sixels
 from textual_image._terminal import TerminalError, capture_terminal_response, get_cell_size
 from textual_image._utils import StrOrBytesPath
 
@@ -27,6 +27,7 @@ class Image:
         image: StrOrBytesPath | IO[bytes] | PILImage.Image,
         width: int | str | None = None,
         height: int | str | None = None,
+        sixel_options: SixelOptions | None = None,
     ) -> None:
         """Initialized the `Image`.
 
@@ -37,9 +38,11 @@ class Image:
                 See `textual_image.geometry.ImageSize` for details about possible values.
             height: height specification to render the image.
                 See `textual_image.geometry.ImageSize` for details about possible values.
+            sixel_options: Sixel encoding options.
         """
         self._image_data = PixelData(image)
         self._render_size = ImageSize(self._image_data.width, self._image_data.height, width, height)
+        self._sixel_options = sixel_options
 
     def cleanup(self) -> None:
         """No-op."""
@@ -72,7 +75,7 @@ class Image:
         yield Control.move(0, -cell_height)
 
         scaled_image = self._image_data.scaled(pixel_width, pixel_height)
-        sixel_data = image_to_sixels(scaled_image.pil_image)
+        sixel_data = image_to_sixels(scaled_image.pil_image, self._sixel_options)
 
         # We add a random no-op control code to prevent Rich from messing with our data
         yield Segment(sixel_data, control=_NULL_CONTROL)
@@ -125,3 +128,6 @@ def query_terminal_support() -> bool:
         pass
 
     return False
+
+
+__all__ = ["Image", "SixelOptions", "query_terminal_support"]
