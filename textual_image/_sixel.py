@@ -85,11 +85,21 @@ class SixelOptions:
             but is ~2x slower and allocates too many palette entries for
             very small images.  ``"adaptive"`` preserves Pillow's
             median-cut behavior.
+        explicit_color_select: Re-emit ``#N`` immediately after defining a
+            color register.  The sixel spec lets a freshly-defined register
+            stay active implicitly, but some terminals (e.g. WezTerm) don't
+            honor this and fall back to the previous color -- enable this
+            to force an explicit selection and produce correct output there,
+            at the cost of a few extra bytes per color definition.
     """
 
     colors: int = MAX_COLORS
     smooth: int | None = None
     quantize: QuantizeMethod = "fastoctree"
+    explicit_color_select: bool = False
+
+
+_DEFAULT_SIXEL_OPTIONS = SixelOptions()
 
 
 def image_to_sixels(
@@ -98,17 +108,18 @@ def image_to_sixels(
     background: BackgroundColor | None = None,
 ) -> str:
     """Convert a PIL Image to a sixel-encoded string."""
-    options = options or SixelOptions()
+    options = options or _DEFAULT_SIXEL_OPTIONS
 
     image, alpha_mask = _prepare_image(image, options, background)
     raw_data = image.tobytes()
 
+    tracker_cls = _ExplicitColorTracker if options.explicit_color_select else _ColorTracker
     if _HAS_NUMPY:
         data, color_registers = _compact_palette_np(image, raw_data, alpha_mask)
-        chunks = _iter_bands_np(data, image.width, image.height, color_registers, alpha_mask)
+        chunks = _iter_bands_np(data, image.width, image.height, color_registers, alpha_mask, tracker_cls)
     else:
         data, color_registers = _compact_palette(image, raw_data, alpha_mask)
-        chunks = _iter_bands(data, image.width, image.height, color_registers, alpha_mask)
+        chunks = _iter_bands(data, image.width, image.height, color_registers, alpha_mask, tracker_cls)
 
     header = _make_header(image.width, image.height, transparent=alpha_mask is not None)
     return (header + b"".join(chunks) + _ST).decode("ascii")
@@ -252,8 +263,26 @@ class _ColorTracker:
         if color in self._defined:
             return _COLOR_SELECT[color]
 
+        return self._define_color(color)
+
+    def _define_color(self, color: int) -> bytes:
         self._defined.add(color)
         return self._registers[color]
+
+
+class _ExplicitColorTracker(_ColorTracker):
+    """Variant of ``_ColorTracker`` that re-selects a color right after defining it.
+
+    The sixel spec says ``#N;2;R;G;B`` both defines register ``N`` and leaves it
+    active, so a subsequent emit can skip the ``#N`` re-selection.  Some terminals
+    (notably WezTerm) don't honor this and keep whatever color was active before
+    the definition, which corrupts the output.  This subclass appends an explicit
+    ``#N`` after every definition so those terminals render correctly, at the
+    cost of a couple extra bytes per new color.
+    """
+
+    def _define_color(self, color: int) -> bytes:
+        return super()._define_color(color) + _COLOR_SELECT[color]
 
 
 def _iter_visible_pixels(
@@ -423,9 +452,10 @@ def _iter_bands(
     height: int,
     color_registers: tuple[bytes, ...],
     alpha_mask: AlphaMask = None,
+    tracker_cls: type[_ColorTracker] = _ColorTracker,
 ) -> list[AnyBytes]:
     """Return encoded sixel chunks, one per band."""
-    tracker = _ColorTracker(color_registers)
+    tracker = tracker_cls(color_registers)
     band_data = [bytearray(width) for _ in range(MAX_COLORS)]
     zero_fill = bytes(width)
     allow_fill = alpha_mask is None
@@ -489,6 +519,7 @@ if _HAS_NUMPY:
         height: int,
         color_registers: tuple[bytes, ...],
         alpha_mask: AlphaMask = None,
+        tracker_cls: type[_ColorTracker] = _ColorTracker,
     ) -> list[AnyBytes]:
         """Return encoded sixel chunks using numpy-accelerated band packing.
 
@@ -499,7 +530,7 @@ if _HAS_NUMPY:
         Uses ``np.add.at`` to scatter bit weights into a (MAX_COLORS, width)
         bitmask array -- replacing the per-pixel Python loop in ``_pack_band``.
         """
-        tracker = _ColorTracker(color_registers)
+        tracker = tracker_cls(color_registers)
         band_data = [bytearray(width) for _ in range(MAX_COLORS)]
         zero_fill = bytes(width)
         allow_fill = alpha_mask is None
@@ -573,6 +604,7 @@ else:  # pragma: no cover
         height: int,
         color_registers: tuple[bytes, ...],
         alpha_mask: AlphaMask = None,
+        tracker_cls: type[_ColorTracker] = _ColorTracker,
     ) -> list[AnyBytes]:
         """Fallback to the pure-Python band iterator when NumPy is unavailable."""
-        return _iter_bands(data, width, height, color_registers, alpha_mask)
+        return _iter_bands(data, width, height, color_registers, alpha_mask, tracker_cls)

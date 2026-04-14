@@ -241,6 +241,18 @@ def test_iter_bands_single_color() -> None:
     assert np_out == py_out
 
 
+def test_explicit_color_select_re_emits_color_after_definition() -> None:
+    """explicit_color_select should emit ``#N`` after each ``#N;2;R;G;B`` definition."""
+    image = PILImage.new("RGB", (2, 1))
+    image.putdata([(255, 0, 0), (0, 255, 0)])
+
+    default = image_to_sixels(image)
+    explicit = image_to_sixels(image, SixelOptions(explicit_color_select=True))
+
+    assert default == '\x1bP0;0;0q"1;1;2;1#1;2;100;0;0@#0;2;0;100;0@-\x1b\\'
+    assert explicit == '\x1bP0;0;0q"1;1;2;1#1;2;100;0;0#1@#0;2;0;100;0#0@-\x1b\\'
+
+
 def test_compact_palette_reindexes_sparse_colors() -> None:
     """Used colors should be remapped into a dense register range."""
     image = PILImage.new("P", (3, 1))
