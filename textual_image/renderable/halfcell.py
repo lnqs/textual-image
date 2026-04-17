@@ -1,6 +1,6 @@
 """Provides a Rich Renderable to render images as colored half cells."""
 
-from typing import IO, Tuple
+from typing import IO, Tuple, cast
 
 from PIL import Image as PILImage
 from rich.color import Color
@@ -16,7 +16,7 @@ from textual_image._terminal import get_cell_size
 from textual_image._utils import StrOrBytesPath, grouped
 
 
-def _map_pixel(pixel_value: Tuple[int, int, int]) -> Color:
+def _map_pixel(pixel_value: Tuple[int, int, int, int]) -> Color:
     """Maps a pixel value to a colored halfcells.
 
     Args:
@@ -25,7 +25,7 @@ def _map_pixel(pixel_value: Tuple[int, int, int]) -> Color:
     Returns:
         Color resembling the pixel value.
     """
-    return Color.from_triplet(ColorTriplet(*pixel_value))
+    return Color.from_triplet(ColorTriplet(*(pixel_value[:3])))
 
 
 class Image:
@@ -47,7 +47,7 @@ class Image:
             height: height specification to render the image.
                 See `textual_image.geometry.ImageSize` for details about possible values.
         """
-        self._image_data = PixelData(image, mode="rgb")
+        self._image_data = PixelData(image, mode="rgba")
         self._render_size = ImageSize(self._image_data.width, self._image_data.height, width, height)
 
     def cleanup(self) -> None:
@@ -73,7 +73,18 @@ class Image:
 
         for upper_row, lower_row in grouped(self._image_data.scaled(width, height), 2):
             for upper_pixel, lower_pixel in zip(upper_row, lower_row, strict=True):
-                yield Segment("▀", style=Style(color=_map_pixel(upper_pixel), bgcolor=_map_pixel(lower_pixel)))  # type: ignore
+                upper_pixel = cast("Tuple[int, int, int, int]", upper_pixel)
+                lower_pixel = cast("Tuple[int, int, int, int]", lower_pixel)
+                if upper_pixel[3] == lower_pixel[3] == 0:
+                    yield Segment(" ")
+                elif upper_pixel[3] == 0:
+                    yield Segment("▄", style=Style(color=_map_pixel(lower_pixel)))
+                elif lower_pixel[3] == 0:
+                    yield Segment("▀", style=Style(color=_map_pixel(upper_pixel)))
+                else:
+                    yield Segment(
+                        "▀", style=Style(color=_map_pixel(upper_pixel), bgcolor=_map_pixel(lower_pixel))
+                    )
             yield Segment("\n")
 
     def __rich_measure__(self, console: Console, options: ConsoleOptions) -> Measurement:
