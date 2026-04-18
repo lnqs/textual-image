@@ -158,7 +158,10 @@ class _ImageITerm2Impl(Widget, can_focus=False, inherit_css=False):
             )
 
         iterm2_segments = self._get_iterm2_segments(iterm2_data)
-        lines = [Strip([])] * (crop.height - 1) + [Strip(iterm2_segments, cell_length=crop.width)]
+        clear_style = self._get_clear_style()
+        clear_segment = Segment(" " * crop.width, style=clear_style)
+        lines = [Strip([clear_segment], cell_length=crop.width) for _ in range(crop.height - 1)]
+        lines.append(Strip([clear_segment, *iterm2_segments], cell_length=crop.width))
         return lines
 
     def _scale_image(self, image_data: PixelData, terminal_sizes: CellSize) -> PixelData:
@@ -190,3 +193,7 @@ class _ImageITerm2Impl(Widget, can_focus=False, inherit_css=False):
             Segment(iterm2_data, style=_NULL_STYLE, control=((ControlType.CURSOR_FORWARD, 0),)),
             Segment(Control.move_to(visible_region.right, visible_region.bottom - 2).segment.text, style=_NULL_STYLE),
         ]
+
+    def _get_clear_style(self) -> Style:
+        _, color = self.background_colors
+        return Style(bgcolor=color.rich_color)
