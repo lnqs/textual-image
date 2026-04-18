@@ -1,7 +1,7 @@
 """Provides a Rich Renderable to render images as Sixels (https://en.wikipedia.org/wiki/Sixel)."""
 
 import sys
-from typing import IO
+from typing import IO, ClassVar
 
 from PIL import Image as PILImage
 from rich.console import Console, ConsoleOptions, RenderResult
@@ -22,6 +22,14 @@ _NULL_CONTROL = [(ControlType.CURSOR_FORWARD, 0)]
 class Image:
     """Rich Renderable to render images as Sixels (https://en.wikipedia.org/wiki/Sixel)."""
 
+    DEFAULT_OPTIONS: ClassVar[SixelOptions | None] = None
+    """Default ``SixelOptions`` used when no ``sixel_options`` is passed to ``__init__``.
+
+    ``None`` defers to ``image_to_sixels``' own default.  Subclasses can
+    override this to change the project-wide default without having to pass
+    ``sixel_options`` at every call site.
+    """
+
     def __init__(
         self,
         image: StrOrBytesPath | IO[bytes] | PILImage.Image,
@@ -38,11 +46,12 @@ class Image:
                 See `textual_image.geometry.ImageSize` for details about possible values.
             height: height specification to render the image.
                 See `textual_image.geometry.ImageSize` for details about possible values.
-            sixel_options: Sixel encoding options.
+            sixel_options: Sixel encoding options.  When ``None``, falls back to
+                ``self.DEFAULT_OPTIONS``.
         """
         self._image_data = PixelData(image)
         self._render_size = ImageSize(self._image_data.width, self._image_data.height, width, height)
-        self._sixel_options = sixel_options
+        self._sixel_options = sixel_options if sixel_options is not None else self.DEFAULT_OPTIONS
 
     def cleanup(self) -> None:
         """No-op."""

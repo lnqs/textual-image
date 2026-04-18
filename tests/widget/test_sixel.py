@@ -107,6 +107,24 @@ async def test_handling_no_screen_on_render() -> None:
 
 
 @skipUnless(TEXTUAL_ENABLED, "Textual support disabled")
+def test_default_options_subclass_override() -> None:
+    """Subclasses can override ``DEFAULT_OPTIONS`` to change the encoding default."""
+    from textual_image._sixel import SixelOptions
+    from textual_image.widget.sixel import Image, _NoopRenderable
+
+    class LazyImage(Image, Renderable=_NoopRenderable):
+        DEFAULT_OPTIONS = SixelOptions(lazy_color_palette=True)
+
+    # Without an override, ``_sixel_options`` is left as ``None`` so
+    # ``image_to_sixels`` applies its own default.
+    assert Image(TEST_IMAGE)._sixel_options is None
+    assert LazyImage(TEST_IMAGE)._sixel_options == SixelOptions(lazy_color_palette=True)
+
+    explicit = SixelOptions(colors=64)
+    assert Image(TEST_IMAGE, sixel_options=explicit)._sixel_options is explicit
+
+
+@skipUnless(TEXTUAL_ENABLED, "Textual support disabled")
 async def test_render_lines_clears_widget_area_before_sixel() -> None:
     from textual.app import App, ComposeResult
     from textual.geometry import Region
