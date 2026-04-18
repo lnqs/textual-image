@@ -9,6 +9,7 @@ from textual_image._sixel import (
     SixelOptions,
     _compact_palette,
     _iter_bands,
+    _LazyColorTracker,
     image_to_sixels,
 )
 
@@ -72,9 +73,10 @@ def test_reuses_active_palette_tag_across_bands() -> None:
 
     result = image_to_sixels(image)
 
-    # #0 appears once: the definition #0;2;R;G;B in band 1.
-    # Band 2 reuses the still-active color, so no second #0 is emitted.
-    assert result.count("#0") == 1
+    # With the default up-front palette, ``#0`` appears twice: the palette
+    # definition ``#0;2;R;G;B`` and a single ``#0`` selection in band 1.
+    # Band 2 reuses the still-active color, so no further ``#0`` is emitted.
+    assert result.count("#0") == 2
 
 
 def test_reuses_color_across_band_transition() -> None:
@@ -95,11 +97,12 @@ def test_reuses_color_across_band_transition() -> None:
 
     result = image_to_sixels(image)
 
-    # 3 color definitions total; each defined once on first use.
-    # Interleaved packing means non-overlapping colors share a pass,
-    # and the active color carries across band transitions.
-    assert result.count("#") == 3
-    assert result.count("#0") == 1
+    # With the default up-front palette: 3 ``#N;2;R;G;B`` definitions plus
+    # ``#N`` selections only when the active color changes.  The shared
+    # background color stays active across the band boundary, so ``#0``
+    # is selected once in the body in addition to its definition.
+    assert result.count("#0") == 2
+    assert result.count("#") == 6
 
 
 def test_image_to_sixels_smooth() -> None:
@@ -131,7 +134,7 @@ def test_image_to_sixels_skips_fully_transparent_pixels_without_background() -> 
 
     result = image_to_sixels(image)
 
-    assert result == '\x1bP0;1;0q"1;1;2;1#0;2;100;0;0?@-\x1b\\'
+    assert result == '\x1bP0;1;0q"1;1;2;1#0;2;100;0;0#0?@-\x1b\\'
 
 
 def test_image_to_sixels_skips_fully_transparent_pixels_with_background() -> None:
@@ -141,7 +144,7 @@ def test_image_to_sixels_skips_fully_transparent_pixels_with_background() -> Non
 
     result = image_to_sixels(image, background=(0, 100, 0, 1.0))
 
-    assert result == '\x1bP0;1;0q"1;1;2;1#0;2;100;0;0?@-\x1b\\'
+    assert result == '\x1bP0;1;0q"1;1;2;1#0;2;100;0;0#0?@-\x1b\\'
 
 
 def test_image_to_sixels_semitransparent_pixels_assume_black_background() -> None:
@@ -151,7 +154,7 @@ def test_image_to_sixels_semitransparent_pixels_assume_black_background() -> Non
 
     result = image_to_sixels(image)
 
-    assert result == '\x1bP0;0;0q"1;1;1;1#0;2;50;0;0@-\x1b\\'
+    assert result == '\x1bP0;0;0q"1;1;1;1#0;2;50;0;0#0@-\x1b\\'
 
 
 def test_image_to_sixels_mixed_alpha_pixels_assume_black_background() -> None:
@@ -161,7 +164,7 @@ def test_image_to_sixels_mixed_alpha_pixels_assume_black_background() -> None:
 
     result = image_to_sixels(image)
 
-    assert result == '\x1bP0;0;0q"1;1;2;1#1;2;50;0;0@#0;2;0;100;0@-\x1b\\'
+    assert result == '\x1bP0;0;0q"1;1;2;1#0;2;0;100;0#1;2;50;0;0#1@#0@-\x1b\\'
 
 
 def test_image_to_sixels_numpy_path() -> None:
@@ -218,8 +221,8 @@ def test_iter_bands_numpy_matches_pure_python() -> None:
 
     from textual_image._sixel import _iter_bands_np
 
-    py_out = b"".join(_iter_bands(data, quantized.width, quantized.height, registers))
-    np_out = b"".join(_iter_bands_np(data, quantized.width, quantized.height, registers))
+    py_out = b"".join(_iter_bands(data, quantized.width, quantized.height, _LazyColorTracker(registers)))
+    np_out = b"".join(_iter_bands_np(data, quantized.width, quantized.height, _LazyColorTracker(registers)))
 
     assert np_out == py_out
 
@@ -235,22 +238,22 @@ def test_iter_bands_single_color() -> None:
 
     from textual_image._sixel import _iter_bands_np
 
-    py_out = b"".join(_iter_bands(data, quantized.width, quantized.height, registers))
-    np_out = b"".join(_iter_bands_np(data, quantized.width, quantized.height, registers))
+    py_out = b"".join(_iter_bands(data, quantized.width, quantized.height, _LazyColorTracker(registers)))
+    np_out = b"".join(_iter_bands_np(data, quantized.width, quantized.height, _LazyColorTracker(registers)))
 
     assert np_out == py_out
 
 
-def test_explicit_color_select_re_emits_color_after_definition() -> None:
-    """explicit_color_select should emit ``#N`` after each ``#N;2;R;G;B`` definition."""
+def test_lazy_color_palette_defines_registers_inline() -> None:
+    """``lazy_color_palette=True`` keeps the original lazy ``#N;2;R;G;B`` emission."""
     image = PILImage.new("RGB", (2, 1))
     image.putdata([(255, 0, 0), (0, 255, 0)])
 
-    default = image_to_sixels(image)
-    explicit = image_to_sixels(image, SixelOptions(explicit_color_select=True))
+    upfront = image_to_sixels(image)
+    lazy = image_to_sixels(image, SixelOptions(lazy_color_palette=True))
 
-    assert default == '\x1bP0;0;0q"1;1;2;1#1;2;100;0;0@#0;2;0;100;0@-\x1b\\'
-    assert explicit == '\x1bP0;0;0q"1;1;2;1#1;2;100;0;0#1@#0;2;0;100;0#0@-\x1b\\'
+    assert upfront == '\x1bP0;0;0q"1;1;2;1#0;2;0;100;0#1;2;100;0;0#1@#0@-\x1b\\'
+    assert lazy == '\x1bP0;0;0q"1;1;2;1#1;2;100;0;0@#0;2;0;100;0@-\x1b\\'
 
 
 def test_compact_palette_reindexes_sparse_colors() -> None:

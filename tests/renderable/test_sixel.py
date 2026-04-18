@@ -18,6 +18,29 @@ def test_render(snapshot: SnapshotAssertion) -> None:
     assert render(renderable) == snapshot
 
 
+def test_default_options_subclass_override() -> None:
+    """Subclasses can override ``DEFAULT_OPTIONS`` to change the encoding default."""
+    from textual_image._sixel import SixelOptions
+    from textual_image.renderable.sixel import Image
+
+    class LazyImage(Image):
+        DEFAULT_OPTIONS = SixelOptions(lazy_color_palette=True)
+
+    # Without an override, ``_sixel_options`` is left as ``None`` so
+    # ``image_to_sixels`` applies its own default.
+    assert Image(TEST_IMAGE, width=4)._sixel_options is None
+    assert LazyImage(TEST_IMAGE, width=4)._sixel_options == SixelOptions(lazy_color_palette=True)
+
+
+def test_explicit_sixel_options_overrides_default() -> None:
+    """An explicit ``sixel_options`` argument wins over ``DEFAULT_OPTIONS``."""
+    from textual_image._sixel import SixelOptions
+    from textual_image.renderable.sixel import Image
+
+    explicit = SixelOptions(colors=64)
+    assert Image(TEST_IMAGE, width=4, sixel_options=explicit)._sixel_options is explicit
+
+
 def test_render_non_seekable() -> None:
     from textual_image.renderable.sixel import Image
 

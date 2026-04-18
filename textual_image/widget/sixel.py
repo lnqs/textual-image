@@ -1,7 +1,7 @@
 """Provides a Textual `Widget` to render images as Sixels (<https://en.wikipedia.org/wiki/Sixel>) in the terminal."""
 
 import logging
-from typing import IO, Iterable, NamedTuple
+from typing import IO, ClassVar, Iterable, NamedTuple
 
 from PIL import Image as PILImage
 from rich.console import Console, ConsoleOptions, RenderResult
@@ -87,6 +87,14 @@ class _NoopRenderable:
 class Image(BaseImage, Renderable=_NoopRenderable):
     """Textual `Widget` to render images as Sixels (<https://en.wikipedia.org/wiki/Sixel>) in the terminal."""
 
+    DEFAULT_OPTIONS: ClassVar[SixelOptions | None] = None
+    """Default ``SixelOptions`` used when no ``sixel_options`` is passed to ``__init__``.
+
+    ``None`` defers to ``image_to_sixels``' own default.  Subclasses can
+    override this to change the project-wide default without having to pass
+    ``sixel_options`` at every call site.
+    """
+
     def __init__(
         self,
         image: StrOrBytesPath | IO[bytes] | PILImage.Image | None = None,
@@ -105,7 +113,8 @@ class Image(BaseImage, Renderable=_NoopRenderable):
             id: The ID of the widget in the DOM.
             classes: The CSS classes for the widget.
             disabled: Whether the widget is disabled or not.
-            sixel_options: Sixel encoding options.
+            sixel_options: Sixel encoding options.  When ``None``, falls back to
+                ``self.DEFAULT_OPTIONS``.
         """
         super().__init__(
             image=image,
@@ -114,7 +123,7 @@ class Image(BaseImage, Renderable=_NoopRenderable):
             classes=classes,
             disabled=disabled,
         )
-        self._sixel_options = sixel_options
+        self._sixel_options = sixel_options if sixel_options is not None else self.DEFAULT_OPTIONS
 
     @override
     @BaseImage.image.setter  # type: ignore
