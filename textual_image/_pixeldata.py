@@ -53,7 +53,7 @@ class PixelData:
     """Provides access to pixel data from a path or `PIL.Image.Image` instance."""
 
     def __init__(
-        self, image: StrOrBytesPath | IO[bytes] | PILImage.Image, mode: Literal["grayscale", "rgb"] | None = None
+        self, image: StrOrBytesPath | IO[bytes] | PILImage.Image, mode: Literal["grayscale", "rgb", "rgba"] | None = None
     ) -> None:
         """Initializes a PixelData.
 
@@ -68,6 +68,8 @@ class PixelData:
             self._image = self._image.convert("L")
         elif mode == "rgb":
             self._image = self._image.convert("RGB")
+        elif mode == "rgba":
+            self._image = self._image.convert("RGBA")
 
     @property
     def pil_image(self) -> PILImage.Image:
