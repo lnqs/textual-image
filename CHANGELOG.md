@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.12.1](https://github.com/lnqs/textual-image/compare/v0.12.0...v0.12.1) (2026-04-26)
+
+
+### Bug Fixes
+
+* don't emit transparent pixels for sixel ([f132121](https://github.com/lnqs/textual-image/commit/f1321210315c1e5b1fcf93faf7c720fd2fcd7638))
+
+
+### Documentation
+
+* clarify textual-serve support and add alternative link ([bac6a81](https://github.com/lnqs/textual-image/commit/bac6a81c6283959c5b6e0bf458886ffa4d8b7c37))
+
 ## [0.12.0](https://github.com/lnqs/textual-image/compare/v0.11.0...v0.12.0) (2026-04-12)
 
 
