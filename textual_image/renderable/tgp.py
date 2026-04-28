@@ -14,7 +14,7 @@ from rich.style import Style
 
 from textual_image._geometry import ImageSize
 from textual_image._pixeldata import PixelData
-from textual_image._terminal import TerminalError, capture_terminal_response, get_cell_size
+from textual_image._terminal import TerminalError, capture_terminal_response, get_cell_size, prepare_terminal_sequence
 from textual_image._utils import StrOrBytesPath
 
 logger = logging.getLogger(__name__)
@@ -67,6 +67,8 @@ def _send_tgp_message(*, payload: str | None = None, **kwargs: int | str | None)
     ]
 
     sequence = "".join(ans)
+    sequence = prepare_terminal_sequence(sequence)
+
     sys.__stdout__.write(sequence)
     sys.__stdout__.flush()
 

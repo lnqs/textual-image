@@ -79,6 +79,13 @@ def test_send_tgp_message() -> None:
     assert stdout.write.call_args[0][0] == "\x1b_Gd=42\x1b\\"
     assert stdout.flush.called
 
+    with patch("textual_image._tmux.IS_TMUX", True):
+        with patch("sys.__stdout__") as stdout:
+            _send_tgp_message(d=42)
+
+    assert stdout.write.call_args[0][0] == "\x1bPtmux;\x1b\x1b_Gd=42\x1b\x1b\\\x1b\\"
+    assert stdout.flush.called
+
 
 def test_query_terminal_support() -> None:
     from textual_image.renderable.tgp import _TGP_MESSAGE_END, _TGP_MESSAGE_START, query_terminal_support

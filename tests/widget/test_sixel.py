@@ -82,6 +82,20 @@ def test_measure_noop_renderable() -> None:
 
 
 @skipUnless(TEXTUAL_ENABLED, "Textual support disabled")
+def test_image_to_sixels_inside_tmux_uses_native_sixel() -> None:
+    from textual_image.widget.sixel import _ImageSixelImpl
+
+    image = PILImage.new("RGB", (1, 1), (255, 0, 0))
+    sixel_impl = _ImageSixelImpl()
+
+    with patch("textual_image._tmux.IS_TMUX", True):
+        sixel_data = sixel_impl._image_to_sixels(image)
+
+    assert sixel_data.startswith("\x1bP0;0;0q")
+    assert "\x1bPtmux;" not in sixel_data
+
+
+@skipUnless(TEXTUAL_ENABLED, "Textual support disabled")
 async def test_handling_no_screen_on_render() -> None:
     from textual.app import App, ComposeResult
     from textual.dom import NoScreen

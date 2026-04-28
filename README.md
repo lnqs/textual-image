@@ -31,7 +31,7 @@ See the Support Matrix below on what was tested already.
 | iTerm2              |          ❌ |            ✅ |                       ✅ |
 | kitty               |          ✅ |            ❌ |                       ✅ |
 | konsole             |          ✅ |            ✅ |                       ✅ |
-| tmux                |          ❌ |            ✅ |                       ✅ |
+| tmux                |          ⚠️ |            ✅ |                       ✅ |
 | Visual Studio Code  |          ❌ |            ✅ |                       ✅ |
 | Warp                |          ❌ |            ❌ |                       ❌ |
 | wezterm             |          ✅ |            ✅ |                       ✅ |
@@ -39,7 +39,7 @@ See the Support Matrix below on what was tested already.
 | Windows Terminal    |          ❌ |            ✅ |                       ✅ |
 | xterm               |          ❌ |            ✅ |                       ✅ |
 
-✅ = Supported; ❌ = Not Supported
+✅ = Supported; ❌ = Not Supported; ⚠️ = Requires additional terminal/tmux configuration
 
 ### BlackBox
 
@@ -107,12 +107,21 @@ TGP support is not in a usable state. However, Sixel is working out of the box w
 ### tmux
 
 **Homepage**: https://github.com/tmux/tmux/wiki  
-**TGP support**: No  
+**TGP support**: Via passthrough  
 **Sixel support**: Yes  
 **Works**: Partially
 
 **Notes:**  
-tmux doesn't support TGP, even on a TGP enabled terminal nothing will render. Sixel generally works, but heavily depends on the underlying terminal. In some terminals it works great, in others major bugs occur, even if the terminal without tmux works.
+tmux does not render TGP itself, but TGP can work when tmux passes the Kitty graphics control sequences through to a TGP-enabled outer terminal and preserves truecolor output. Sixel should use tmux's native Sixel support instead, which requires tmux to know that the outer terminal supports Sixel.
+
+For a broad setup, add this to `.tmux.conf`, then restart tmux or reload the config:
+
+```tmux
+set -g allow-passthrough on
+set -ga terminal-features ',*:RGB:sixel'
+```
+
+If you prefer a narrower rule, replace `*` with the terminal name shown by `tmux display-message -p '#{client_termname}'`, for example `xterm-256color:RGB:sixel` for Windows Terminal. Sixel generally works, but heavily depends on the underlying terminal. In some terminals it works great, in others major bugs occur, even if the terminal without tmux works.
 
 ### Visual Studio Code
 
