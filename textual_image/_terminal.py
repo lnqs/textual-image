@@ -7,6 +7,8 @@ from contextlib import contextmanager
 from types import SimpleNamespace
 from typing import Iterator, NamedTuple, cast
 
+from ._tmux import maybe_tmux_escape
+
 # pragma: no cover: start -- platform specific, we always will only execute one branch
 if sys.platform == "win32":
     from textual_image._win32 import capture_mode, get_tiocgwinsz, read
@@ -129,3 +131,7 @@ def capture_terminal_response(
 
             if not response.sequence.startswith(start_marker[: len(response.sequence)]):
                 raise TerminalError("Unexpected response from terminal")
+
+
+def prepare_terminal_sequence(data: str) -> str:
+    return maybe_tmux_escape(data)
