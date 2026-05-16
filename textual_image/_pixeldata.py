@@ -122,11 +122,15 @@ class PixelData:
         self._image.save(image_buffer, format="png", compress_level=2)
         return b64encode(image_buffer.getvalue()).decode("ascii")
 
-    def __iter__(self) -> Iterator[Iterable[int | Tuple[int, ...]]]:
+    def __iter__(self) -> Iterator[Iterable[float | Tuple[int, ...]]]:
         """Iterate the pixel data.
 
         Returns an `Iterator` over rows of the image.
         The rows are `Iterable`s of pixel values.
+
+        Pixel values are scalar (`float`) for single-band modes — `int` at runtime
+        for integer modes like ``"L"`` or ``"P"``, true `float` for ``"F"`` — and
+        `tuple[int, ...]` for multi-band modes (e.g. ``"RGB"``, ``"RGBA"``).
 
         Example:
             Iterate the image data::
@@ -138,5 +142,7 @@ class PixelData:
         Returns:
             An `Iterator` over `Iterable`s of pixel values.
         """
-        data = self._image.getdata()
+        # PIL types `get_flattened_data()` as `tuple[tuple[int, ...], ...] | tuple[float, ...]`,
+        # which mypy cannot lift to `Iterable[float | tuple[int, ...]]` on its own.
+        data: Iterable[float | Tuple[int, ...]] = self._image.get_flattened_data()
         yield from grouped(data, self._image.width)
