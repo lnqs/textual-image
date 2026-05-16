@@ -138,5 +138,5 @@ class PixelData:
         Returns:
             An `Iterator` over `Iterable`s of pixel values.
         """
-        data = self._image.getdata()
+        data = self._image.get_flattened_data()
         yield from grouped(data, self._image.width)
