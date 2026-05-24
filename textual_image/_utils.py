@@ -26,7 +26,7 @@ def grouped(iterable: Iterable[T], n: int) -> Iterator[Iterable[T]]:
     Returns:
         An iterator over the groups
     """
-    return zip(*([iter(iterable)] * n))
+    return zip(*([iter(iterable)] * n), strict=False)
 
 
 N = TypeVar("N", bound=int | float)
