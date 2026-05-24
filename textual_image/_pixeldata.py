@@ -94,7 +94,7 @@ class PixelData:
         Returns:
             A new `PixelData` instance of the same image, scaled to (width, height).
         """
-        scaled_image = self._image.resize((width, height))
+        scaled_image = self._image.resize((max(1, width), max(1, height)))
         return PixelData(scaled_image)
 
     def cropped(self, left: int, top: int, right: int, bottom: int) -> "PixelData":
