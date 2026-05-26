@@ -1,0 +1,9 @@
+repos:
+  - repo: local
+    hooks:
+      - id: commitizen
+        name: conventional commit
+        entry: uv run cz check --commit-msg-file
+        language: system
+        stages: [commit-msg]
+        pass_filenames: true
