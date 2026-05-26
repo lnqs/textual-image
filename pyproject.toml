@@ -10,6 +10,7 @@ authors = [
     {name = "Simon Hayessen", email = "simon@lnqs.io"}
 ]
 readme = "README.md"
+requires-python = ">=3.12"
 
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -52,6 +53,8 @@ textual = [
 numpy = [
     "numpy>=2.0.0",
 ]
+
+[dependency-groups]
 dev = [
     "mypy",
     "pytest",
@@ -59,7 +62,6 @@ dev = [
     "pytest-cov",
     "ruff",
     "syrupy",
-    "tox",
     "typing-extensions",
     "typos",
 ]
@@ -115,44 +117,3 @@ extend-ignore-identifiers-re = [
 extend-exclude = [
     "tests/renderable/__snapshots__/*.ambr",
 ]
-
-[tool.tox]
-isolated_build = true
-envlist = ["format-check", "lint", "spell-check", "types", "3.12", "3.13", "3.14", "rich-only"]
-
-[tool.tox.env.format-check]
-description = "Format check"
-skip_install = true
-deps = "ruff"
-commands = [["ruff", "format", "--check", "{posargs:.}"]]
-
-[tool.tox.env.lint]
-basepython = ["3.14"]
-description = "Lint"
-skip_install = true
-deps = "ruff"
-commands = [["ruff", "check", "{posargs:.}"]]
-
-[tool.tox.env.spell-check]
-basepython = ["3.14"]
-description = "Spell check"
-skip_install = true
-deps = "typos"
-commands = [["typos", "{posargs:.}"]]
-
-[tool.tox.env.types]
-basepython = ["3.14"]
-description = "Type checking"
-deps = ".[textual,numpy,dev]"
-commands = [["mypy", "{posargs:.}"]]
-
-[tool.tox.env_run_base]
-description = "Run tests under {base_python}"
-deps = ".[textual,numpy,dev]"
-commands = [["pytest", "--cov=textual_image", "--cov-report=term-missing", "{tty:--color=yes}", "{posargs}"]]
-
-[tool.tox.env.rich-only]
-basepython = ["3.14"]
-description = "Test with Rich only"
-deps = ".[dev]"
-commands = [["pytest", "{tty:--color=yes}", "{posargs}"]]
