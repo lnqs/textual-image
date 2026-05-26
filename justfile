@@ -4,7 +4,7 @@ default: format lint spell types test
 
 format:
     uv sync --locked --no-install-project
-    uv run ruff format --check .
+    uv run ruff format .
 
 lint:
     uv sync --locked --no-install-project

@@ -80,7 +80,7 @@ class Image:
         width, height = self._render_size.get_cell_size(options.max_width, options.max_height, terminal_sizes)
 
         for row in self._image_data.scaled(width, height):
-            yield Segment("".join(_map_pixel(cast(int, pixel)) for pixel in row) + "\n")
+            yield Segment("".join(_map_pixel(cast("int", pixel)) for pixel in row) + "\n")
 
     def __rich_measure__(self, console: Console, options: ConsoleOptions) -> Measurement:
         """Called by Rich to get the render width without actually rendering the object.

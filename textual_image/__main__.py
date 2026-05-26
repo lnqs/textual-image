@@ -22,7 +22,8 @@ if arguments.mode == "rich":
     run_rich_demo(arguments.method)
 elif not textual_available:
     sys.stderr.write(
-        "Optional Textual dependency not available. Install this package as `textual-image[textual]` for Textual support."
+        "Optional Textual dependency not available. "
+        "Install this package as `textual-image[textual]` for Textual support."
     )
 else:
     from textual_image.demo.widget import run as run_textual_demo

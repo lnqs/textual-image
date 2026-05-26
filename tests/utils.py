@@ -33,7 +33,7 @@ class NonSeekableBytesIO(io.BytesIO):
 
 
 def load_non_seekable_bytes_io(path: pathlib.Path) -> IO[bytes]:
-    with open(path, "rb") as file:
+    with path.open("rb") as file:
         data = file.read()
 
     return NonSeekableBytesIO(data)

@@ -72,26 +72,26 @@ class SizeGallery(Container):
         if not self.image_type:
             return
 
-        Image = RENDERING_METHODS[self.image_type]
+        image_cls = RENDERING_METHODS[self.image_type]
 
         with Container() as c:
             c.border_title = "width: none; height: none;"
-            yield Image(TEST_IMAGE, classes="width-50-pc")
+            yield image_cls(TEST_IMAGE, classes="width-50-pc")
         with Container() as c:
             c.border_title = "width: auto; height: none;"
-            yield Image(TEST_IMAGE, classes="width-auto")
+            yield image_cls(TEST_IMAGE, classes="width-auto")
         with Container() as c:
             c.border_title = "width: none; height: auto;"
-            yield Image(TEST_IMAGE, classes="height-auto")
+            yield image_cls(TEST_IMAGE, classes="height-auto")
         with Container() as c:
             c.border_title = "width: auto; height: auto;"
-            yield Image(TEST_IMAGE, classes="width-auto height-auto")
+            yield image_cls(TEST_IMAGE, classes="width-auto height-auto")
         with Container() as c:
             c.border_title = "width: 15; height: auto;"
-            yield Image(TEST_IMAGE, classes="width-15 height-auto")
+            yield image_cls(TEST_IMAGE, classes="width-15 height-auto")
         with Container() as c:
             c.border_title = "width: auto; height: 50%;"
-            yield Image(TEST_IMAGE, classes="width-auto height-50pct")
+            yield image_cls(TEST_IMAGE, classes="width-auto height-50pct")
 
 
 class SizingPlayground(Container):
@@ -137,10 +137,10 @@ class SizingPlayground(Container):
         if not self.image_type:
             return
 
-        Image = RENDERING_METHODS[self.image_type]
+        image_cls = RENDERING_METHODS[self.image_type]
 
         with ScrollableContainer():
-            yield Image(TEST_IMAGE)
+            yield image_cls(TEST_IMAGE)
         with Horizontal():
             units = ["cells", "%", "w", "h", "vw", "vh", "auto", "fr"]
             with Horizontal():
@@ -161,7 +161,7 @@ class SizingPlayground(Container):
     def size_changed(self, event: Input.Changed | Select.Changed) -> None:
         """Handles changes in size selectors."""
         assert self.image_type
-        Image = RENDERING_METHODS[self.image_type]
+        image_cls = RENDERING_METHODS[self.image_type]
 
         width_value = self.query_one("#width-value", Input).value
         width_unit = self.query_one("#width-unit", Select).value
@@ -178,7 +178,7 @@ class SizingPlayground(Container):
             width = f"{width_value if width_unit != 'auto' else ''}{width_unit}"
             height = f"{height_value if height_unit != 'auto' else ''}{height_unit}"
 
-            image = self.query_one(Image)
+            image = self.query_one(image_cls)
             image.styles.width = Scalar.parse(width)
             image.styles.height = Scalar.parse(height)
 
@@ -219,11 +219,11 @@ class ManyGallery(Container):
         """Yields child widgets."""
         if not self.image_type:
             return
-        Image = RENDERING_METHODS[self.image_type]
+        image_cls = RENDERING_METHODS[self.image_type]
 
         with HorizontalScroll():
             for _ in range(self.image_count):
-                yield Image(TEST_IMAGE)
+                yield image_cls(TEST_IMAGE)
         with Horizontal():
             with Horizontal():
                 yield Button("-", id="remove-image", disabled=self.image_count == 0)
@@ -286,7 +286,7 @@ class RenderingMethodSelectionScreen(ModalScreen[str]):
     @on(OptionList.OptionSelected)
     def set_rendering_method(self, event: OptionList.OptionSelected) -> None:
         """Dismisses the modal returning the selected rendering method."""
-        self.dismiss(cast(str, event.option.prompt))
+        self.dismiss(cast("str", event.option.prompt))
 
 
 class DemoApp(App[None]):

@@ -90,7 +90,7 @@ class Image(Widget):
             # This is necessary for two reasons:
             # 1. Multiple reads are required, which necessitates a seekable stream.
             # 2. PIL.Image.open may fail to correctly detect the image format when provided with a non-seekable stream.
-            stream = io.BytesIO(cast(IO[bytes], value).read())
+            stream = io.BytesIO(cast("IO[bytes]", value).read())
             self._image = PILImage.open(stream)
         else:
             self._image = value
@@ -151,4 +151,4 @@ class Image(Widget):
         elif style.is_auto:
             return "auto"
         else:
-            return cast(int, getattr(self.content_size, dimension))
+            return cast("int", getattr(self.content_size, dimension))

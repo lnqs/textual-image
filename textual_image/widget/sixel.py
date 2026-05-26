@@ -142,10 +142,11 @@ class _ImageSixelImpl(Widget, can_focus=False, inherit_css=False):
     This class is meant to be used only by `textual_image.widgets.sixel.Image`.
     It creates and renders Sixel data.
 
-    It is done in this child widget to simplify the process -- this class assumes it never has to render any borders or spacings,
-    but only the parent will if required by the user.
-    We assume `self.region == self.content_region` in this class, which allows to the `crop` parameter in `render_lines()` directly
-    on our image data without having to deal with gutters, as well as moving the cursor after rendering the sixel data to an easily
+    It is done in this child widget to simplify the process -- this class assumes it never
+    has to render any borders or spacings, but only the parent will if required by the user.
+    We assume `self.region == self.content_region` in this class, which allows to the `crop`
+    parameter in `render_lines()` directly on our image data without having to deal with
+    gutters, as well as moving the cursor after rendering the sixel data to an easily
     determinable position.
     """
 
