@@ -28,7 +28,7 @@ def ensure_image(image: StrOrBytesPath | IO[bytes] | PILImage.Image) -> ContextM
         # This is necessary for two reasons:
         # 1. Multiple reads are required, which necessitates a seekable stream.
         # 2. PIL.Image.open may fail to correctly detect the image format when provided with a non-seekable stream.
-        image = io.BytesIO(cast(IO[bytes], image).read())
+        image = io.BytesIO(cast("IO[bytes]", image).read())
 
     if isinstance(image, PILImage.Image):
         return nullcontext(image)

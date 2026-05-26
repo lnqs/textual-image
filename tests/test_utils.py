@@ -1,5 +1,4 @@
 import io
-from typing import Any
 
 import pytest
 
@@ -54,5 +53,5 @@ class NoSeekableAttribute:
         (None, False),
     ],
 )
-def test_is_non_seekable_stream(stream: Any, expected: bool) -> None:
+def test_is_non_seekable_stream(stream: object, expected: bool) -> None:
     assert is_non_seekable_stream(stream) == expected

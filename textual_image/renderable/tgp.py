@@ -181,9 +181,8 @@ class Image:
     def _render_diacritics(self, width: int, height: int) -> Iterator[Segment]:
         assert self.terminal_image_id
 
-        style = Style(
-            color=f"rgb({(self.terminal_image_id >> 16) & 255}, {(self.terminal_image_id >> 8) & 255}, {self.terminal_image_id & 255})"
-        )
+        image_id = self.terminal_image_id
+        style = Style(color=(f"rgb({(image_id >> 16) & 255}, {(image_id >> 8) & 255}, {image_id & 255})"))
         id_char = _NUMBER_TO_DIACRITIC[(self.terminal_image_id >> 24) & 255]
         for r in range(height):
             line = "".join(

@@ -38,7 +38,7 @@ RENDERING_METHODS = {
 
 def run(rendering_method: str = "auto") -> None:
     """Showcase textual-image's Rich renderables."""
-    Image = RENDERING_METHODS[rendering_method]
+    image_cls = RENDERING_METHODS[rendering_method]
 
     table = Table.grid(padding=1, pad_edge=True)
     table.title = "textual-image's features"
@@ -47,25 +47,25 @@ def run(rendering_method: str = "auto") -> None:
 
     sizings_table = Table.grid(padding=1, collapse_padding=True)
     sizings_table.add_row(
-        Image(TEST_IMAGE, width=30, height="auto"),
-        Image(TEST_IMAGE, width=20, height="auto"),
-        Image(TEST_IMAGE, width=10, height="auto"),
+        image_cls(TEST_IMAGE, width=30, height="auto"),
+        image_cls(TEST_IMAGE, width=20, height="auto"),
+        image_cls(TEST_IMAGE, width=10, height="auto"),
     )
     table.add_row("Different sizing options", sizings_table)
 
     sizings2_table = Table.grid(padding=1, collapse_padding=True)
     sizings2_table.add_row(
-        Image(TEST_IMAGE, width=10, height=15),
-        Image(TEST_IMAGE, width=20, height=15),
-        Image(TEST_IMAGE, width=40, height=15),
+        image_cls(TEST_IMAGE, width=10, height=15),
+        image_cls(TEST_IMAGE, width=20, height=15),
+        image_cls(TEST_IMAGE, width=40, height=15),
     )
     table.add_row("Different aspect ratios", sizings2_table)
 
     table_demo_table = Table("Name", "Birthday", "Picture")
-    table_demo_table.add_row("Grace Hopper", "December 9, 1906", Image(TEST_IMAGE, width="auto", height="auto"))
+    table_demo_table.add_row("Grace Hopper", "December 9, 1906", image_cls(TEST_IMAGE, width="auto", height="auto"))
     table.add_row("Images in tables", table_demo_table)
 
-    table.add_row("... and in panels", Panel(Image(TEST_IMAGE, width=20, height="auto"), expand=False))
+    table.add_row("... and in panels", Panel(image_cls(TEST_IMAGE, width=20, height="auto"), expand=False))
 
     Console().print(table)
 
