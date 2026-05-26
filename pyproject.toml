@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "textual-image"
@@ -66,8 +66,14 @@ dev = [
     "typos",
 ]
 
-[tool.setuptools.packages.find]
-include = ["textual_image*"]
+[tool.hatch.build.targets.wheel]
+packages = ["textual_image"]
+
+[tool.hatch.build]
+include = [
+    "textual_image/gracehopper.jpg",
+    "textual_image/py.typed",
+]
 
 [tool.ruff]
 lint.select = ["B", "D", "F", "I", "T", "Q"]
