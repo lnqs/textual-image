@@ -215,6 +215,7 @@ Install [uv](https://docs.astral.sh/uv/getting-started/installation/), then sync
 
 ```sh
 uv sync --all-extras
+uv run pre-commit install --hook-type commit-msg
 ```
 
 Run tests, type checking, and linting:

@@ -22,6 +22,10 @@ test:
     uv sync --locked --extra textual --extra numpy
     uv run pytest --cov=textual_image --cov-report=term-missing --color=yes
 
+commits:
+    uv sync --locked --no-install-project
+    uv run cz check --rev-range origin/main..HEAD
+
 matrix:
     #!/usr/bin/env bash
     set -euo pipefail
