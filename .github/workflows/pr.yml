@@ -24,7 +24,12 @@ jobs:
       uses: ./.github/actions/check
       with:
         python-version: ${{ matrix.python-version }}
-        envs: "${{ matrix.python-version == '3.14' && 'format-check, lint, spell-check, types, rich-only, ' || '' }}${{ matrix.python-version }}"
+        run-format: ${{ matrix.python-version == '3.14' }}
+        run-lint: ${{ matrix.python-version == '3.14' }}
+        run-spell-check: ${{ matrix.python-version == '3.14' }}
+        run-types: ${{ matrix.python-version == '3.14' }}
+        run-rich-only: ${{ matrix.python-version == '3.14' }}
+        run-tests: "true"
 
   build:
     name: Build
@@ -34,11 +39,6 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      with: # required to get the correct scm version
-        fetch-depth: 0
-        fetch-tags: true
 
     - name: Build
       uses: ./.github/actions/build
-      with:
-        use-scm-version: true

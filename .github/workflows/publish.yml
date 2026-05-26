@@ -21,7 +21,12 @@ jobs:
       uses: ./.github/actions/check
       with:
         python-version: ${{ matrix.python-version }}
-        envs: "${{ matrix.python-version == '3.14' && 'format-check, lint, spell-check, types, rich-only, ' || '' }}${{ matrix.python-version }}"
+        run-format: ${{ matrix.python-version == '3.14' }}
+        run-lint: ${{ matrix.python-version == '3.14' }}
+        run-spell-check: ${{ matrix.python-version == '3.14' }}
+        run-types: ${{ matrix.python-version == '3.14' }}
+        run-rich-only: ${{ matrix.python-version == '3.14' }}
+        run-tests: "true"
 
   build:
     name: Build
