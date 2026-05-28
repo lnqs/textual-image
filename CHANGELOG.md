@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.13.0](https://github.com/lnqs/textual-image/compare/v0.12.0...v0.13.0) (2026-05-28)
+
+
+### Features
+
+* add justfile to automate development workflows ([e4dd264](https://github.com/lnqs/textual-image/commit/e4dd264c5946759bc91a90417e19c451c3337628))
+* modernize development workflow ([3e0b30e](https://github.com/lnqs/textual-image/commit/3e0b30e1d33c671868fdf3454fe5d5c40f0eced5))
+
+
+### Bug Fixes
+
+* don't emit transparent pixels for sixel ([f132121](https://github.com/lnqs/textual-image/commit/f1321210315c1e5b1fcf93faf7c720fd2fcd7638))
+
+
+### Documentation
+
+* clarify textual-serve support and add alternative link ([bac6a81](https://github.com/lnqs/textual-image/commit/bac6a81c6283959c5b6e0bf458886ffa4d8b7c37))
+
 ## [0.12.0](https://github.com/lnqs/textual-image/compare/v0.11.0...v0.12.0) (2026-04-12)
 
 
