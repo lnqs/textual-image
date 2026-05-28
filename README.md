@@ -207,6 +207,33 @@ To include the Textual Widget's dependencies:
 pip install textual-image[textual]
 ```
 
+## Development
+
+This project uses [uv](https://docs.astral.sh/uv/) for dependency management and running development tools. With [just](https://github.com/casey/just) installed, run `just` for all checks, or `just matrix` to run tests on Python 3.12–3.14.
+
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/), then sync the project with all optional extras and dev dependencies:
+
+```sh
+uv sync --all-extras
+uv run pre-commit install --hook-type commit-msg
+```
+
+Run tests, type checking, and linting:
+
+```sh
+uv run pytest --cov=textual_image --cov-report=term-missing
+uv run mypy .
+uv run ruff check .
+uv run ruff format --check .
+uv run typos .
+```
+
+Build distribution packages:
+
+```sh
+uv build
+```
+
 ## Demonstration
 
 Once installed, run the demo application to see the module in action.

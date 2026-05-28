@@ -2,7 +2,7 @@
 
 import io
 import os
-from typing import Any, Iterable, Iterator, TypeVar
+from typing import Iterable, Iterator, TypeVar
 
 T = TypeVar("T")
 
@@ -49,7 +49,7 @@ def clamp(n: N, minimum: N, maximum: N) -> N:
 StrOrBytesPath = str | bytes | os.PathLike[str] | os.PathLike[bytes]
 
 
-def is_non_seekable_stream(stream: Any) -> bool:
+def is_non_seekable_stream(stream: object) -> bool:
     if not isinstance(stream, io.IOBase) or not hasattr(stream, "seekable"):
         return False
 

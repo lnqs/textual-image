@@ -1,26 +1,85 @@
 name: Run linter and tests
-description: Runs the format check, linter, type check and tests
+description: Runs format check, linter, spell check, type check, and tests via uv
 
 inputs:
   python-version:
     description: Python version to use
     required: true
-  envs:
-    description: tox envs to run as comma-separated list
-    required: true
+  run-format:
+    description: Run ruff format check
+    required: false
+    default: "false"
+  run-lint:
+    description: Run ruff lint
+    required: false
+    default: "false"
+  run-spell-check:
+    description: Run typos spell check
+    required: false
+    default: "false"
+  run-types:
+    description: Run mypy type check
+    required: false
+    default: "false"
+  run-tests:
+    description: Run pytest with full extras and coverage
+    required: false
+    default: "false"
+  run-rich-only:
+    description: Run pytest with Rich only (no textual/numpy extras)
+    required: false
+    default: "false"
 
 runs:
   using: composite
   steps:
-    - name: Set up Python
-      uses: actions/setup-python@v5
+    - name: Install uv
+      uses: astral-sh/setup-uv@v8.1.0
       with:
         python-version: ${{ inputs.python-version }}
+        enable-cache: true
 
-    - name: Install tox
+    - name: Sync quality tools
+      if: inputs.run-format == 'true' || inputs.run-lint == 'true' || inputs.run-spell-check == 'true'
       shell: bash
-      run: python3 -m pip install tox --user
+      run: uv sync --locked --no-install-project
 
-    - name: Run checks
+    - name: Format check
+      if: inputs.run-format == 'true'
       shell: bash
-      run: tox -e "${{ inputs.envs }}"
+      run: uv run ruff format --check .
+
+    - name: Lint
+      if: inputs.run-lint == 'true'
+      shell: bash
+      run: uv run ruff check .
+
+    - name: Spell check
+      if: inputs.run-spell-check == 'true'
+      shell: bash
+      run: uv run typos .
+
+    - name: Sync full dependencies
+      if: inputs.run-types == 'true' || inputs.run-tests == 'true'
+      shell: bash
+      run: uv sync --locked --extra textual --extra numpy
+
+    - name: Type check
+      if: inputs.run-types == 'true'
+      shell: bash
+      run: uv run mypy .
+
+    - name: Tests
+      if: inputs.run-tests == 'true'
+      shell: bash
+      run: uv run pytest --cov=textual_image --cov-report=term-missing --color=yes
+
+    - name: Sync Rich-only dependencies
+      if: inputs.run-rich-only == 'true'
+      shell: bash
+      run: uv sync --locked
+
+    - name: Rich-only tests
+      if: inputs.run-rich-only == 'true'
+      shell: bash
+      run: uv run pytest --color=yes

@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import re
 from collections import Counter
-from collections.abc import Iterable
 from dataclasses import dataclass, field
-from typing import Literal, TypeAlias
+from typing import TYPE_CHECKING, Literal, TypeAlias
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 from PIL import Image as PILImage
 from PIL import ImageFilter

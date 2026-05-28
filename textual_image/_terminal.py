@@ -47,7 +47,7 @@ def get_cell_size() -> CellSize:
         raise TerminalError("stdout is closed")
 
     if hasattr(get_cell_size, "_result"):
-        return cast(CellSize, get_cell_size._result)
+        return cast("CellSize", getattr(get_cell_size, "_result"))
 
     width = 0
     height = 0
