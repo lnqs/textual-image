@@ -1,0 +1,35 @@
+name: Release Please sync
+
+on:
+  pull_request:
+    types: [opened, synchronize, labeled, unlabeled]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-please-sync-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  amend-version-sync:
+    name: Amend uv.lock into release commit
+    runs-on: ubuntu-latest
+    if: contains(github.event.pull_request.labels.*.name, 'autorelease: pending')
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v6
+      with:
+        ref: ${{ github.head_ref }}
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v8.1.0
+
+    - name: Sync project versions
+      uses: ./.github/actions/sync-versions
+
+    - name: Amend version sync
+      uses: ./.github/actions/amend-version-sync
