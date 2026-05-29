@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.13.1](https://github.com/lnqs/textual-image/compare/v0.13.0...v0.13.1) (2026-05-29)
+
+
+### Bug Fixes
+
+* update uv.lock ([224bd61](https://github.com/lnqs/textual-image/commit/224bd61ebe94360df8b89c311228dd8d2231af3b))
+
 ## [0.13.0](https://github.com/lnqs/textual-image/compare/v0.12.0...v0.13.0) (2026-05-29)
 
 
