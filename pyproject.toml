@@ -8,7 +8,7 @@ module-root = ''
 
 [project]
 name = "textual-image"
-version = "0.13.1"
+version = "0.13.2"
 description = "Render images via Kitty's Terminal Graphics Protocol with Rich and Textual"
 authors = [
     {name = "Simon Hayessen", email = "simon@lnqs.io"}
@@ -72,6 +72,13 @@ dev = [
 
 [tool.commitizen]
 name = "cz_conventional_commits"
+version = "0.13.2"
+tag_format = "v$version"
+version_scheme = "pep440"
+update_changelog_on_bump = true
+changelog_file = "CHANGELOG.md"
+version_files = ["pyproject.toml:project.version"]
+bump_message = "chore(release): bump version to $new_version"
 
 [tool.ruff]
 lint.select = ["A", "ANN", "C", "E", "F", "FIX", "I", "N", "PTH", "T", "TC", "Q"]

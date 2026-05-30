@@ -39,9 +39,6 @@ runs:
         python-version: ${{ inputs.python-version }}
         enable-cache: true
 
-    - name: Sync project versions
-      uses: ./.github/actions/sync-versions
-
     - name: Sync quality tools
       if: inputs.run-format == 'true' || inputs.run-lint == 'true' || inputs.run-spell-check == 'true'
       shell: bash

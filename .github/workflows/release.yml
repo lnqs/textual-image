@@ -1,0 +1,122 @@
+name: Release
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      publish_tag:
+        description: Publish an existing tag (e.g. v0.13.2)
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-main
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: >
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      !startsWith(github.event.workflow_run.head_commit.message, 'chore(release):')
+    runs-on: ubuntu-latest
+    outputs:
+      released_version: ${{ steps.release.outputs.released_version }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v6
+      with:
+        ref: main
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Sync to triggering commit
+      run: git reset --hard "${{ github.event.workflow_run.head_sha }}"
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v8.1.0
+
+    - name: Configure git
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+
+    - name: Release
+      id: release
+      env:
+        CZ_NON_INTERACTIVE: "1"
+      run: |
+        uv sync --locked --no-install-project
+
+        version=$(uv run python -c "import tomllib; print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")
+
+        if ! git rev-parse "v${version}" >/dev/null 2>&1; then
+          echo "Tagging v${version} for current release"
+          git tag "v${version}"
+          git push origin "v${version}"
+          echo "released_version=${version}" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        set +e
+        uv run cz bump --check
+        check_code=$?
+        set -e
+
+        if [ "$check_code" -ne 0 ]; then
+          echo "No release needed (exit ${check_code})"
+          exit 0
+        fi
+
+        uv run cz bump --yes --changelog
+        uv lock
+        git add uv.lock
+        if ! git diff --staged --quiet; then
+          git commit --amend --no-edit
+        fi
+        git push origin main --follow-tags
+
+        version=$(uv run python -c "import tomllib; print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")
+        echo "released_version=${version}" >> "$GITHUB_OUTPUT"
+
+  publish:
+    needs: [release]
+    if: >
+      always() &&
+      (
+        github.event_name == 'workflow_dispatch' ||
+        (needs.release.result == 'success' && needs.release.outputs.released_version != '')
+      )
+    runs-on: ubuntu-latest
+
+    environment:
+      name: pypi
+      url: https://pypi.org/p/textual-image
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v6
+      with:
+        ref: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_tag || format('v{0}', needs.release.outputs.released_version) }}
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v8.1.0
+      with:
+        enable-cache: true
+
+    - name: Build
+      run: uv build
+
+    - name: Publish
+      uses: pypa/gh-action-pypi-publish@release/v1
