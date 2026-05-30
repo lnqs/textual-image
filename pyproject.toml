@@ -1,6 +1,10 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["uv_build~=0.11"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = 'textual_image'
+module-root = ''
 
 [project]
 name = "textual-image"
@@ -21,9 +25,6 @@ classifiers = [
 
     "Topic :: Software Development :: Libraries",
     "Topic :: Software Development :: User Interfaces",
-
-    "License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)",
-    "License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)",
 
     "Operating System :: POSIX :: Linux",
 
@@ -70,15 +71,6 @@ dev = [
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-
-[tool.hatch.build.targets.wheel]
-packages = ["textual_image"]
-
-[tool.hatch.build]
-include = [
-    "textual_image/gracehopper.jpg",
-    "textual_image/py.typed",
-]
 
 [tool.ruff]
 lint.select = ["A", "ANN", "C", "E", "F", "FIX", "I", "N", "PTH", "T", "TC", "Q"]
