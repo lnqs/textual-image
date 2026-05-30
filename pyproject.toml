@@ -35,6 +35,7 @@ classifiers = [
 
     "Typing :: Typed",
 ]
+license = "GPL-3.0-or-later"
 
 dependencies = [
     "pillow>=10.3.0",
