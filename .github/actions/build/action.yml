@@ -9,9 +9,6 @@ runs:
       with:
         enable-cache: true
 
-    - name: Sync project versions
-      uses: ./.github/actions/sync-versions
-
     - name: Build
       shell: bash
       run: uv build
