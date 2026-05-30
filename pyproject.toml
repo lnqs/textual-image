@@ -74,12 +74,6 @@ name = "cz_conventional_commits"
 [tool.hatch.build.targets.wheel]
 packages = ["textual_image"]
 
-[tool.hatch.build]
-include = [
-    "textual_image/gracehopper.jpg",
-    "textual_image/py.typed",
-]
-
 [tool.ruff]
 lint.select = ["A", "ANN", "C", "E", "F", "FIX", "I", "N", "PTH", "T", "TC", "Q"]
 lint.ignore = ["A002"]
