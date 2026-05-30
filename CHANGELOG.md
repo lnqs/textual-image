@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.13.2](https://github.com/lnqs/textual-image/compare/v0.13.1...v0.13.2) (2026-05-30)
+
+
+### Bug Fixes
+
+* **build:** include Python modules in hatchling wheel ([1639ec5](https://github.com/lnqs/textual-image/commit/1639ec5fd96a173904403b63ea24698d807e8f5d))
+
 ## [0.13.1](https://github.com/lnqs/textual-image/compare/v0.13.0...v0.13.1) (2026-05-29)
 
 
