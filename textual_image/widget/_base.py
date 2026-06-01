@@ -1,7 +1,7 @@
 """Provides a Textual `Widget` to render images in the terminal."""
 
 import io
-from typing import IO, Literal, Tuple, Type, cast
+from typing import IO, Callable, Literal, Tuple, Type, cast
 
 from PIL import Image as PILImage
 from textual.app import RenderResult
@@ -52,6 +52,7 @@ class Image(Widget):
         id: str | None = None,
         classes: str | None = None,
         disabled: bool = False,
+        on_error: Callable[[Exception], Widget] | None = None,
     ) -> None:
         """Initializes the `Image`.
 
@@ -62,6 +63,7 @@ class Image(Widget):
             id: The ID of the widget in the DOM.
             classes: The CSS classes for the widget.
             disabled: Whether the widget is disabled or not.
+            on_error: Function that should be called if there is an error while opening image.
         """
         super().__init__(name=name, id=id, classes=classes, disabled=disabled)
         self._renderable: ImageRenderable | None = None
@@ -69,6 +71,8 @@ class Image(Widget):
         self._image_width: int = 0
         self._image_height: int = 0
 
+        self._error_widget: Widget | None = None
+        self.on_error = on_error
         self.image = image
 
     @property
@@ -96,9 +100,23 @@ class Image(Widget):
             self._image = value
 
         if self._image:
-            pixel_meta = PixelMeta(self._image)
-            self._image_width = pixel_meta.width
-            self._image_height = pixel_meta.height
+            try:
+                pixel_meta = PixelMeta(self._image)
+            except (
+                PILImage.UnidentifiedImageError,
+                OSError,  # OSError catches truncated images, FileNotFoundError and PermisionError
+                ValueError,  # If user passed non-image
+                EOFError,
+            ) as e:
+                if self.on_error is not None:
+                    self._error_widget = self.on_error(e)
+                    self._image = None
+                    return
+                else:
+                    raise e
+            else:
+                self._image_width = pixel_meta.width
+                self._image_height = pixel_meta.height
         else:
             self._image_width = 0
             self._image_height = 0
@@ -116,6 +134,11 @@ class Image(Widget):
 
         self._renderable = self._Renderable(self._image, *self._get_styled_size())
         return self._renderable
+
+    @override
+    def compose(self):
+        if self._error_widget:
+            yield self._error_widget
 
     @override
     def get_content_width(self, container: Size, viewport: Size) -> int:

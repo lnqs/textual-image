@@ -1,7 +1,7 @@
 """Provides a Textual `Widget` to render images as Sixels (<https://en.wikipedia.org/wiki/Sixel>) in the terminal."""
 
 import logging
-from typing import IO, ClassVar, Iterable, NamedTuple
+from typing import IO, Callable, ClassVar, Iterable, NamedTuple
 
 from PIL import Image as PILImage
 from rich.console import Console, ConsoleOptions, RenderResult
@@ -104,6 +104,7 @@ class Image(BaseImage, Renderable=_NoopRenderable):
         classes: str | None = None,
         disabled: bool = False,
         sixel_options: SixelOptions | None = None,
+        on_error: Callable[[Exception], Widget] | None = None,
     ) -> None:
         """Initialize the Image widget.
 
@@ -116,13 +117,7 @@ class Image(BaseImage, Renderable=_NoopRenderable):
             sixel_options: Sixel encoding options.  When ``None``, falls back to
                 ``self.DEFAULT_OPTIONS``.
         """
-        super().__init__(
-            image=image,
-            name=name,
-            id=id,
-            classes=classes,
-            disabled=disabled,
-        )
+        super().__init__(image=image, name=name, id=id, classes=classes, disabled=disabled, on_error=on_error)
         self._sixel_options = sixel_options if sixel_options is not None else self.DEFAULT_OPTIONS
 
     @override
