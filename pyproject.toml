@@ -1,6 +1,10 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["uv_build~=0.11"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = 'textual_image'
+module-root = ''
 
 [project]
 name = "textual-image"
@@ -22,9 +26,6 @@ classifiers = [
     "Topic :: Software Development :: Libraries",
     "Topic :: Software Development :: User Interfaces",
 
-    "License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)",
-    "License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)",
-
     "Operating System :: POSIX :: Linux",
 
     "Programming Language :: Python :: 3",
@@ -34,6 +35,7 @@ classifiers = [
 
     "Typing :: Typed",
 ]
+license = "LGPL-3.0-or-later"
 
 dependencies = [
     "pillow>=10.3.0",
@@ -77,9 +79,6 @@ update_changelog_on_bump = true
 changelog_file = "CHANGELOG.md"
 version_files = ["pyproject.toml:project.version"]
 bump_message = "chore(release): bump version to $new_version"
-
-[tool.hatch.build.targets.wheel]
-packages = ["textual_image"]
 
 [tool.ruff]
 lint.select = ["A", "ANN", "C", "E", "F", "FIX", "I", "N", "PTH", "T", "TC", "Q"]
