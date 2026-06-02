@@ -90,3 +90,24 @@ async def test_on_error_callback() -> None:
         widget = app.query_one(Image).children[0]
         assert isinstance(widget, Static)
         assert widget.content == "embedded null byte"
+
+
+@skipUnless(TEXTUAL_ENABLED, "Textual support disabled")
+async def test_raise_without_on_error() -> None:
+    from textual.app import App, ComposeResult
+
+    from textual_image.widget import Image
+
+    class TestApp(App[None]):
+        def compose(self) -> ComposeResult:
+            yield Image()
+
+    app = TestApp()
+
+    try:
+        async with app.run_test():
+            app.query_one(Image).image = TEST_IMAGE.read_bytes()
+    except Exception:
+        pass
+    else:
+        assert False
