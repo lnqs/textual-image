@@ -4,7 +4,7 @@ import io
 from typing import IO, Callable, Literal, Tuple, Type, cast
 
 from PIL import Image as PILImage
-from textual.app import RenderResult
+from textual.app import ComposeResult, RenderResult
 from textual.css.styles import RenderStyles
 from textual.geometry import Size
 from textual.widget import Widget
@@ -136,7 +136,7 @@ class Image(Widget):
         return self._renderable
 
     @override
-    def compose(self):
+    def compose(self) -> ComposeResult:
         if self._error_widget:
             yield self._error_widget
 
