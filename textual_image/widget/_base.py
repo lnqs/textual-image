@@ -29,7 +29,7 @@ class Image(Widget):
         can_focus: bool | None = None,
         can_focus_children: bool | None = None,
         inherit_css: bool = True,
-        inherit_bindings: bool = True
+        inherit_bindings: bool = True,
     ) -> None:
         """Initializes sub classes.
 
@@ -52,7 +52,7 @@ class Image(Widget):
         id: str | None = None,
         classes: str | None = None,
         disabled: bool = False,
-        on_error: Callable[[Exception], Widget] | None = None
+        on_error: Callable[[Exception], Widget] | None = None,
     ) -> None:
         """Initializes the `Image`.
 
@@ -106,7 +106,7 @@ class Image(Widget):
                 PILImage.UnidentifiedImageError,
                 OSError,  # OSError catches truncated images, FileNotFoundError and PermisionError
                 ValueError,  # If user passed non-image
-                EOFError
+                EOFError,
             ) as e:
                 if self.on_error is not None:
                     self._error_widget = self.on_error(e)
