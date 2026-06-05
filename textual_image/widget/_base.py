@@ -4,6 +4,7 @@ import io
 from typing import IO, Callable, Literal, Tuple, Type, cast
 
 from PIL import Image as PILImage
+from PIL import UnidentifiedImageError
 from textual.app import ComposeResult, RenderResult
 from textual.css.styles import RenderStyles
 from textual.geometry import Size
@@ -103,7 +104,7 @@ class Image(Widget):
             try:
                 pixel_meta = PixelMeta(self._image)
             except (
-                PILImage.UnidentifiedImageError,
+                UnidentifiedImageError,
                 OSError,  # OSError catches truncated images, FileNotFoundError and PermissionError
                 ValueError,  # If user passed non-image
                 EOFError
