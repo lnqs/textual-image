@@ -16,6 +16,9 @@ from textual_image.renderable import (
     Image as AutoRenderable,
 )
 from textual_image.renderable import (
+    KittyImage as KittyRenderable,
+)
+from textual_image.renderable import (
     SixelImage as SixelRenderable,
 )
 from textual_image.renderable import (
@@ -29,6 +32,7 @@ TEST_IMAGE = Path(__file__).parent / ".." / "gracehopper.jpg"
 
 RENDERING_METHODS = {
     "auto": AutoRenderable,
+    "kitty": KittyRenderable,
     "tgp": TGPRenderable,
     "sixel": SixelRenderable,
     "halfcell": HalfcellRenderable,
