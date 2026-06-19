@@ -11,10 +11,7 @@ TEST_IMAGE = Path(__file__).parent.parent / "textual_image" / "gracehopper.jpg"
 BROKEN_IMAGE = Path(__file__).parent.parent / "textual_image" / "broken.png"
 
 
-CELL_SIZE = CellSize(
-    width=10,
-    height=20
-)
+CELL_SIZE = CellSize(width=10, height=20)
 
 CONSOLE_OPTIONS = ConsoleOptions(
     size=ConsoleDimensions(120, 58),
@@ -23,5 +20,5 @@ CONSOLE_OPTIONS = ConsoleOptions(
     max_width=20,
     is_terminal=True,
     encoding="utf-8",
-    max_height=20
+    max_height=20,
 )
