@@ -7,7 +7,7 @@ from rich.console import Console
 from rich.measure import Measurement
 from rich.segment import Segment
 
-from tests.data import CONSOLE_OPTIONS, TEST_IMAGE, TEXTUAL_ENABLED
+from tests.data import BROKEN_IMAGE, CONSOLE_OPTIONS, TEST_IMAGE, TEXTUAL_ENABLED
 from tests.utils import load_non_seekable_bytes_io
 
 
@@ -173,3 +173,43 @@ async def test_render_lines_clears_widget_area_before_sixel() -> None:
             assert str(clear_segment.style) == "on #ff0000"
 
         assert any(segment.text == "SIXEL" for segment in lines[-1]._segments)
+
+
+@skipUnless(TEXTUAL_ENABLED, "Textual support disabled")
+async def test_on_error_callback() -> None:
+    from textual.app import App, ComposeResult
+    from textual.widgets import Static
+
+    from textual_image.widget import SixelImage
+
+    class TestApp(App[None]):
+        def compose(self) -> ComposeResult:
+            yield SixelImage(BROKEN_IMAGE, on_error=lambda e: Static(str(e)))
+
+    app = TestApp()
+
+    async with app.run_test():
+        widget = app.query_one(SixelImage).children[0]
+        assert isinstance(widget, Static)
+        assert widget.content == "image file is truncated"
+
+
+@skipUnless(TEXTUAL_ENABLED, "Textual support disabled")
+async def test_raise_without_on_error() -> None:
+    from textual.app import App, ComposeResult
+
+    from textual_image.widget import SixelImage
+
+    class TestApp(App[None]):
+        def compose(self) -> ComposeResult:
+            yield SixelImage(BROKEN_IMAGE)
+
+    app = TestApp()
+
+    try:
+        async with app.run_test():
+            app.refresh(recompose=True)
+    except Exception:
+        pass
+    else:
+        assert False

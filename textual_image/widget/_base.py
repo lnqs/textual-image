@@ -30,7 +30,7 @@ class Image(Widget):
         can_focus: bool | None = None,
         can_focus_children: bool | None = None,
         inherit_css: bool = True,
-        inherit_bindings: bool = True,
+        inherit_bindings: bool = True
     ) -> None:
         """Initializes sub classes.
 
@@ -53,7 +53,7 @@ class Image(Widget):
         id: str | None = None,
         classes: str | None = None,
         disabled: bool = False,
-        on_error: Callable[[Exception], Widget] | None = None,
+        on_error: Callable[[Exception], Widget] | None = None
     ) -> None:
         """Initializes the `Image`.
 
@@ -107,7 +107,7 @@ class Image(Widget):
                 UnidentifiedImageError,
                 OSError,  # OSError catches truncated images, FileNotFoundError and PermissionError
                 ValueError,  # If user passed non-image
-                EOFError,
+                EOFError
             ) as e:
                 if self.on_error is not None:
                     self._error_widget = self.on_error(e)
@@ -133,7 +133,15 @@ class Image(Widget):
             self._renderable.cleanup()
             self._renderable = None
 
-        self._renderable = self._Renderable(self._image, *self._get_styled_size())
+        try:
+            self._renderable = self._Renderable(self._image, *self._get_styled_size())
+        except OSError as e:
+            if self.on_error is not None:
+                self._error_widget = self.on_error(e)
+                self.refresh(recompose=True)  # render happens after composing, so we need to manually recompose
+                return ""
+            else:
+                raise e
         return self._renderable
 
     @override
