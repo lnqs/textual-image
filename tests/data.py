@@ -8,7 +8,7 @@ from textual_image._terminal import CellSize
 TEXTUAL_ENABLED = bool(find_spec("textual"))
 
 TEST_IMAGE = Path(__file__).parent.parent / "textual_image" / "gracehopper.jpg"
-BROKEN_IMAGE = Path(__file__).parent.parent / "textual_image" / "broken.png"
+BROKEN_IMAGE = Path(__file__).parent.parent / "textual_image" / "broken.jpg"
 
 
 CELL_SIZE = CellSize(width=10, height=20)
