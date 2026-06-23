@@ -129,7 +129,7 @@ async def test_on_error_callback_in_render() -> None:
     async with app.run_test():
         widget = app.query_one(Image).children[0]
         assert isinstance(widget, Static)
-        assert widget.content.startswith("image file is truncated")
+        assert str(widget.content).startswith("image file is truncated")
 
 
 @skipUnless(TEXTUAL_ENABLED, "Textual support disabled")
