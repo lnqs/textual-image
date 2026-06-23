@@ -133,7 +133,15 @@ class Image(Widget):
             self._renderable.cleanup()
             self._renderable = None
 
-        self._renderable = self._Renderable(self._image, *self._get_styled_size())
+        try:
+            self._renderable = self._Renderable(self._image, *self._get_styled_size())
+        except OSError as e:
+            if self.on_error is not None:
+                self._error_widget = self.on_error(e)
+                self.refresh(recompose=True)  # render happens after composing, so we need to manually recompose
+                return ""
+            else:
+                raise e
         return self._renderable
 
     @override

@@ -3,7 +3,7 @@ from unittest import skipUnless
 from PIL import Image as PILImage
 from PIL import ImageOps
 
-from tests.data import TEST_IMAGE, TEXTUAL_ENABLED
+from tests.data import BROKEN_IMAGE, TEST_IMAGE, TEXTUAL_ENABLED
 from tests.utils import load_non_seekable_bytes_io
 
 
@@ -72,7 +72,7 @@ def test_render_without_image() -> None:
 
 
 @skipUnless(TEXTUAL_ENABLED, "Textual support disabled")
-async def test_on_error_callback() -> None:
+async def test_on_error_callback_in_image_setter() -> None:
     from textual.app import App, ComposeResult
     from textual.widgets import Static
 
@@ -93,7 +93,7 @@ async def test_on_error_callback() -> None:
 
 
 @skipUnless(TEXTUAL_ENABLED, "Textual support disabled")
-async def test_raise_without_on_error() -> None:
+async def test_raise_without_on_error_in_image_setter() -> None:
     from textual.app import App, ComposeResult
 
     from textual_image.widget import Image
@@ -107,6 +107,46 @@ async def test_raise_without_on_error() -> None:
     try:
         async with app.run_test():
             app.query_one(Image).image = TEST_IMAGE.read_bytes()
+    except Exception:
+        pass
+    else:
+        assert False
+
+
+@skipUnless(TEXTUAL_ENABLED, "Textual support disabled")
+async def test_on_error_callback_in_render() -> None:
+    from textual.app import App, ComposeResult
+    from textual.widgets import Static
+
+    from textual_image.widget import Image
+
+    class TestApp(App[None]):
+        def compose(self) -> ComposeResult:
+            yield Image(BROKEN_IMAGE, on_error=lambda e: Static(str(e)))
+
+    app = TestApp()
+
+    async with app.run_test():
+        widget = app.query_one(Image).children[0]
+        assert isinstance(widget, Static)
+        assert str(widget.content).startswith("image file is truncated")
+
+
+@skipUnless(TEXTUAL_ENABLED, "Textual support disabled")
+async def test_raise_without_on_error_in_render() -> None:
+    from textual.app import App, ComposeResult
+
+    from textual_image.widget import Image
+
+    class TestApp(App[None]):
+        def compose(self) -> ComposeResult:
+            yield Image(BROKEN_IMAGE)
+
+    app = TestApp()
+
+    try:
+        async with app.run_test():
+            app.refresh(recompose=True)
     except Exception:
         pass
     else:
