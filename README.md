@@ -38,6 +38,7 @@ See the Support Matrix below on what was tested already.
 | Windows Console     |          ❌ |            ❌ |                          |
 | Windows Terminal    |          ❌ |            ✅ |                       ✅ |
 | xterm               |          ❌ |            ✅ |                       ✅ |
+| Ghostty             |          ✅ |            ❌ |                       ✅ |
 
 ✅ = Supported; ❌ = Not Supported; ⚠️ = Requires additional terminal/tmux configuration
 
@@ -192,6 +193,15 @@ Alternatively, you can add these options to your xterm configuration file (`~/.X
 echo 'XTerm*decTerminalID: vt340' >> ~/.Xresources
 xrdb -merge ~/.Xresources
 ```
+### Ghostty
+
+**Homepage**: https://ghostty.org/
+**TGP support**: Yes  
+**Sixel support**: No  
+**Works**: Yes
+
+**Notes:**  
+Works out of the box.
 
 ## Installation
 
