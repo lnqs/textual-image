@@ -31,7 +31,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         ref: main
         fetch-depth: 0
@@ -106,7 +106,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         ref: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_tag || format('v{0}', needs.release.outputs.released_version) }}
 
