@@ -283,9 +283,11 @@ For integration with Textual, _textual-image_ offers a Textual `Widget` to rende
 from textual.app import App, ComposeResult
 from textual_image.widget import Image
 
+
 class ImageApp(App[None]):
     def compose(self) -> ComposeResult:
         yield Image("path/to/image.png")
+
 
 ImageApp().run()
 ```
@@ -298,11 +300,13 @@ You can also set the image using the `image` property of an `Image` instance:
 from textual.app import App, ComposeResult
 from textual_image.widget import Image
 
+
 class ImageApp(App[None]):
     def compose(self) -> ComposeResult:
         image = Image()
         image.image = "path/to/image.png"
         yield image
+
 
 ImageApp().run()
 ```
