@@ -12,8 +12,12 @@ def close_stdin() -> Iterator[None]:
         yield
 
 
-@fixture(scope="session", autouse=True)
-def mock_cell_size() -> None:
-    from textual_image._terminal import CellSize, get_cell_size
+@fixture(autouse=True)
+def mock_terminal_capabilities() -> None:
+    from textual_image._terminal import CellSize, TerminalCapabilities, probe_terminal
 
-    setattr(get_cell_size, "_result", CellSize(10, 20))
+    setattr(
+        probe_terminal,
+        "_result",
+        TerminalCapabilities(CellSize(10, 20), sixel=False, tgp=False),
+    )
