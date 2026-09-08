@@ -82,7 +82,7 @@ bump_message = "chore(release): bump version to $new_version"
 
 [tool.ruff]
 lint.select = ["A", "ANN", "C", "E", "F", "FIX", "I", "N", "PTH", "T", "TC", "Q"]
-lint.ignore = ["A002"]
+lint.ignore = ["A002", "C901"]
 line-length = 120
 
 [tool.ruff.lint.pydocstyle]

@@ -1,6 +1,5 @@
 """Provides a Rich Renderable to render images as Sixels (https://en.wikipedia.org/wiki/Sixel)."""
 
-import sys
 from typing import IO, ClassVar
 
 from PIL import Image as PILImage
@@ -12,7 +11,7 @@ from rich.segment import ControlType, Segment
 from textual_image._geometry import ImageSize
 from textual_image._pixeldata import PixelData
 from textual_image._sixel import SixelOptions, image_to_sixels
-from textual_image._terminal import TerminalError, capture_terminal_response, get_cell_size
+from textual_image._terminal import TerminalError, get_cell_size, probe_terminal
 from textual_image._utils import StrOrBytesPath
 
 # Random no-op control code to prevent Rich from messing with our data
@@ -108,35 +107,17 @@ class Image:
 def query_terminal_support() -> bool:
     """Queries the terminal for Sixel support.
 
-    This function returns if Sixels are supported.
-    To do so, it sends an escape sequence to the terminal and waits for the answer.
-    This is a bit flaky -- keystrokes during reading the response can lead to false answers.
-    Additionally, when TGP is *not* supported and the terminal doesn't send an answer, the first character
-    of stdin may get lost as this function reads it to determine if it is the response.
-    Anyway, as this is improbable to happen, it should be fine. There doesn't seem to be another way to
-    get this information.
-
-    Please not this function will not work anymore once Textual is started. Textual runs a threads to read stdin
+    Uses the shared terminal capability probe (batched with TGP and cell-size queries).
+    Please note this function will not work anymore once Textual is started. Textual runs a thread to read stdin
     and will grab the response.
 
     Returns:
         True if Sixel is supported, False if not
     """
-    if not sys.__stdout__:
-        return False
-
     try:
-        with capture_terminal_response(start_marker="\x1b[?", end_marker="c", timeout=0.1) as response:
-            sys.__stdout__.write("\x1b[c")
-            sys.__stdout__.flush()
-
-        sequence = response.sequence[len("\x1b[?") : -len("c")]
-        return "4" in sequence.split(";")
-
-    except (TerminalError, TimeoutError):
-        pass
-
-    return False
+        return probe_terminal().sixel
+    except TerminalError:
+        return False
 
 
 __all__ = ["Image", "SixelOptions", "query_terminal_support"]

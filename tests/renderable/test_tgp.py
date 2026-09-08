@@ -1,7 +1,4 @@
-from contextlib import contextmanager
 from itertools import repeat
-from types import SimpleNamespace
-from typing import Iterator
 from unittest.mock import patch
 
 from pytest import raises
@@ -88,30 +85,20 @@ def test_send_tgp_message() -> None:
 
 
 def test_query_terminal_support() -> None:
-    from textual_image.renderable.tgp import _TGP_MESSAGE_END, _TGP_MESSAGE_START, query_terminal_support
+    from textual_image._terminal import CellSize, TerminalCapabilities, TerminalError
+    from textual_image.renderable.tgp import query_terminal_support
 
-    @contextmanager
-    def response_success(start_marker: str, end_marker: str, timeout: float | None = None) -> Iterator[SimpleNamespace]:
-        yield SimpleNamespace(sequence=f"{_TGP_MESSAGE_START}d=1;OK{_TGP_MESSAGE_END}")
+    with patch(
+        "textual_image.renderable.tgp.probe_terminal",
+        return_value=TerminalCapabilities(CellSize(10, 20), sixel=False, tgp=True),
+    ):
+        assert query_terminal_support()
 
-    @contextmanager
-    def response_failure(start_marker: str, end_marker: str, timeout: float | None = None) -> Iterator[SimpleNamespace]:
-        yield SimpleNamespace(sequence=f"{_TGP_MESSAGE_START}d=1;FAIL{_TGP_MESSAGE_END}")
+    with patch(
+        "textual_image.renderable.tgp.probe_terminal",
+        return_value=TerminalCapabilities(CellSize(10, 20), sixel=False, tgp=False),
+    ):
+        assert not query_terminal_support()
 
-    @contextmanager
-    def response_exception(
-        start_marker: str, end_marker: str, timeout: float | None = None
-    ) -> Iterator[SimpleNamespace]:
-        raise TimeoutError()
-
-    with patch("textual_image.renderable.tgp.capture_terminal_response", response_success):
-        with patch("textual_image.renderable.tgp._send_tgp_message"):
-            assert query_terminal_support()
-
-    with patch("textual_image.renderable.tgp.capture_terminal_response", response_failure):
-        with patch("textual_image.renderable.tgp._send_tgp_message"):
-            assert not query_terminal_support()
-
-    with patch("textual_image.renderable.tgp.capture_terminal_response", response_exception):
-        with patch("textual_image.renderable.tgp._send_tgp_message"):
-            assert not query_terminal_support()
+    with patch("textual_image.renderable.tgp.probe_terminal", side_effect=TerminalError()):
+        assert not query_terminal_support()
