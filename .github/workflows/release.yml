@@ -66,24 +66,27 @@ jobs:
         fi
 
         set +e
-        uv run cz bump --check
+        uv run cz bump --dry-run
         check_code=$?
         set -e
 
-        if [ "$check_code" -ne 0 ]; then
-          echo "No release needed (exit ${check_code})"
+        if [ "$check_code" -eq 21 ]; then
+          echo "No release needed"
           exit 0
+        elif [ "$check_code" -ne 0 ]; then
+          echo "cz bump --dry-run failed (exit ${check_code})"
+          exit 1
         fi
 
-        uv run cz bump --yes --changelog
+        uv run cz bump --yes --changelog --version-files-only
         uv lock
-        git add uv.lock
-        if ! git diff --staged --quiet; then
-          git commit --amend --no-edit
-        fi
-        git push origin main --follow-tags
 
         version=$(uv run python -c "import tomllib; print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")
+        git add pyproject.toml CHANGELOG.md uv.lock
+        git commit -m "chore(release): bump version to ${version}"
+        git tag "v${version}"
+        git push origin main --follow-tags
+
         echo "released_version=${version}" >> "$GITHUB_OUTPUT"
 
   publish:
@@ -102,7 +105,7 @@ jobs:
 
     permissions:
       id-token: write
-      contents: read
+      contents: write
 
     steps:
     - name: Checkout
@@ -120,3 +123,37 @@ jobs:
 
     - name: Publish
       uses: pypa/gh-action-pypi-publish@release/v1
+
+    - name: Create GitHub Release
+      env:
+        GH_TOKEN: ${{ github.token }}
+        TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_tag || format('v{0}', needs.release.outputs.released_version) }}
+      run: |
+        version="${TAG#v}"
+        notes_file="$(mktemp)"
+
+        set +e
+        python3 - "$version" "$notes_file" <<'PY'
+        import re
+        import sys
+        from pathlib import Path
+
+        version, notes_path = sys.argv[1], sys.argv[2]
+        changelog = Path("CHANGELOG.md").read_text(encoding="utf-8")
+        pattern = rf"^## (?:\[{re.escape(version)}\]|v?{re.escape(version)}\b).*?(?=^## |\Z)"
+        match = re.search(pattern, changelog, flags=re.MULTILINE | re.DOTALL)
+        if match:
+            Path(notes_path).write_text(match.group(0).strip() + "\n", encoding="utf-8")
+            sys.exit(0)
+        sys.exit(1)
+        PY
+        notes_ok=$?
+        set -e
+
+        if gh release view "$TAG" >/dev/null 2>&1; then
+          gh release upload "$TAG" dist/* --clobber
+        elif [ "$notes_ok" -eq 0 ]; then
+          gh release create "$TAG" dist/* --title "$TAG" --notes-file "$notes_file"
+        else
+          gh release create "$TAG" dist/* --title "$TAG" --generate-notes
+        fi
