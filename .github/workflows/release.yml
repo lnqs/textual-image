@@ -66,16 +66,18 @@ jobs:
         fi
 
         set +e
-        uv run cz bump --check
-        check_code=$?
+        uv run cz bump --yes
+        bump_code=$?
         set -e
 
-        if [ "$check_code" -ne 0 ]; then
-          echo "No release needed (exit ${check_code})"
+        if [ "$bump_code" -eq 21 ]; then
+          echo "No release needed"
           exit 0
+        elif [ "$bump_code" -ne 0 ]; then
+          echo "Release failed (exit ${bump_code})"
+          exit "$bump_code"
         fi
 
-        uv run cz bump --yes --changelog
         uv lock
         git add uv.lock
         if ! git diff --staged --quiet; then
