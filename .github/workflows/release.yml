@@ -94,3 +94,19 @@ jobs:
     - name: Publish
       if: steps.release.outputs.released_version != ''
       uses: pypa/gh-action-pypi-publish@release/v1
+
+    - name: Create GitHub Release
+      if: steps.release.outputs.released_version != ''
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        version="${{ steps.release.outputs.released_version }}"
+        awk -v ver="$version" '
+          $0 ~ "^## \\[" ver "\\]" { found=1; next }
+          found && /^## / { exit }
+          found { print }
+        ' CHANGELOG.md > /tmp/release-notes.md
+        gh release create "v${version}" \
+          --title "v${version}" \
+          --notes-file /tmp/release-notes.md \
+          dist/*
