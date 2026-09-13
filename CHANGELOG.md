@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.14.0 (2026-09-13)
+
+### Feat
+
+- **widget**: add on_error callback support (#129)
+
+### Fix
+
+- **ci**: unblock Commitizen releases and PyPI publish
+- **terminal**: batch TGP, sixel, and cell-size probes with DA sentinel
+- gracefully hande invalid image data
+
+## v0.13.2 (2026-05-30)
+
+### Fix
+
+- **build**: include Python modules in hatchling wheel
+
 ## [0.13.2](https://github.com/lnqs/textual-image/compare/v0.13.1...v0.13.2) (2026-05-30)
 
 
