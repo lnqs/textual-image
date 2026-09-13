@@ -5,14 +5,6 @@ on:
     workflows: [CI]
     types: [completed]
     branches: [main]
-  workflow_dispatch:
-    inputs:
-      publish_tag:
-        description: Publish an existing tag (e.g. v0.13.2)
-        required: true
-
-permissions:
-  contents: write
 
 concurrency:
   group: release-main
@@ -21,13 +13,18 @@ concurrency:
 jobs:
   release:
     if: >
-      github.event_name == 'workflow_run' &&
       github.event.workflow_run.conclusion == 'success' &&
       github.event.workflow_run.event == 'push' &&
       !startsWith(github.event.workflow_run.head_commit.message, 'chore(release):')
     runs-on: ubuntu-latest
-    outputs:
-      released_version: ${{ steps.release.outputs.released_version }}
+
+    environment:
+      name: pypi
+      url: https://pypi.org/p/textual-image
+
+    permissions:
+      contents: write
+      id-token: write
 
     steps:
     - name: Checkout
@@ -42,6 +39,8 @@ jobs:
 
     - name: Install uv
       uses: astral-sh/setup-uv@v9.0.0
+      with:
+        enable-cache: true
 
     - name: Configure git
       run: |
@@ -88,37 +87,10 @@ jobs:
         version=$(uv run python -c "import tomllib; print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")
         echo "released_version=${version}" >> "$GITHUB_OUTPUT"
 
-  publish:
-    needs: [release]
-    if: >
-      always() &&
-      (
-        github.event_name == 'workflow_dispatch' ||
-        (needs.release.result == 'success' && needs.release.outputs.released_version != '')
-      )
-    runs-on: ubuntu-latest
-
-    environment:
-      name: pypi
-      url: https://pypi.org/p/textual-image
-
-    permissions:
-      id-token: write
-      contents: read
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v7
-      with:
-        ref: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_tag || format('v{0}', needs.release.outputs.released_version) }}
-
-    - name: Install uv
-      uses: astral-sh/setup-uv@v9.0.0
-      with:
-        enable-cache: true
-
     - name: Build
+      if: steps.release.outputs.released_version != ''
       run: uv build
 
     - name: Publish
+      if: steps.release.outputs.released_version != ''
       uses: pypa/gh-action-pypi-publish@release/v1
