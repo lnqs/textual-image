@@ -77,14 +77,19 @@ jobs:
           exit "$bump_code"
         fi
 
+        version=$(uv run python -c "import tomllib; print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")
+
         uv lock
         git add uv.lock
         if ! git diff --staged --quiet; then
           git commit --amend --no-edit
+          # Amend moves HEAD; retarget the tag so the push below includes it
+          git tag -f -a "v${version}" -m "v${version}"
         fi
-        git push origin main --follow-tags
 
-        version=$(uv run python -c "import tomllib; print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")
+        git push origin main
+        git push origin "v${version}"
+
         echo "released_version=${version}" >> "$GITHUB_OUTPUT"
 
     - name: Build
