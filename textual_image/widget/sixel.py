@@ -266,5 +266,5 @@ class _ImageSixelImpl(Widget, can_focus=False, inherit_css=False):
         return [
             Segment(Control.move_to(visible_region.x, visible_region.y).segment.text, style=_NULL_STYLE),
             Segment(sixel_data, style=_NULL_STYLE, control=((ControlType.CURSOR_FORWARD, 0),)),
-            Segment(Control.move_to(visible_region.right, visible_region.bottom).segment.text, style=_NULL_STYLE),
+            Segment(Control.move_to(visible_region.right, visible_region.y + visible_region.height - 1).segment.text, style=_NULL_STYLE),
         ]
