@@ -36,6 +36,7 @@ classifiers = [
     "Typing :: Typed",
 ]
 license = "LGPL-3.0-or-later"
+license-files = ["LICENSE.txt"]
 
 dependencies = [
     "pillow>=10.3.0",
