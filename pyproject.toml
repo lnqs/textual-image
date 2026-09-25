@@ -119,5 +119,6 @@ extend-ignore-identifiers-re = [
 
 [tool.typos.files]
 extend-exclude = [
+    "CHANGELOG.md",
     "tests/renderable/__snapshots__/*.ambr",
 ]
