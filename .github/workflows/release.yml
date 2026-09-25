@@ -38,7 +38,7 @@ jobs:
       run: git reset --hard "${{ github.event.workflow_run.head_sha }}"
 
     - name: Install uv
-      uses: astral-sh/setup-uv@v10.1.0
+      uses: astral-sh/setup-uv@v10.2.0
       with:
         enable-cache: true
 
