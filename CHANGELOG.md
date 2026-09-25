@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.14.1 (2026-09-25)
+
+### Fix
+
+- **build**: include LICENSE.txt in uv_build distributions
+- **ci**: retarget release tag after lockfile amend
+
 ## v0.14.0 (2026-09-13)
 
 ### Feat
