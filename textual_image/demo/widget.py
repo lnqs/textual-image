@@ -328,9 +328,9 @@ class DemoApp(App[None]):
         self.image_type = rendering_method
 
 
-def run(rendering_method: str = "auto") -> None:
+def run(rendering_method: str = "auto", transparent: bool = False) -> None:
     """Showcase textual-image's Rich renderables."""
-    app = DemoApp()
+    app = DemoApp(ansi_color=transparent)
     app.image_type = rendering_method
     app.run()
 
