@@ -176,6 +176,37 @@ async def test_render_lines_clears_widget_area_before_sixel() -> None:
 
 
 @skipUnless(TEXTUAL_ENABLED, "Textual support disabled")
+async def test_sixel_segments_leave_cursor_on_last_row() -> None:
+    # Textual's LayoutUpdate (e.g. the full redraw after a modal screen is dismissed) writes each line
+    # without repositioning between widget strips. The cursor must stay on the image's last row,
+    # otherwise the rest of that line is written one row too low and the row keeps stale content.
+    from rich.control import Control
+    from textual.app import App, ComposeResult
+
+    from textual_image.widget.sixel import Image, _ImageSixelImpl
+
+    class TestApp(App[None]):
+        CSS = """
+        Image {
+            width: 4;
+            height: 3;
+        }
+        """
+
+        def compose(self) -> ComposeResult:
+            yield Image(PILImage.new("RGB", (2, 2)))
+
+    app = TestApp()
+
+    async with app.run_test():
+        sixel_impl = app.query_one(_ImageSixelImpl)
+        region = app.screen.find_widget(sixel_impl).visible_region
+        segments = list(sixel_impl._get_sixel_segments("SIXEL"))
+
+        assert segments[-1].text == Control.move_to(region.right, region.bottom - 1).segment.text
+
+
+@skipUnless(TEXTUAL_ENABLED, "Textual support disabled")
 async def test_on_error_callback() -> None:
     from textual.app import App, ComposeResult
     from textual.widgets import Static
