@@ -263,8 +263,11 @@ class _ImageSixelImpl(Widget, can_focus=False, inherit_css=False):
 
     def _get_sixel_segments(self, sixel_data: str) -> Iterable[Segment]:
         visible_region = self.screen.find_widget(self).visible_region
+        # Leave the cursor right of the image on its last row, where the line continues. Textual's
+        # LayoutUpdate writes a whole line without repositioning between widget strips.
+        last_row = visible_region.bottom - 1
         return [
             Segment(Control.move_to(visible_region.x, visible_region.y).segment.text, style=_NULL_STYLE),
             Segment(sixel_data, style=_NULL_STYLE, control=((ControlType.CURSOR_FORWARD, 0),)),
-            Segment(Control.move_to(visible_region.right, visible_region.bottom).segment.text, style=_NULL_STYLE),
+            Segment(Control.move_to(visible_region.right, last_row).segment.text, style=_NULL_STYLE),
         ]
