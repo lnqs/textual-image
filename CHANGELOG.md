@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.14.2 (2026-10-20)
+
+### Fix
+
+- **widget**: keep cursor on last image row after sixel output
+
 ## v0.14.1 (2026-09-25)
 
 ### Fix
