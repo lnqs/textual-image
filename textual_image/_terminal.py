@@ -1,5 +1,6 @@
 """Functionality to interact with the terminal."""
 
+import io
 import logging
 import os
 import re
@@ -111,7 +112,7 @@ def probe_terminal() -> TerminalCapabilities:
             sixel, tgp, queried_width, queried_height = _parse_probe_response(response.sequence)
             if need_cell_size_query and queried_width and queried_height:
                 width, height = queried_width, queried_height
-        except (TerminalError, TimeoutError) as e:
+        except (TerminalError, TimeoutError, OSError, io.UnsupportedOperation) as e:
             logger.warning("Failed to probe terminal capabilities", exc_info=e)
 
     if height == 0 or width == 0:
