@@ -31,9 +31,9 @@ def read(fd: int, length: int, timeout: float | None = None) -> str:
 @contextmanager
 def capture_mode() -> Iterator[None]:
     if not sys.__stdin__:
-        raise Win32TerminalError("stdout is closed")
+        raise Win32TerminalError("stdin is closed")
 
-    stdin = sys.stdin.buffer.fileno()
+    stdin = sys.__stdin__.buffer.fileno()
 
     original_mode = get_console_mode(stdin)
     set_console_mode(stdin, 0x0200)  # ENABLE_VIRTUAL_TERMINAL_INPUT
