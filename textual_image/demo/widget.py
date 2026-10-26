@@ -15,7 +15,7 @@ from textual.screen import ModalScreen
 from textual.widgets import Button, Footer, Header, Input, Label, OptionList, Select, TabbedContent, TabPane
 from textual.widgets.option_list import Option
 
-from textual_image.widget import HalfcellImage, SixelImage, TGPImage, UnicodeImage
+from textual_image.widget import HalfcellImage, KittyImage, SixelImage, TGPImage, UnicodeImage
 from textual_image.widget import Image as AutoImage
 
 TEST_IMAGE = Path(__file__).parent / ".." / "gracehopper.jpg"
@@ -23,6 +23,7 @@ TEST_IMAGE = Path(__file__).parent / ".." / "gracehopper.jpg"
 
 RENDERING_METHODS = {
     "auto": AutoImage,
+    "kitty": KittyImage,
     "tgp": TGPImage,
     "sixel": SixelImage,
     "halfcell": HalfcellImage,
@@ -317,14 +318,18 @@ class DemoApp(App[None]):
     def action_select_rendering_method(self) -> None:
         """Shows a modal to select the rendering method."""
         assert self.image_type
-        self.push_screen(RenderingMethodSelectionScreen(self.image_type), lambda m: self.set_rendering_method(m))
+        self.push_screen(
+            RenderingMethodSelectionScreen(cast(str, self.image_type)), lambda m: self.set_rendering_method(m)
+        )
 
-    def set_rendering_method(self, rendering_method: str) -> None:
+    def set_rendering_method(self, rendering_method: str | None) -> None:
         """Sets the rendering method.
 
         Args:
             rendering_method: Rendering method to use.
         """
+        if rendering_method is None:
+            return
         self.image_type = rendering_method
 
 
