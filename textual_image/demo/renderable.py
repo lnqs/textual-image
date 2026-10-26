@@ -16,6 +16,9 @@ from textual_image.renderable import (
     Image as AutoRenderable,
 )
 from textual_image.renderable import (
+    ITerm2Image as ITerm2Renderable,
+)
+from textual_image.renderable import (
     SixelImage as SixelRenderable,
 )
 from textual_image.renderable import (
@@ -31,6 +34,7 @@ RENDERING_METHODS = {
     "auto": AutoRenderable,
     "tgp": TGPRenderable,
     "sixel": SixelRenderable,
+    "iterm2": ITerm2Renderable,
     "halfcell": HalfcellRenderable,
     "unicode": UnicodeRenderable,
 }

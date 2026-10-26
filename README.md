@@ -14,6 +14,7 @@ _textual-image_ offers both Rich renderables and Textual Widgets that leverage t
 
 - **Terminal Graphics Protocol (TGP)**: Initially introduced by the [Kitty](https://sw.kovidgoyal.net/kitty/) terminal emulator. While support is partially available in other terminals, it doesn't seem to be really usable there.
 - **Sixel Graphics**: Supported by various terminal emulators including [xterm](https://invisible-island.net/xterm/) and a lot of others.
+- **iTerm2 Inline Images Protocol**: Originally developed for [iTerm2](https://iterm2.com/), this protocol is now supported by several other terminal emulators for displaying inline images.
 
 _Note_: As implementation of these protocols differ a lot feedback on different terminal emulators is very welcome.
 
@@ -23,21 +24,21 @@ See the Support Matrix below on what was tested already.
 
 [^1]: Based on [Are We Sixel Yet?](https://www.arewesixelyet.com/)
 
-| Terminal            | TGP support | Sixel support | Works with textual-image |
-|---------------------|:-----------:|:-------------:|:------------------------:|
-| Black Box           |          ❌ |            ✅ |                       ✅ |
-| foot                |          ❌ |            ✅ |                       ✅ |
-| GNOME Terminal      |          ❌ |            ❌ |                          |
-| iTerm2              |          ❌ |            ✅ |                       ✅ |
-| kitty               |          ✅ |            ❌ |                       ✅ |
-| konsole             |          ✅ |            ✅ |                       ✅ |
-| tmux                |          ⚠️ |            ✅ |                       ✅ |
-| Visual Studio Code  |          ❌ |            ✅ |                       ✅ |
-| Warp                |          ❌ |            ❌ |                       ❌ |
-| wezterm             |          ✅ |            ✅ |                       ✅ |
-| Windows Console     |          ❌ |            ❌ |                          |
-| Windows Terminal    |          ❌ |            ✅ |                       ✅ |
-| xterm               |          ❌ |            ✅ |                       ✅ |
+| Terminal            | TGP support | Sixel support | iTerm2 support | Works with textual-image |
+|---------------------|:-----------:|:-------------:|:--------------:|:------------------------:|
+| Black Box           |          ❌ |            ✅ |             ❌ |                       ✅ |
+| foot                |          ❌ |            ✅ |             ✅ |                       ✅ |
+| GNOME Terminal      |          ❌ |            ❌ |             ❌ |                          |
+| iTerm2              |          ❌ |            ✅ |             ✅ |                       ✅ |
+| kitty               |          ✅ |            ❌ |             ❌ |                       ✅ |
+| konsole             |          ✅ |            ✅ |             ✅ |                       ✅ |
+| tmux                |          ⚠️ |            ✅ |             ⚠️ |                       ✅ |
+| Visual Studio Code  |          ❌ |            ✅ |             ✅ |                       ✅ |
+| Warp                |          ❌ |            ❌ |             ❌ |                       ❌ |
+| wezterm             |          ✅ |            ✅ |             ✅ |                       ✅ |
+| Windows Console     |          ❌ |            ❌ |             ❌ |                          |
+| Windows Terminal    |          ❌ |            ✅ |             ❌ |                       ✅ |
+| xterm               |          ❌ |            ✅ |             ❌ |                       ✅ |
 
 ✅ = Supported; ❌ = Not Supported; ⚠️ = Requires additional terminal/tmux configuration
 
@@ -46,6 +47,7 @@ See the Support Matrix below on what was tested already.
 **Homepage**: https://gitlab.gnome.org/raggesilver/blackbox  
 **TGP support**: No  
 **Sixel support**: Yes  
+**iTerm2 support**: No
 **Works**: Yes
 
 **Notes**:  
@@ -59,6 +61,7 @@ This is the case for the Flatpak version of BlackBox, but not on most Linux dist
 **Homepage**: https://codeberg.org/dnkl/foot  
 **TGP support**: No  
 **Sixel support**: Yes  
+**iTerm2 support**: Yes
 **Works**: Yes
 
 **Notes:**  
@@ -69,6 +72,7 @@ Works out of the box, no known issues.
 **Homepage**: https://gitlab.gnome.org/GNOME/gnome-terminal  
 **TGP support**: No  
 **Sixel support**: No  
+**iTerm2 support**: No
 **Works**: No
 
 **Notes:**  
@@ -79,6 +83,7 @@ Relies on VTE Sixel implementation (<https://gitlab.gnome.org/GNOME/vte/-/issues
 **Homepage**: https://iterm2.com/  
 **TGP support**: No  
 **Sixel support**: Yes  
+**iTerm2 support**: Yes
 **Works**: Yes
 
 **Notes:**  
@@ -89,6 +94,7 @@ Works out of the box.
 **Homepage**: https://sw.kovidgoyal.net/kitty/  
 **TGP support**: Yes  
 **Sixel support**: No  
+**iTerm2 support**: No
 **Works**: Yes
 
 **Notes:**  
@@ -99,6 +105,7 @@ Works out of the box.
 **Homepage**: https://konsole.kde.org/  
 **TGP support**: Partially  
 **Sixel support**: Yes  
+**iTerm2 support**: Yes
 **Works**: Yes
 
 **Notes:**  
@@ -109,10 +116,11 @@ TGP support is not in a usable state. However, Sixel is working out of the box w
 **Homepage**: https://github.com/tmux/tmux/wiki  
 **TGP support**: Via passthrough  
 **Sixel support**: Yes  
+**iTerm2 support**: Via passthrough
 **Works**: Partially
 
 **Notes:**  
-tmux does not render TGP itself, but TGP can work when tmux passes the Kitty graphics control sequences through to a TGP-enabled outer terminal and preserves truecolor output. Sixel should use tmux's native Sixel support instead, which requires tmux to know that the outer terminal supports Sixel.
+tmux does not render TGP or iTerm2 inline images itself, but these protocols can work when tmux passes the control sequences through to a compatible outer terminal and preserves truecolor output. Sixel should use tmux's native Sixel support instead, which requires tmux to know that the outer terminal supports Sixel.
 
 For a broad setup, add this to `.tmux.conf`, then restart tmux or reload the config:
 
@@ -128,16 +136,18 @@ If you prefer a narrower rule, replace `*` with the terminal name shown by `tmux
 **Homepage**: https://code.visualstudio.com/  
 **TGP support**: No  
 **Sixel support**: Yes  
+**iTerm2 support**: Yes
 **Works**: Yes
 
 **Notes:**  
-The `terminal.integrated.enableImages` setting has to be enabled.
+The `terminal.integrated.enableImages` setting has to be enabled for Sixel support. iTerm2 inline image protocol works out of the box.
 
 ### Warp
 
 **Homepage**: https://www.warp.dev/  
 **TGP support**: No  
 **Sixel support**: No  
+**iTerm2 support**: No
 **Works**: No
 
 **Notes:**  
@@ -148,6 +158,7 @@ Warp partially supports TGP and reports so when queried for it. But as it does n
 **Homepage**: https://wezfurlong.org/wezterm/index.html  
 **TGP support**: No  
 **Sixel support**: Yes  
+**iTerm2 support**: Yes
 **Works**: Yes
 
 **Notes:**  
@@ -157,6 +168,7 @@ Works out of the box.
 
 **TGP support**: No  
 **Sixel support**: No  
+**iTerm2 support**: No
 **Works**: No
 
 **Notes:**  
@@ -167,6 +179,7 @@ Windows Console and Windows Terminal are two different pieces of software. The l
 **Homepage**: https://github.com/microsoft/terminal  
 **TGP support**: No  
 **Sixel support**: Yes  
+**iTerm2 support**: No
 **Works**: Yes
 
 **Notes:**  
@@ -177,6 +190,7 @@ Sixel support was added in version 1.22, please make sure you're on that version
 **Homepage**: https://invisible-island.net/xterm/  
 **TGP support**: No  
 **Sixel support**: Yes  
+**iTerm2 support**: No
 **Works**: Yes
 
 **Notes:**  
