@@ -19,7 +19,7 @@ from typing_extensions import override
 
 from textual_image._geometry import ImageSize
 from textual_image._pixeldata import PixelData
-from textual_image._sixel import BackgroundColor, SixelOptions, image_to_sixels
+from textual_image._sixel import BackgroundColor, SixelOptions, _has_transparency, image_to_sixels
 from textual_image._terminal import CellSize, get_cell_size
 from textual_image._utils import StrOrBytesPath
 from textual_image.widget._base import Image as BaseImage
@@ -38,6 +38,8 @@ class _CachedSixels(NamedTuple):
     sixel_options: SixelOptions | None
     background: BackgroundColor
     sixel_data: str
+    # The background only influences the encoded data of images with transparency.
+    background_matters: bool
 
     def is_hit(
         self,
@@ -54,7 +56,7 @@ class _CachedSixels(NamedTuple):
             and content_size == self.content_size
             and terminal_sizes == self.terminal_sizes
             and sixel_options == self.sixel_options
-            and background == self.background
+            and (not self.background_matters or background == self.background)
         )
 
 
@@ -216,7 +218,14 @@ class _ImageSixelImpl(Widget, can_focus=False, inherit_css=False):
 
             sixel_data = self._image_to_sixels(image_data.pil_image, self._sixel_options, background=background)
             self._cached_sixels = _CachedSixels(
-                self.image, crop, self.content_size, terminal_sizes, self._sixel_options, background, sixel_data
+                self.image,
+                crop,
+                self.content_size,
+                terminal_sizes,
+                self._sixel_options,
+                background,
+                sixel_data,
+                _has_transparency(image_data.pil_image),
             )
 
         sixel_segments = self._get_sixel_segments(sixel_data)
