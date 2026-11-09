@@ -251,6 +251,17 @@ def test_capture_until_primary_da_timeout() -> None:
                         pass
 
 
+def test_capture_until_primary_da_eof() -> None:
+    # An empty read is EOF (stdin redirected from /dev/null or NUL, exhausted pipe). It must end the probe
+    # instead of being appended forever.
+    with patch("sys.__stdin__", MagicMock()):
+        with patch("textual_image._terminal.capture_mode"):
+            with patch("textual_image._terminal.read", side_effect=["\x1b_GOK", "", ""]):
+                with raises(TerminalError):
+                    with capture_until_primary_da():
+                        pass
+
+
 def test_capture_until_primary_da_stdin_closed() -> None:
     with patch("sys.__stdin__", None):
         with raises(TerminalError):
@@ -280,6 +291,15 @@ def test_capture_terminal_response_timeout() -> None:
         with patch("textual_image._terminal.capture_mode"):
             with patch("textual_image._terminal.read", side_effect=TimeoutError()):
                 with raises(TimeoutError):
+                    with capture_terminal_response("[S]", "[E]"):
+                        pass
+
+
+def test_capture_terminal_response_eof() -> None:
+    with patch("sys.__stdin__"):
+        with patch("textual_image._terminal.capture_mode"):
+            with patch("textual_image._terminal.read", side_effect=["[S]mess", "", ""]):
+                with raises(TerminalError):
                     with capture_terminal_response("[S]", "[E]"):
                         pass
 
