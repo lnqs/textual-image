@@ -317,7 +317,16 @@ class DemoApp(App[None]):
     def action_select_rendering_method(self) -> None:
         """Shows a modal to select the rendering method."""
         assert self.image_type
-        self.push_screen(RenderingMethodSelectionScreen(self.image_type), lambda m: self.set_rendering_method(m))
+        self.push_screen(RenderingMethodSelectionScreen(self.image_type), self._on_rendering_method_selected)
+
+    def _on_rendering_method_selected(self, rendering_method: str | None) -> None:
+        """Applies the selected rendering method once the modal screen is gone.
+
+        The callback runs while the modal is still being dismissed. Recomposing the widgets that early makes Textual
+        mount their children on a screen that is being torn down, so defer it until after the next refresh.
+        """
+        if rendering_method:
+            self.call_after_refresh(self.set_rendering_method, rendering_method)
 
     def set_rendering_method(self, rendering_method: str) -> None:
         """Sets the rendering method.
