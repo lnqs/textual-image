@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.14.3 (2026-11-10)
+
+### Fix
+
+- **win32**: use sys.__stdin__ when probing under redirected stdin
+- **terminal**: end probe on stdin EOF instead of looping forever
+- **demo**: defer rendering method change until the modal is dismissed
+
 ## v0.14.2 (2026-10-20)
 
 ### Fix
