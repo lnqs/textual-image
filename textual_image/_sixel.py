@@ -145,6 +145,18 @@ def _has_transparency(image: PILImage.Image) -> bool:
     return image.mode in ("RGBA", "LA", "PA") or (image.mode == "P" and "transparency" in image.info)
 
 
+def _background_matters(image: PILImage.Image) -> bool:
+    """Check whether the background color affects the encoded data of *image*.
+
+    Only semi-transparent pixels (alpha 1-254) are composited onto the background. Fully transparent pixels are
+    masked out and fully opaque pixels are kept as they are.
+    """
+    if not _has_transparency(image):
+        return False
+    alpha_hist = image.convert("RGBA").getchannel("A").histogram()
+    return any(alpha_hist[1:255])
+
+
 def _composite_on_background(image: PILImage.Image, background: BackgroundColor) -> PILImage.Image:
     """Alpha-composite *image* onto *background*, returning an RGB image."""
     rgba = image.convert("RGBA")
