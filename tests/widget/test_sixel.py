@@ -246,75 +246,55 @@ async def test_raise_without_on_error() -> None:
         assert False
 
 
+async def _count_encodes_on_background_change(image: PILImage.Image) -> int:
+    from textual.app import App, ComposeResult
+    from textual.geometry import Region
+
+    from textual_image.widget.sixel import Image, _ImageSixelImpl
+
+    class TestApp(App[None]):
+        CSS = """
+        Image {
+            width: 4;
+            height: 3;
+            background: red;
+        }
+        """
+
+        def compose(self) -> ComposeResult:
+            yield Image(image)
+
+    app = TestApp()
+
+    async with app.run_test():
+        sixel_impl = app.query_one(_ImageSixelImpl)
+
+        sixel_impl._cached_sixels = None  # drop whatever the initial render cached
+
+        with patch.object(
+            _ImageSixelImpl, "_image_to_sixels", autospec=True, side_effect=_ImageSixelImpl._image_to_sixels
+        ) as image_to_sixels:
+            sixel_impl.render_lines(Region(0, 0, 4, 3))
+            app.query_one(Image).styles.background = "blue"
+            sixel_impl.render_lines(Region(0, 0, 4, 3))
+
+        return image_to_sixels.call_count
+
+
+# The background colour only affects the encoded data of images with semi-transparent pixels. Changing it must not
+# re-encode any other image.
+
+
 @skipUnless(TEXTUAL_ENABLED, "Textual support disabled")
 async def test_cache_ignores_background_for_opaque_image() -> None:
-    # The background colour only affects the encoded data of images with transparency. Changing it must not
-    # re-encode an opaque image.
-    from textual.app import App, ComposeResult
-    from textual.geometry import Region
-
-    from textual_image.widget.sixel import Image, _ImageSixelImpl
-
-    class TestApp(App[None]):
-        CSS = """
-        Image {
-            width: 4;
-            height: 3;
-            background: red;
-        }
-        """
-
-        def compose(self) -> ComposeResult:
-            yield Image(PILImage.new("RGB", (8, 8), (10, 20, 30)))
-
-    app = TestApp()
-
-    async with app.run_test():
-        sixel_impl = app.query_one(_ImageSixelImpl)
-
-        sixel_impl._cached_sixels = None  # drop whatever the initial render cached
-
-        with patch.object(
-            _ImageSixelImpl, "_image_to_sixels", autospec=True, side_effect=_ImageSixelImpl._image_to_sixels
-        ) as image_to_sixels:
-            sixel_impl.render_lines(Region(0, 0, 4, 3))
-            app.query_one(Image).styles.background = "blue"
-            sixel_impl.render_lines(Region(0, 0, 4, 3))
-
-        assert image_to_sixels.call_count == 1
+    assert await _count_encodes_on_background_change(PILImage.new("RGB", (8, 8), (10, 20, 30))) == 1
 
 
 @skipUnless(TEXTUAL_ENABLED, "Textual support disabled")
-async def test_cache_respects_background_for_transparent_image() -> None:
-    from textual.app import App, ComposeResult
-    from textual.geometry import Region
+async def test_cache_ignores_background_for_fully_opaque_rgba_image() -> None:
+    assert await _count_encodes_on_background_change(PILImage.new("RGBA", (8, 8), (10, 20, 30, 255))) == 1
 
-    from textual_image.widget.sixel import Image, _ImageSixelImpl
 
-    class TestApp(App[None]):
-        CSS = """
-        Image {
-            width: 4;
-            height: 3;
-            background: red;
-        }
-        """
-
-        def compose(self) -> ComposeResult:
-            yield Image(PILImage.new("RGBA", (8, 8), (10, 20, 30, 128)))
-
-    app = TestApp()
-
-    async with app.run_test():
-        sixel_impl = app.query_one(_ImageSixelImpl)
-
-        sixel_impl._cached_sixels = None  # drop whatever the initial render cached
-
-        with patch.object(
-            _ImageSixelImpl, "_image_to_sixels", autospec=True, side_effect=_ImageSixelImpl._image_to_sixels
-        ) as image_to_sixels:
-            sixel_impl.render_lines(Region(0, 0, 4, 3))
-            app.query_one(Image).styles.background = "blue"
-            sixel_impl.render_lines(Region(0, 0, 4, 3))
-
-        assert image_to_sixels.call_count == 2
+@skipUnless(TEXTUAL_ENABLED, "Textual support disabled")
+async def test_cache_respects_background_for_semitransparent_image() -> None:
+    assert await _count_encodes_on_background_change(PILImage.new("RGBA", (8, 8), (10, 20, 30, 128))) == 2

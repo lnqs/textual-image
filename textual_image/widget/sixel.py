@@ -19,7 +19,7 @@ from typing_extensions import override
 
 from textual_image._geometry import ImageSize
 from textual_image._pixeldata import PixelData
-from textual_image._sixel import BackgroundColor, SixelOptions, _has_transparency, image_to_sixels
+from textual_image._sixel import BackgroundColor, SixelOptions, _background_matters, image_to_sixels
 from textual_image._terminal import CellSize, get_cell_size
 from textual_image._utils import StrOrBytesPath
 from textual_image.widget._base import Image as BaseImage
@@ -38,7 +38,7 @@ class _CachedSixels(NamedTuple):
     sixel_options: SixelOptions | None
     background: BackgroundColor
     sixel_data: str
-    # The background only influences the encoded data of images with transparency.
+    # The background only influences the encoded data of images with semi-transparent pixels.
     background_matters: bool
 
     def is_hit(
@@ -225,7 +225,7 @@ class _ImageSixelImpl(Widget, can_focus=False, inherit_css=False):
                 self._sixel_options,
                 background,
                 sixel_data,
-                _has_transparency(image_data.pil_image),
+                _background_matters(image_data.pil_image),
             )
 
         sixel_segments = self._get_sixel_segments(sixel_data)
