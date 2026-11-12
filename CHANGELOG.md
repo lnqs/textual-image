@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.14.4 (2026-11-12)
+
+### Fix
+
+- **sixel**: only key the cache on background for semi-transparent images
+- **sixel**: don't re-encode opaque images when only the background changes
+
 ## v0.14.3 (2026-11-10)
 
 ### Fix
