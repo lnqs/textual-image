@@ -12,12 +12,12 @@ from typing import Iterator, NamedTuple, cast
 
 from ._tmux import maybe_tmux_escape
 
-# pragma: no cover: start -- platform specific, we always will only execute one branch
+# no cover: start -- platform specific, we always will only execute one branch
 if sys.platform == "win32":
     from textual_image._win32 import capture_mode, get_tiocgwinsz, read
 else:
     from textual_image._posix import capture_mode, get_tiocgwinsz, read
-# pragma: no cover: stop
+# no cover: stop
 
 logger = logging.getLogger(__name__)
 
