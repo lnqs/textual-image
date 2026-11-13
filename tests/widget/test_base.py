@@ -84,12 +84,19 @@ async def test_on_error_callback_in_image_setter() -> None:
                 TEST_IMAGE.read_bytes(), on_error=lambda e: Static(str(e))
             )  # in this case we should wrap it with BytesIO
 
+    # The bytes are treated as a file path. The resulting error is OS-specific: "embedded null byte" on POSIX, a
+    # UnicodeDecodeError on Windows (which decodes bytes paths as UTF-8 first).
+    try:
+        PILImage.open(TEST_IMAGE.read_bytes())  # type: ignore[arg-type]
+    except Exception as error:
+        expected = str(error)
+
     app = TestApp()
 
     async with app.run_test():
         widget = app.query_one(Image).children[0]
         assert isinstance(widget, Static)
-        assert widget.content == "embedded null byte"
+        assert widget.content == expected
 
 
 @skipUnless(TEXTUAL_ENABLED, "Textual support disabled")
