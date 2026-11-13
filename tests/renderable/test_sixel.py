@@ -1,3 +1,5 @@
+import sys
+from unittest import skipIf
 from unittest.mock import patch
 
 from rich.console import Console
@@ -8,6 +10,9 @@ from tests.data import CONSOLE_OPTIONS, TEST_IMAGE
 from tests.utils import load_non_seekable_bytes_io, render
 
 
+# Pillow's FASTOCTREE quantizer picks a different palette for this image on Windows than on Linux (same Pillow version,
+# same decoded and resized pixels), so the encoded output can't match a single snapshot on both platforms.
+@skipIf(sys.platform == "win32", "Pillow's FASTOCTREE palette for this image differs on Windows")
 def test_render(snapshot: SnapshotAssertion) -> None:
     from textual_image.renderable.sixel import Image
 
